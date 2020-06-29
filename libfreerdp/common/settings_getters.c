@@ -1004,6 +1004,10 @@ BOOL freerdp_settings_set_bool(WINPR_ATTR_UNUSED rdpSettings* settings,
 			settings->GrabMouse = cnv.c;
 			break;
 
+		case FreeRDP_GrabMouse:
+			settings->GrabMouse = val;
+			break;
+
 		case FreeRDP_HasExtendedMouseEvent:
 			settings->HasExtendedMouseEvent = cnv.c;
 			break;
