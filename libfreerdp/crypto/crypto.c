@@ -62,8 +62,8 @@ static SSIZE_T crypto_rsa_common(const BYTE* input, size_t length, UINT32 key_le
 		return -1;
 
 	bufferSize = 2ULL * key_length + exponent_size;
-	if (length > bufferSize)
-		bufferSize = length;
+	if ((size_t)length > bufferSize)
+		bufferSize = (size_t)length;
 
 	input_reverse = (BYTE*)calloc(bufferSize, 1);
 

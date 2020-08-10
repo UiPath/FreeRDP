@@ -284,7 +284,7 @@ static BOOL rdg_read_http_unicode_string(wLog* log, wStream* s, const WCHAR** st
 
 	/* return the string data (if wanted) */
 	if (string)
-		*string = str;
+		*string = str.w;
 	if (lengthInBytes)
 		*lengthInBytes = strLenBytes;
 
