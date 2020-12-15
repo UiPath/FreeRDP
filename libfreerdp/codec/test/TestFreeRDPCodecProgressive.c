@@ -7,6 +7,7 @@
 #include <winpr/image.h>
 #include <winpr/print.h>
 #include <winpr/wlog.h>
+#include <winpr/image.h>
 #include <winpr/sysinfo.h>
 #include <winpr/file.h>
 

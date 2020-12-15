@@ -2408,7 +2408,7 @@ int progressive_compress(PROGRESSIVE_CONTEXT* WINPR_RESTRICT progressive,
 	RFX_RECT* rects = NULL;
 	RFX_MESSAGE* message = NULL;
 
-	if (!progressive || !pSrcData || !ppDstData || !pDstSize)
+	if (!progressive || !pSrcData || !ppDstData || !pDstSize || !invalidRegion)
 	{
 		return -1;
 	}
