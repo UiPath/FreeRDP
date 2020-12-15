@@ -2586,6 +2586,9 @@ void progressive_context_free(PROGRESSIVE_CONTEXT* progressive)
 {
 	if (!progressive)
 		return;
+	Stream_Free(progressive->buffer, TRUE);
+	Stream_Free(progressive->rects, TRUE);
+	rfx_context_free(progressive->rfx_context);
 
 	Stream_Free(progressive->buffer, TRUE);
 	Stream_Free(progressive->rects, TRUE);
