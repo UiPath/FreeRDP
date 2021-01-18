@@ -258,6 +258,11 @@ static int freerdp_detect_keyboard(DWORD* keyboardLayoutId)
 		freerdp_detect_keyboard_layout_from_cf(keyboardLayoutId);
 #endif
 
+#if defined(__MACOSX__)
+	if (*keyboardLayoutId == 0)
+		freerdp_detect_keyboard_layout_from_cf(keyboardLayoutId);
+#endif
+
 #ifdef WITH_X11
 	if (*keyboardLayoutId == 0)
 		freerdp_detect_keyboard_layout_from_xkb(keyboardLayoutId);

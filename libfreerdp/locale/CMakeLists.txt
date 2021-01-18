@@ -39,6 +39,10 @@ if(WITH_KEYBOARD_LAYOUT_FROM_FILE)
   install(FILES KeyboardLayoutMap.json DESTINATION ${FREERDP_RESOURCE_ROOT})
 endif()
 
+set(${MODULE_PREFIX}_APPLE_SRCS
+	keyboard_apple.c
+	keyboard_apple.h)
+
 if(CMAKE_SYSTEM_NAME MATCHES Solaris)
   set(WITH_SUN true)
 endif()
