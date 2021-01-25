@@ -288,6 +288,7 @@ static BOOL nsc_encode_subsampling(NSC_CONTEXT* WINPR_RESTRICT context)
 
 	for (size_t y = 0; y < tempHeight >> 1; y++)
 	{
+		UINT32 x;
 		BYTE* co_dst = context->priv->PlaneBuffers[1] + y * (tempWidth >> 1);
 		BYTE* cg_dst = context->priv->PlaneBuffers[2] + y * (tempWidth >> 1);
 		const INT8* co_src0 = (INT8*)context->priv->PlaneBuffers[1] + (y << 1) * tempWidth;
