@@ -2263,6 +2263,11 @@ void rdg_free(rdpRdg* rdg)
 		BIO_free_all(rdg->frontBio);
 
 	DeleteCriticalSection(&rdg->writeSection);
+	if (rdg->transferEncoding.isWebsocketTransport)
+	{
+		if (rdg->transferEncoding.context.websocket.responseStreamBuffer != NULL)
+			Stream_Free(rdg->transferEncoding.context.websocket.responseStreamBuffer, TRUE);
+	}
 
 	smartcardCertInfo_Free(rdg->smartcard);
 
