@@ -1078,8 +1078,8 @@ static BOOL test_encode_decode(const char* path)
 	if (rc <= 0)
 		goto fail;
 
-	rc = progressive_decompress(progressiveDec, dstData, dstSize, resultData, ColorFormat,
-	                            image->scanline, 0, 0, &invalidRegion, 0, 0);
+	rc = progressive_decompress_ex(progressiveDec, dstData, dstSize, resultData, ColorFormat,
+	                               image->scanline, 0, 0, &invalidRegion, 0, 0);
 	if (rc < 0)
 		goto fail;
 

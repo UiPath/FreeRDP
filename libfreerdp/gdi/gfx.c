@@ -1000,7 +1000,7 @@ static UINT gdi_SurfaceCommand_Progressive(rdpGdi* gdi, RdpgfxClientContext* con
 
 	if (rc < 0)
 	{
-		WLog_ERR(TAG, "progressive_decompress failure: %" PRId32 "", rc);
+		WLog_ERR(TAG, "progressive_decompress_ex failure: %" PRId32 "", rc);
 		region16_uninit(&invalidRegion);
 		return ERROR_INTERNAL_ERROR;
 	}

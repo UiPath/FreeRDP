@@ -1553,7 +1553,7 @@ static BOOL shadow_client_send_surface_bits(rdpShadowClient* client, BYTE* pSrcD
 		                        nSrcStep, &numMessages, MultifragMaxRequestSize);
 		if (!messages)
 		{
-			WLog_ERR(TAG, "rfx_encode_messages failed");
+			WLog_ERR(TAG, "rfx_encode_messages_ex failed");
 			return FALSE;
 		}
 
