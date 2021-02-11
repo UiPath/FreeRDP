@@ -51,6 +51,9 @@ enum
 #define SC_READY_MULTIPEN_INJECTION_SUPPORTED 0x0001
 
 /* Client Ready Flags */
+#define READY_FLAGS_SHOW_TOUCH_VISUALS 0x00000001          /* Deprecated */
+#define READY_FLAGS_DISABLE_TIMESTAMP_INJECTION 0x00000002 /* Deprecated */
+
 #define CS_READY_FLAGS_SHOW_TOUCH_VISUALS 0x00000001
 #define CS_READY_FLAGS_DISABLE_TIMESTAMP_INJECTION 0x00000002
 #define CS_READY_FLAGS_ENABLE_MULTIPEN_INJECTION 0x00000004
@@ -119,7 +122,7 @@ typedef struct
 /** @brief a frame containing contact points */
 typedef struct
 {
-	UINT16 contactCount;
+	UINT32 contactCount;
 	UINT64 frameOffset;
 	RDPINPUT_CONTACT_DATA* contacts;
 } RDPINPUT_TOUCH_FRAME;

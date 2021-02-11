@@ -412,30 +412,34 @@ static UINT read_cs_ready_message(RdpeiServerContext* context, wStream* s)
 static UINT read_touch_contact_data(RdpeiServerContext* context, wStream* s,
                                     RDPINPUT_CONTACT_DATA* contactData)
 {
+	UINT16 tmp;
 	WINPR_UNUSED(context);
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, 1))
 		return ERROR_INVALID_DATA;
 
 	Stream_Read_UINT8(s, contactData->contactId);
-	if (!rdpei_read_2byte_unsigned(s, &contactData->fieldsPresent) ||
-	    !rdpei_read_4byte_signed(s, &contactData->x) ||
+	if (!rdpei_read_2byte_unsigned(s, &tmp) || !rdpei_read_4byte_signed(s, &contactData->x) ||
 	    !rdpei_read_4byte_signed(s, &contactData->y) ||
 	    !rdpei_read_4byte_unsigned(s, &contactData->contactFlags))
 	{
 		WLog_ERR(TAG, "rdpei_read_ failed!");
 		return ERROR_INTERNAL_ERROR;
 	}
+	contactData->fieldsPresent = tmp;
 
 	if (contactData->fieldsPresent & CONTACT_DATA_CONTACTRECT_PRESENT)
 	{
-		if (!rdpei_read_2byte_signed(s, &contactData->contactRectLeft) ||
-		    !rdpei_read_2byte_signed(s, &contactData->contactRectTop) ||
-		    !rdpei_read_2byte_signed(s, &contactData->contactRectRight) ||
-		    !rdpei_read_2byte_signed(s, &contactData->contactRectBottom))
+		INT16 tmp[4] = { 0 };
+		if (!rdpei_read_2byte_signed(s, &tmp[0]) || !rdpei_read_2byte_signed(s, &tmp[1]) ||
+		    !rdpei_read_2byte_signed(s, &tmp[2]) || !rdpei_read_2byte_signed(s, &tmp[3]))
 		{
 			WLog_ERR(TAG, "rdpei_read_ failed!");
 			return ERROR_INTERNAL_ERROR;
 		}
+		contactData->contactRectLeft = tmp[0];
+		contactData->contactRectTop = tmp[1];
+		contactData->contactRectRight = tmp[2];
+		contactData->contactRectBottom = tmp[3];
 	}
 
 	if ((contactData->fieldsPresent & CONTACT_DATA_ORIENTATION_PRESENT) &&
@@ -511,12 +515,12 @@ static UINT read_touch_frame(RdpeiServerContext* context, wStream* s, RDPINPUT_T
 	RDPINPUT_CONTACT_DATA* contact = NULL;
 	UINT error = 0;
 
-	if (!rdpei_read_2byte_unsigned(s, &frame->contactCount) ||
-	    !rdpei_read_8byte_unsigned(s, &frame->frameOffset))
+	if (!rdpei_read_2byte_unsigned(s, &tmp) || !rdpei_read_8byte_unsigned(s, &frame->frameOffset))
 	{
 		WLog_ERR(TAG, "rdpei_read_ failed!");
 		return ERROR_INTERNAL_ERROR;
 	}
+	frame->contactCount = tmp;
 
 	frame->contacts = contact = calloc(frame->contactCount, sizeof(RDPINPUT_CONTACT_DATA));
 	if (!frame->contacts)
