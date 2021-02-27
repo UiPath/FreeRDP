@@ -208,6 +208,12 @@ static BOOL xf_Pointer_GetCursorForCurrentScale(rdpContext* context, rdpPointer*
 		         cursorIndex, pointer->width, pointer->height, ci.width, ci.height, xscale, yscale);
 		if ((xs > DBL_EPSILON) || (ys > DBL_EPSILON))
 		{
+			if (!(ci.pixels = (XcursorPixel*)_aligned_malloc(size, 16)))
+			{
+				xf_unlock_x11(xfc);
+				return FALSE;
+			}
+
 			if (!freerdp_image_scale((BYTE*)ci.pixels, CursorFormat, 0, 0, 0, ci.width, ci.height,
 			                         (BYTE*)xpointer->cursorPixels, CursorFormat, 0, 0, 0,
 			                         pointer->width, pointer->height))
