@@ -83,6 +83,7 @@ typedef enum
 
 /* Deprecated, here for compatibility */
 #define FD_SHOWPROGRESSUI FD_PROGRESSUI
+#define FD_WRITESTIME FD_WRITETIME
 
 #ifdef __cplusplus
 extern "C"
