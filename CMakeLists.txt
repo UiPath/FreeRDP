@@ -379,7 +379,7 @@ set(FAAD2_FEATURE_DESCRIPTION "FAAD2 AAC audio codec library")
 
 set(FAAC_FEATURE_TYPE "OPTIONAL")
 set(FAAC_FEATURE_PURPOSE "codec")
-set(FAAC_FEATURE_DESCRIPTION "FAAC AAC audio codec library")
+set(FAAC_FEATURE_DESCRIPTION "[experimental] FAAC AAC audio codec library")
 
 set(SOXR_FEATURE_TYPE "OPTIONAL")
 set(SOXR_FEATURE_PURPOSE "codec")
