@@ -219,6 +219,7 @@ extern "C"
 	                                      const char* common_name, const char* subject,
 	                                      const char* issuer, const char* fingerprint, DWORD flags);
 
+#if !defined(DEFINE_NO_DEPRECATED)
 	/** @brief Callback used if user interaction is required to accept
 	 *         a changed certificate.
 	 *

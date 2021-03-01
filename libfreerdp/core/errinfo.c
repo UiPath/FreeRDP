@@ -32,7 +32,9 @@
 		ERRINFO_##_code, "ERRINFO_" #_code, ERRINFO_##_code##_STRING, category \
 	}
 
+#if !defined(DEFINE_NO_DEPRECATED)
 int connectErrorCode;
+#endif
 
 /* Protocol-independent codes */
 

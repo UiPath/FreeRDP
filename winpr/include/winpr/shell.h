@@ -50,6 +50,7 @@ typedef struct
 	WCHAR cFileName[260];
 } FILEDESCRIPTORW;
 
+#if !defined(DEFINE_NO_DEPRECATED)
 /* Legacy definition, some types do not match the windows equivalent. */
 typedef struct
 {
@@ -81,9 +82,11 @@ typedef enum
 } FD_FLAGS;
 #define FD_UNICODE 0x80000000
 
+#if !defined(DEFINE_NO_DEPRECATED)
 /* Deprecated, here for compatibility */
 #define FD_SHOWPROGRESSUI FD_PROGRESSUI
 #define FD_WRITESTIME FD_WRITETIME
+#endif
 
 #ifdef __cplusplus
 extern "C"

@@ -5501,6 +5501,7 @@ static int freerdp_client_settings_parse_command_line_arguments_int(
 	if (!freerdp_settings_set_string(settings, FreeRDP_ProxyPassword, NULL))
 		return -1;
 
+#if !defined(DEFINE_NO_DEPRECATED)
 	if (compatibility)
 	{
 		WLog_WARN(TAG, "Unsupported command line syntax!");
@@ -5508,6 +5509,7 @@ static int freerdp_client_settings_parse_command_line_arguments_int(
 		return -1;
 	}
 	else
+#endif
 	{
 		if (allowUnknown)
 			flags |= COMMAND_LINE_IGN_UNKNOWN_KEYWORD;

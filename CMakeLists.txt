@@ -94,6 +94,10 @@ include(GetGitRevisionDescription)
 include(SetFreeRDPCMakeInstallDir)
 include(Doxygen)
 
+if (DEFINE_NO_DEPRECATED)
+    add_definitions(-DDEFINE_NO_DEPRECATED)
+endif()
+
 # Soname versioning
 set(BUILD_NUMBER 0)
 if($ENV{BUILD_NUMBER})

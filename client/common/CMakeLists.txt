@@ -29,6 +29,12 @@ set(SRCS
     smartcard_cli.c
 )
 
+if(NOT DEFINE_NO_DEPRECATED)
+	list(APPEND ${MODULE_PREFIX}_SRCS
+		compatibility.c
+		compatibility.h)
+endif()
+
 foreach(FREERDP_CHANNELS_CLIENT_SRC ${FREERDP_CHANNELS_CLIENT_SRCS})
   get_filename_component(NINC ${FREERDP_CHANNELS_CLIENT_SRC} PATH)
   include_directories(${NINC})

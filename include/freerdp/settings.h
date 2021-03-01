@@ -246,6 +246,7 @@ extern "C"
 	                                                     UINT32 GatewayEnabled,
 	                                                     UINT32 GatewayBypassLocal);
 
+#if !defined(DEFINE_NO_DEPRECATED)
 	/* DEPRECATED:
 	 * the functions freerdp_get_param_* and freerdp_set_param_* are deprecated.
 	 * use freerdp_settings_get_* and freerdp_settings_set_* as a replacement!
