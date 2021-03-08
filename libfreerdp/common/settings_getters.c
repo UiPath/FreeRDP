@@ -940,6 +940,10 @@ BOOL freerdp_settings_set_bool(WINPR_ATTR_UNUSED rdpSettings* settings,
 			settings->GatewayIgnoreRedirectionPolicy = cnv.c;
 			break;
 
+		case FreeRDP_GatewayHttpUseWebsockets:
+			settings->GatewayHttpUseWebsockets = val;
+			break;
+
 		case FreeRDP_GatewayRpcTransport:
 			settings->GatewayRpcTransport = cnv.c;
 			break;
