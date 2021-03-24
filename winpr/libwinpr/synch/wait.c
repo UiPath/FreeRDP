@@ -76,6 +76,11 @@ static struct timespec ts_from_ns(void)
 #if !defined(WINPR_HAVE_PTHREAD_MUTEX_TIMEDLOCK)
 #include <pthread.h>
 
+/* Drop in replacement for pthread_mutex_timedlock
+ */
+#if !defined(HAVE_PTHREAD_MUTEX_TIMEDLOCK)
+#include <pthread.h>
+
 static long long ts_difftime(const struct timespec* o, const struct timespec* n)
 {
 	long long oldValue = o->tv_sec * 1000000000LL + o->tv_nsec;
