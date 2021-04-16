@@ -340,6 +340,9 @@ git log 3.12.0...3.11.1
 
 A bugfix release addressing two regressions reported against 3.11.0
 
+For a complete and detailed change log since the last release run:
+git log 2.3.2..2.X.Y
+
 Noteworthy changes:
  * Fix a segfault when passing /pth (#11138)
  * Fix a regression in planar codec (#11136)
