@@ -231,7 +231,7 @@ fail:
 	return rc;
 }
 
-int TestSynchMultipleThreads(int argc, char* argv[])
+static BOOL TestWaitForAll(void)
 {
 	WINPR_UNUSED(argc);
 	WINPR_UNUSED(argv);
