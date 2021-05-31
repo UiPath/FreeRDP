@@ -593,7 +593,9 @@ static BOOL saveCal(wLog* log, const rdpSettings* settings, const BYTE* data, si
 		           filepath);
 
 out:
+	free(wFilepathNew);
 	free(filepathNew);
+	free(wFilepath);
 	free(filepath);
 	free(licenseStorePath);
 	return ret;
