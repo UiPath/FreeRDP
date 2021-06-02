@@ -2514,6 +2514,10 @@ BOOL freerdp_settings_set_uint32(WINPR_ATTR_UNUSED rdpSettings* settings,
 			settings->TcpConnectTimeout = cnv.c;
 			break;
 
+		case FreeRDP_TcpConnectTimeout:
+			settings->TcpConnectTimeout = val;
+			break;
+
 		case FreeRDP_TcpKeepAliveDelay:
 			settings->TcpKeepAliveDelay = cnv.c;
 			break;
