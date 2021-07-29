@@ -62,4 +62,7 @@ char* utils_redir_flags_to_string(UINT32 flags, char* buffer, size_t size);
 
 BOOL utils_reload_channels(rdpContext* context);
 
+BOOL utils_str_is_empty(const char* str);
+BOOL utils_str_copy(const char* value, char** dst);
+
 #endif /* FREERDP_LIB_CORE_UTILS_H */

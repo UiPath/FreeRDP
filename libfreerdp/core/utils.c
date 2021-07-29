@@ -504,3 +504,12 @@ BOOL utils_reload_channels(rdpContext* context)
 		return freerdp_channels_pre_connect(context->channels, context->instance) == CHANNEL_RC_OK;
 	return rc;
 }
+
+BOOL utils_str_is_empty(const char* str)
+{
+	if (!str)
+		return TRUE;
+	if (strlen(str) == 0)
+		return TRUE;
+	return FALSE;
+}
