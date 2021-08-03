@@ -34,6 +34,9 @@
 #include <openssl/rc4.h>
 #include <openssl/des.h>
 #include <openssl/evp.h>
+#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
+#include <openssl/provider.h>
+#endif
 #endif
 
 #ifdef WITH_MBEDTLS
