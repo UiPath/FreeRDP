@@ -1392,6 +1392,7 @@ BOOL rdp_client_transition_to_state(rdpRdp* rdp, CONNECTION_STATE state)
 	if (!rdp_set_state(rdp, state))
 		return FALSE;
 
+	WLog_DBG(TAG, "%s %s --> %s", __FUNCTION__, rdp_get_state_string(rdp), rdp_state_string(state));
 	switch (state)
 	{
 		case CONNECTION_STATE_FINALIZATION_SYNC:
