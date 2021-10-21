@@ -24,6 +24,8 @@
 #include <winpr/assert.h>
 #include <winpr/cast.h>
 
+#include <assert.h>
+
 #include <freerdp/utils/pcap.h>
 #include <freerdp/log.h>
 
@@ -98,6 +100,39 @@ static BOOL update_recv_surfcmd_is_rect_valid(const rdpContext* context,
 	WINPR_ASSERT(context);
 	WINPR_ASSERT(context->settings);
 	WINPR_ASSERT(cmd);
+
+	/* We need a rectangle with left/top being smaller than right/bottom.
+	 * Also do not allow empty rectangles. */
+	if ((cmd->destTop >= cmd->destBottom) || (cmd->destLeft >= cmd->destRight))
+	{
+		WLog_WARN(TAG,
+		          "Empty surface bits command rectangle: %" PRIu16 "x%" PRIu16 "-%" PRIu16
+		          "x%" PRIu16,
+		          cmd->destLeft, cmd->destTop, cmd->destRight, cmd->destBottom);
+		return FALSE;
+	}
+
+	/* The rectangle needs to fit into our session size */
+	if ((cmd->destRight > context->settings->DesktopWidth) ||
+	    (cmd->destBottom > context->settings->DesktopHeight))
+	{
+		WLog_WARN(TAG,
+		          "Invalid surface bits command rectangle: %" PRIu16 "x%" PRIu16 "-%" PRIu16
+		          "x%" PRIu16 " does not fit %" PRIu32 "x%" PRIu32,
+		          cmd->destLeft, cmd->destTop, cmd->destRight, cmd->destBottom,
+		          context->settings->DesktopWidth, context->settings->DesktopHeight);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static BOOL update_recv_surfcmd_is_rect_valid(const rdpContext* context,
+                                              const SURFACE_BITS_COMMAND* cmd)
+{
+	assert(context);
+	assert(context->settings);
+	assert(cmd);
 
 	/* We need a rectangle with left/top being smaller than right/bottom.
 	 * Also do not allow empty rectangles. */
