@@ -26,6 +26,11 @@
 #include <CoreFoundation/CFLocale.h>
 #endif
 
+#if defined(__APPLE__)
+#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFLocale.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
