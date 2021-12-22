@@ -430,6 +430,8 @@ LONG RegQueryValueExW(HKEY hKey, LPCWSTR lpValueName, LPDWORD lpReserved, LPDWOR
 
 	WINPR_UNUSED(lpReserved);
 
+	WINPR_UNUSED(lpReserved);
+
 	key = (RegKey*)hKey;
 	WINPR_ASSERT(key);
 
