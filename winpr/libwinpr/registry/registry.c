@@ -318,7 +318,7 @@ LONG RegOpenKeyExA(HKEY hKey, LPCSTR lpSubKey, WINPR_ATTR_UNUSED DWORD ulOptions
 
 	while (pKey != NULL)
 	{
-		WINPR_ASSERT(lpSubKey);
+		assert(lpSubKey);
 
 		if (pKey->subname && (_stricmp(pKey->subname, lpSubKey) == 0))
 		{
