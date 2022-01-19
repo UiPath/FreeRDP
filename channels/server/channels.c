@@ -85,6 +85,12 @@
 
 extern void freerdp_channels_dummy(void);
 
+#if defined(CHANNEL_AINPUT_SERVER)
+#include <freerdp/server/ainput.h>
+#endif
+
+extern void freerdp_channels_dummy(void);
+
 void freerdp_channels_dummy(void)
 {
 #if defined(CHANNEL_AUDIN_SERVER)
