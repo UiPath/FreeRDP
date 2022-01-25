@@ -22,6 +22,8 @@
 #include <winpr/assert.h>
 #include <winpr/sspicli.h>
 
+#define WINPR_ASSERT(x) assert(x)
+
 /**
  * sspicli.dll:
  *
