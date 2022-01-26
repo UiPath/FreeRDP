@@ -90,7 +90,9 @@ static UINT ainput_send_input_event(AInputClientContext* context, UINT64 flags, 
 	BYTE buffer[32] = { 0 };
 	UINT64 time = 0;
 	wStream sbuffer = { 0 };
-	wStream* s = Stream_StaticInit(&sbuffer, buffer, sizeof(buffer));
+	wStream* s = &sbuffer;
+
+	Stream_StaticInit(&sbuffer, buffer, sizeof(buffer));
 
 	WINPR_ASSERT(s);
 	WINPR_ASSERT(context);
