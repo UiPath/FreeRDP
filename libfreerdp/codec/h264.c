@@ -666,6 +666,12 @@ static BOOL CALLBACK h264_register_subsystems(WINPR_ATTR_UNUSED PINIT_ONCE once,
 		i++;
 	}
 #endif
+#if defined(_WIN32) && defined(WITH_MEDIA_FOUNDATION)
+	{
+		subSystems[i] = &g_Subsystem_MF;
+		i++;
+	}
+#endif
 #ifdef WITH_OPENH264
 	{
 		subSystems[i] = &g_Subsystem_OpenH264;
