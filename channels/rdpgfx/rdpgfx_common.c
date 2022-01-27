@@ -26,6 +26,8 @@
 #include <winpr/stream.h>
 #include <freerdp/channels/log.h>
 
+#define WINPR_ASSERT(x) assert(x)
+
 #define TAG CHANNELS_TAG("rdpgfx.common")
 
 #include "rdpgfx_common.h"
