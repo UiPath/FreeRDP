@@ -41,6 +41,8 @@
 #include "rfx_types.h"
 #include "progressive.h"
 
+#define WINPR_ASSERT(x) assert(x)
+
 #define TAG FREERDP_TAG("codec.progressive")
 
 typedef struct
@@ -359,6 +361,36 @@ progressive_allocate_tile_cache(PROGRESSIVE_SURFACE_CONTEXT* WINPR_RESTRICT surf
 
 	surface->updatedTileIndices = tmp;
 
+	return TRUE;
+}
+
+static BOOL progressive_allocate_tile_cache(PROGRESSIVE_SURFACE_CONTEXT* surface)
+{
+	size_t oldIndex;
+
+	WINPR_ASSERT(surface);
+	WINPR_ASSERT(surface->gridSize > 0);
+
+	oldIndex = surface->gridSize;
+	if (surface->tiles)
+		surface->gridSize *= 2;
+
+	{
+		void* tmp = realloc(surface->tiles, surface->gridSize * sizeof(RFX_PROGRESSIVE_TILE));
+		if (!tmp)
+			return FALSE;
+		surface->tiles = tmp;
+		memset(&surface->tiles[oldIndex], 0,
+		       (surface->gridSize - oldIndex) * sizeof(RFX_PROGRESSIVE_TILE));
+	}
+	{
+		void* tmp = realloc(surface->updatedTileIndices, surface->gridSize * sizeof(UINT32));
+		if (!tmp)
+			return FALSE;
+		surface->updatedTileIndices = tmp;
+		memset(&surface->updatedTileIndices[oldIndex], 0,
+		       (surface->gridSize - oldIndex) * sizeof(UINT32));
+	}
 	return TRUE;
 }
 
