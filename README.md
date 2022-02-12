@@ -1,8 +1,6 @@
-# FreeRDP: A Remote Desktop Protocol Implementation
+## UiPath fork of FreeRDP
 
-FreeRDP is a free implementation of the Remote Desktop Protocol (RDP), released under the Apache license.
-Enjoy the freedom of using your software wherever you want, the way you want it, in a world where
-interoperability can finally liberate your computing experience.
+[UiPath/Driver](https://github.com/UiPath/Driver) has this fork as a static library dependency.
 
 ## Code Quality Status
 
