@@ -1,9 +1,8 @@
-# FreeRDP: A Remote Desktop Protocol Implementation
+## UiPath fork of FreeRDP
 
-FreeRDP is a free implementation of the Remote Desktop Protocol (RDP), released under the Apache license.
-Enjoy the freedom of using your software wherever you want, the way you want it, in a world where
-interoperability can finally liberate your computing experience.
+[UiPath/Driver](https://github.com/UiPath/Driver) has this fork as a static library dependency.
 
+<<<<<<< HEAD
 ## Code Quality Status
 
 [![abi-checker](https://github.com/FreeRDP/FreeRDP/actions/workflows/abi-checker.yml/badge.svg)](https://github.com/FreeRDP/FreeRDP/actions/workflows/abi-checker.yml)
@@ -52,3 +51,40 @@ https://github.com/FreeRDP/FreeRDP/wiki/Reference-Documentation
 
 Instructions on how to get started compiling FreeRDP can be found on the wiki:
 https://github.com/FreeRDP/FreeRDP/wiki/Compilation
+=======
+### Build instructions
+
+#### Build OpenSSL (dependency for FreeRDP)
+* Visual Studio 2022 installed in `C:\Program Files` required.  For different VS versions change the path in the build scripts.
+* Install [CMake](https://cmake.org/download).  Make sure the `cmake` command is in PATH.
+* Clone [OpenSSL](https://github.com/openssl/openssl) to `..\openssl`.
+```
+cd ..
+git clone https://github.com/openssl/openssl
+```
+* Checkout tag `OpenSSL_1_0_2u`.
+```
+git checkout OpenSSL_1_0_2u
+```
+* Run x86 build script.  It should generate the build to `..\OpenSSL-VC-32`.
+```
+..\FreeRDP\BuildOpenSSLx86.bat
+```
+* The build system is messy and leaves intermediary x86 build files in the repo directory.  Clean these before building x64.
+```
+git clean -xdff
+```
+* Run x64 build script.  It should generate the build to `..\OpenSSL-VC-64`.
+```
+..\FreeRDP\BuildOpenSSLx64.bat
+```
+
+#### Build FreeRDP.
+* Install [StrawberryPerl](http://strawberryperl.com).  Make sure the `perl` command is in PATH.
+* Use CMake to generate Visual Studio 2022 solutions.  The cmake invocation is in the `BuildFreeRDP*.bat` files.
+```
+.\BuildFreeRDPx86.bat
+.\BuildFreeRDPx64.bat
+```
+* The solutions are generated in `.\Build\x86\` and `.\Build\x64\` directories.  Build these for target Release.
+>>>>>>> 3b537ad78 (Add uipath changes from previous version (2.0.0-rc3))
