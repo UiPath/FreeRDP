@@ -49,6 +49,8 @@
 
 #include "utils.h"
 
+#include "utils.h"
+
 #define TAG FREERDP_TAG("core.connection")
 
 /**
