@@ -41,6 +41,7 @@ static BOOL update_recv_surfcmd_bitmap_header_ex(wStream* s, TS_COMPRESSED_BITMA
 
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, 24))
 		return FALSE;
+	}
 
 	Stream_Read_UINT32(s, header->highUniqueId);
 	Stream_Read_UINT32(s, header->lowUniqueId);
@@ -56,6 +57,7 @@ static BOOL update_recv_surfcmd_bitmap_ex(wStream* s, TS_BITMAP_DATA_EX* bmp)
 
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, 12))
 		return FALSE;
+	}
 
 	Stream_Read_UINT8(s, bmp->bpp);
 	Stream_Read_UINT8(s, bmp->flags);
@@ -167,6 +169,7 @@ static BOOL update_recv_surfcmd_surface_bits(rdpUpdate* update, wStream* s, UINT
 
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, 8))
 		goto fail;
+	}
 
 	cmd.cmdType = cmdType;
 	Stream_Read_UINT16(s, cmd.destLeft);
@@ -200,6 +203,7 @@ static BOOL update_recv_surfcmd_frame_marker(rdpUpdate* update, wStream* s)
 
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, 2))
 		return FALSE;
+	}
 
 	Stream_Read_UINT16(s, marker.frameAction);
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, 4))
