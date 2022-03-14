@@ -793,3 +793,13 @@ int TestNTLM(int argc, char* argv[])
 	}
 	return rc;
 }
+
+int TestNTLM(int argc, char* argv[])
+{
+	WINPR_UNUSED(argc);
+	WINPR_UNUSED(argv);
+
+	if (!test_default())
+		return -1;
+	return 0;
+}

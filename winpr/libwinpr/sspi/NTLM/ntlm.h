@@ -289,6 +289,13 @@ void ntlm_change_state(NTLM_CONTEXT* ntlm, NTLM_STATE state);
 NTLM_STATE ntlm_get_state(NTLM_CONTEXT* ntlm);
 BOOL ntlm_reset_cipher_state(PSecHandle phContext);
 
+char* ntlm_negotiate_flags_string(char* buffer, size_t size, UINT32 flags);
+const char* ntlm_message_type_string(UINT32 messageType);
+
+const char* ntlm_state_string(NTLM_STATE state);
+void ntlm_change_state(NTLM_CONTEXT* ntlm, NTLM_STATE state);
+NTLM_STATE ntlm_get_state(NTLM_CONTEXT* ntlm);
+
 SECURITY_STATUS ntlm_computeProofValue(NTLM_CONTEXT* ntlm, SecBuffer* ntproof);
 SECURITY_STATUS ntlm_computeMicValue(NTLM_CONTEXT* ntlm, SecBuffer* micvalue);
 
