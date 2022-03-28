@@ -585,7 +585,7 @@ SECURITY_STATUS ntlm_write_NegotiateMessage(NTLM_CONTEXT* context, SecBuffer* bu
 
 	*message = empty;
 
-	s = Stream_StaticInit(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
+	s = Stream_StaticInit2(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
 
 	if (!s)
 		return SEC_E_INTERNAL_ERROR;
@@ -837,7 +837,7 @@ SECURITY_STATUS ntlm_write_ChallengeMessage(NTLM_CONTEXT* context, SecBuffer* bu
 
 	*message = empty;
 
-	s = Stream_StaticInit(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
+	s = Stream_StaticInit2(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
 
 	if (!s)
 		return SEC_E_INTERNAL_ERROR;
@@ -1240,7 +1240,7 @@ SECURITY_STATUS ntlm_write_AuthenticateMessage(NTLM_CONTEXT* context, SecBuffer*
 
 	*message = empty;
 
-	s = Stream_StaticInit(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
+	s = Stream_StaticInit2(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
 
 	if (!s)
 		return SEC_E_INTERNAL_ERROR;
