@@ -71,7 +71,6 @@
 
 #include <freerdp/log.h>
 
-#define WINPR_ASSERT(x) assert(x)
 #define TAG CLIENT_TAG("common.cmdline")
 
 static const char str_force[] = "force";

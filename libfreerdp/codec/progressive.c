@@ -41,8 +41,6 @@
 #include "rfx_types.h"
 #include "progressive.h"
 
-#define WINPR_ASSERT(x) assert(x)
-
 #define TAG FREERDP_TAG("codec.progressive")
 
 typedef struct
