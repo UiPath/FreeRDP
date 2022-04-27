@@ -510,7 +510,7 @@ static INIT_ONCE threads_InitOnce = INIT_ONCE_STATIC_INIT;
 static pthread_t mainThreadId;
 static DWORD currentThreadTlsIndex = TLS_OUT_OF_INDEXES;
 
-BOOL initializeThreads(PINIT_ONCE InitOnce, PVOID Parameter, PVOID* Context)
+static BOOL initializeThreads(PINIT_ONCE InitOnce, PVOID Parameter, PVOID* Context)
 {
 	if (!apc_init(&mainThread.apc))
 	{
@@ -527,8 +527,52 @@ BOOL initializeThreads(PINIT_ONCE InitOnce, PVOID Parameter, PVOID* Context)
 		WLog_ERR(TAG, "Major bug, unable to allocate a TLS value for currentThread");
 	}
 
+#if defined(WITH_THREAD_LIST)
+	thread_list = ListDictionary_New(TRUE);
+
+	if (!thread_list)
+	{
+		WLog_ERR(TAG, "Couldn't create global thread list");
+		goto error_thread_list;
+	}
+
+	thread_list->objectKey.fnObjectEquals = thread_compare;
+#endif
+
 out:
 	return TRUE;
+}
+
+static BOOL signal_and_wait_for_ready(WINPR_THREAD* thread)
+{
+	BOOL res = FALSE;
+
+	WINPR_ASSERT(thread);
+
+	if (!mux_condition_bundle_lock(&thread->isRunning))
+		return FALSE;
+
+	if (!signal_thread_ready(thread))
+		goto fail;
+
+	if (!mux_condition_bundle_wait(&thread->isRunning, "threadIsRunning"))
+		goto fail;
+
+#if defined(WITH_THREAD_LIST)
+	if (!ListDictionary_Contains(thread_list, &thread->thread))
+	{
+		WLog_ERR(TAG, "Thread not in thread_list, startup failed!");
+		goto fail;
+	}
+#endif
+
+	res = TRUE;
+
+fail:
+	if (!mux_condition_bundle_unlock(&thread->isRunning))
+		return FALSE;
+
+	return res;
 }
 
 /* Thread launcher function responsible for registering
@@ -1002,7 +1046,7 @@ typedef struct
 	ULONG_PTR completionArg;
 } UserApcItem;
 
-void userAPC(LPVOID arg)
+static void userAPC(LPVOID arg)
 {
 	UserApcItem* userApc = (UserApcItem*)arg;
 
@@ -1015,7 +1059,6 @@ DWORD QueueUserAPC(PAPCFUNC pfnAPC, HANDLE hThread, ULONG_PTR dwData)
 {
 	ULONG Type;
 	WINPR_HANDLE* Object;
-	WINPR_THREAD* thread;
 	WINPR_APC_ITEM* apc;
 	UserApcItem* apcItem;
 
@@ -1028,7 +1071,6 @@ DWORD QueueUserAPC(PAPCFUNC pfnAPC, HANDLE hThread, ULONG_PTR dwData)
 		SetLastError(ERROR_INVALID_PARAMETER);
 		return (DWORD)0;
 	}
-	thread = (WINPR_THREAD*)Object;
 
 	apcItem = calloc(1, sizeof(*apcItem));
 	if (!apcItem)

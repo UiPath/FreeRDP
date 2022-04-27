@@ -32,6 +32,16 @@
 #include "../synch/event.h"
 #include "apc.h"
 
+#ifdef __GNUC__
+#define ALIGN64 __attribute__((aligned(8)))
+#else
+#ifdef _WIN32
+#define ALIGN64 __declspec(align(8))
+#else
+#define ALIGN64
+#endif
+#endif
+
 typedef void* (*pthread_start_routine)(void*);
 typedef struct winpr_APC_item WINPR_APC_ITEM;
 
