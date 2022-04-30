@@ -994,6 +994,8 @@ out_close:
 static UINT rdpsnd_server_stop(RdpsndServerContext* context)
 {
 	UINT error = CHANNEL_RC_OK;
+	if (!context->priv->StopEvent)
+		return error;
 
 	WINPR_ASSERT(context);
 	WINPR_ASSERT(context->priv);
