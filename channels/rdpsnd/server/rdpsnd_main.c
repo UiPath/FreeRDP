@@ -677,6 +677,9 @@ static UINT rdpsnd_server_send_audio_pdu(RdpsndServerContext* context, UINT16 wT
 	WINPR_ASSERT(context);
 	WINPR_ASSERT(context->priv);
 
+	WINPR_ASSERT(context);
+	WINPR_ASSERT(context->priv);
+
 	if (context->selected_client_format >= context->num_client_formats)
 		return ERROR_INTERNAL_ERROR;
 
@@ -994,6 +997,10 @@ out_close:
 static UINT rdpsnd_server_stop(RdpsndServerContext* context)
 {
 	UINT error = CHANNEL_RC_OK;
+
+	WINPR_ASSERT(context);
+	WINPR_ASSERT(context->priv);
+
 	if (!context->priv->StopEvent)
 		return error;
 
