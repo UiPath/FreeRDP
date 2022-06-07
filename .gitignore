@@ -63,13 +63,14 @@ Debug-*
 Release-*
 
 # Windows
-*.vcxproj
-*.vcxproj.*
+[!UiPath.NoGuiFreeRdpClient]\**\*.vcxproj
+[!UiPath.NoGuiFreeRdpClient]\**\*.vcxproj.*
+*.vcxproj.user
 *.vcproj
 *.vcproj.*
 *.aps
 *.sdf
-*.sln
+[!UiPath.NoGuiFreeRdpClient]\**\*.sln
 *.suo
 *.ncb
 *.opensdf
@@ -152,3 +153,5 @@ packaging/deb/freerdp-nightly/freerdp-nightly-dbg
 # VisualStudio Code
 .vscode
 cache/
+/**/.vs
+/**/obj

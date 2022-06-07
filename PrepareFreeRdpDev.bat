@@ -1,0 +1,4 @@
+.\getOpenSsl
+.\buildOpenSsl
+.\buildFreeRDP
+.\buildFreeRdpWrapper
