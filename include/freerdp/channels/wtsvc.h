@@ -90,6 +90,8 @@ extern "C"
 
 	FREERDP_API UINT32 WTSChannelGetIdByHandle(HANDLE hChannelHandle);
 
+	FREERDP_API UINT32 WTSChannelGetIdByHandle(HANDLE hChannelHandle);
+
 #ifdef __cplusplus
 }
 #endif
