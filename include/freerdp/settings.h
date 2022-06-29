@@ -796,6 +796,9 @@ extern "C"
 	WINPR_ATTR_MALLOC(freerdp_settings_free, 1)
 	FREERDP_API rdpSettings* freerdp_settings_deserialize(const char* json, size_t length);
 
+	FREERDP_API char* freerdp_rail_support_flags_to_string(UINT32 flags, char* buffer,
+	                                                       size_t length);
+
 #ifdef __cplusplus
 }
 #endif
