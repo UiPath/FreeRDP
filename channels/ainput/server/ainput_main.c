@@ -30,6 +30,7 @@
 #include <winpr/thread.h>
 #include <winpr/stream.h>
 #include <winpr/sysinfo.h>
+#include <winpr/stream.h>
 
 #include <freerdp/freerdp.h>
 #include <freerdp/channels/ainput.h>
