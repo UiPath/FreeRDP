@@ -210,7 +210,7 @@ static BOOL xf_Pointer_GetCursorForCurrentScale(rdpContext* context, rdpPointer*
 		{
 			xf_unlock_x11(xfc);
 			return FALSE;
-			}
+		}
 
 			if (!freerdp_image_scale((BYTE*)ci.pixels, CursorFormat, 0, 0, 0, ci.width, ci.height,
 			                         (BYTE*)xpointer->cursorPixels, CursorFormat, 0, 0, 0,
@@ -284,7 +284,7 @@ BOOL xf_pointer_update_scale(xfContext* xfc)
 	if (!pointer)
 		return TRUE;
 
-	return xf_Pointer_Set(&xfc->common.context, &xfc->pointer->pointer);
+	return xf_Pointer_Set(&xfc->context, &xfc->pointer->pointer);
 }
 
 static BOOL xf_Pointer_New(rdpContext* context, rdpPointer* pointer)
@@ -321,6 +321,7 @@ static BOOL xf_Pointer_New(rdpContext* context, rdpPointer* pointer)
 		winpr_aligned_free(xpointer->cursorPixels);
 		goto fail;
 	}
+	rc = TRUE;
 
 #endif
 

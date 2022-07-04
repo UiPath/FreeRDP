@@ -818,6 +818,9 @@ static BOOL xf_event_ConfigureNotify(xfContext* xfc, const XConfigureEvent* even
 	WLog_DBG(TAG, "x=%" PRId32 ", y=%" PRId32 ", w=%" PRId32 ", h=%" PRId32, event->x, event->y,
 	         event->width, event->height);
 
+	WLog_DBG(TAG, "%s: x=%" PRId32 ", y=%" PRId32 ", w=%" PRId32 ", h=%" PRId32, __func__, event->x,
+	         event->y, event->width, event->height);
+
 	if (!app)
 	{
 		if (!xfc->window)
