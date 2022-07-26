@@ -1,9 +1,10 @@
 pushd .
-cd %~dp0\..
+set freeRdpScriptsDir=%~dp0
+cd %freeRdpScriptsDir%\..
 
 cd OpenSSL
 git clean -xdff
-cmd /c ..\FreeRDP\BuildOpenSSLx86.bat
+cmd /c %freeRdpScriptsDir%\BuildOpenSSLx86.bat
 git clean -xdff
-cmd /c ..\FreeRDP\BuildOpenSSLx64.bat
+cmd /c %freeRdpScriptsDir%\BuildOpenSSLx64.bat
 popd

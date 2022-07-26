@@ -15,12 +15,26 @@ pool:
   - msbuild
   - visualstudio
 
+parameters:
+- name: listOfScripts
+  type: object
+  default:
+  - getOpenSsl
+  - buildOpenSsl
+  - buildFreeRDP
+  - buildFreeRdpWrapper
+
 steps:
 - task: CmdLine@2
-  name: 'getVersions'
   inputs:
     script: |
       set
-      perl -v
+      
       cmake --version
+      perl -v
       msbuild -version
+- ${{ each value in parameters.listOfScripts }}:
+  - task: BatchScript@1
+    name: ${{ value }}
+    inputs:
+      filename: ${{ value }}
