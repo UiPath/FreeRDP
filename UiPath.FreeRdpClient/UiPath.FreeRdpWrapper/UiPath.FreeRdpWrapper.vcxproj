@@ -104,7 +104,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\..\FreeRDP\include;..\..\..\FreeRDP\winpr\include;..\..\..\FreeRDP\Build\$(PlatformTarget)\winpr\include;..\..\..\FreeRDP\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -113,7 +113,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>comsuppw.lib;comsupp.lib;freerdp2.lib;winpr2.lib;libeay32.lib;ssleay32.lib;Dbghelp.lib;Secur32.lib;ntdsapi.lib;Rpcrt4.lib;Crypt32.lib;ncrypt.lib;Userenv.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\OpenSSL-VC-$(PlatformArchitecture)\lib;..\..\..\FreeRDP\Build\$(PlatformTarget)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\OpenSSL-VC-$(PlatformArchitecture)\lib;..\..\Build\$(PlatformTarget)\$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
@@ -125,7 +125,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\..\FreeRDP\include;..\..\..\FreeRDP\winpr\include;..\..\..\FreeRDP\Build\$(PlatformTarget)\winpr\include;..\..\..\FreeRDP\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -134,7 +134,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>comsuppw.lib;comsupp.lib;freerdp2.lib;winpr2.lib;libeay32.lib;ssleay32.lib;Dbghelp.lib;Secur32.lib;ntdsapi.lib;Rpcrt4.lib;Crypt32.lib;ncrypt.lib;Userenv.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\OpenSSL-VC-$(PlatformArchitecture)\lib;..\..\..\FreeRDP\Build\$(PlatformTarget)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\OpenSSL-VC-$(PlatformArchitecture)\lib;..\..\Build\$(PlatformTarget)\$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
@@ -148,7 +148,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\..\FreeRDP\include;..\..\..\FreeRDP\winpr\include;..\..\..\FreeRDP\Build\$(PlatformTarget)\winpr\include;..\..\..\FreeRDP\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -159,7 +159,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>comsuppw.lib;comsupp.lib;freerdp2.lib;winpr2.lib;libeay32.lib;ssleay32.lib;Dbghelp.lib;Secur32.lib;ntdsapi.lib;Rpcrt4.lib;Crypt32.lib;ncrypt.lib;Userenv.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\OpenSSL-VC-$(PlatformArchitecture)\lib;..\..\..\FreeRDP\Build\$(PlatformTarget)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\OpenSSL-VC-$(PlatformArchitecture)\lib;..\..\Build\$(PlatformTarget)\$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
@@ -173,7 +173,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\..\FreeRDP\include;..\..\..\FreeRDP\winpr\include;..\..\..\FreeRDP\Build\$(PlatformTarget)\winpr\include;..\..\..\FreeRDP\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -184,7 +184,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>comsuppw.lib;comsupp.lib;freerdp2.lib;winpr2.lib;libeay32.lib;ssleay32.lib;Dbghelp.lib;Secur32.lib;ntdsapi.lib;Rpcrt4.lib;Crypt32.lib;ncrypt.lib;Userenv.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\OpenSSL-VC-$(PlatformArchitecture)\lib;..\..\..\FreeRDP\Build\$(PlatformTarget)\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\OpenSSL-VC-$(PlatformArchitecture)\lib;..\..\Build\$(PlatformTarget)\$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
     </Link>
