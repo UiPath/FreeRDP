@@ -1,4 +1,6 @@
 @echo off
+set openSSLTag=OpenSSL_1_0_2u
+
 set freeRdpDir=%~dp0\..\..
 set buildDir=%freeRdpDir%\Build
 set scriptsDir=%~dp0

@@ -1,10 +1,2 @@
-call %~dp0\getvars.bat
-pushd .
-cd %freeRdpDir%\..
-
-cd OpenSSL
-git clean -xdff
-cmd /c %scriptsDir%\BuildOpenSSLx86.bat
-git clean -xdff
-cmd /c %scriptsDir%\BuildOpenSSLx64.bat
-popd
+cmd /c %~dp0\BuildOpenSSLx86.bat
+cmd /c %~dp0\BuildOpenSSLx64.bat

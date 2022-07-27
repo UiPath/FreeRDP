@@ -1,28 +1,13 @@
 name: $(Date:yyyyMMdd)$(Rev:-rr)
 
-
-resources:
-  repositories:
-  - repository: common
-    type: github
-    name: UiPath/AzurePipelinesTemplates
-    ref: refs/tags/uipath.retain.build.1.0.1
-    endpoint: "GitHub connection"
+trigger: 
+  - uipath
 
 pool:
   vmImage: 'windows-2022'
   demands:
   - msbuild
   - visualstudio
-
-parameters:
-- name: listOfScripts
-  type: object
-  default:
-  - getOpenSsl
-  - buildOpenSsl
-  - buildFreeRDP
-  - buildFreeRdpWrapper
 
 steps:
 - task: CmdLine@2
@@ -35,8 +20,45 @@ steps:
       cmake --version
       perl -v
       msbuild -version
-- ${{ each value in parameters.listOfScripts }}:
-  - task: BatchScript@1
-    name: ${{ value }}
-    inputs:
-      filename: .ci\Scripts\${{ value }}
+
+- powershell: .\.ci\Scripts\getOpenSsl
+  displayName: getOpenSsl
+- powershell: .\.ci\Scripts\buildOpenSsl
+  displayName: buildOpenSsl
+- powershell: .\.ci\Scripts\buildFreeRDP
+  displayName: buildFreeRDP
+- powershell: .\.ci\Scripts\buildFreeRdpWrapper
+  displayName: buildFreeRdpWrapper
+
+- powershell: if ((Get-ChildItem -Path Output -Filter *.dll -Recurse -Name | Measure-Object).Count -ne 4) {throw "not all output there"}
+  displayName: Check output
+
+
+- task: PublishPipelineArtifact@1
+  name: publishFreeRDPWrapper
+  inputs:
+    targetPath: 'Output\bin' 
+    artifactName: 'freeRdpWrapper'
+    parallel: true
+
+- task: PublishPipelineArtifact@1
+  name: publishFreeRDPOnly
+  inputs:
+    targetPath: '.' 
+    artifactName: 'freeRdpOnly' 
+    parallel: true
+
+- task: PublishPipelineArtifact@1
+  name: publishOpenSSL32
+  inputs:
+    targetPath: '..\OpenSSL-VC-32' 
+    artifactName: 'openSSL-32' 
+    parallel: true
+
+- task: PublishPipelineArtifact@1
+  name: publishOpenSSL64
+  inputs:
+    targetPath: '..\OpenSSL-VC-64' 
+    artifactName: 'openSSL-64' 
+    parallel: true
+

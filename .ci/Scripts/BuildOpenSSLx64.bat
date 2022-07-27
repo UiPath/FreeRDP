@@ -1,7 +1,11 @@
 call %~dp0\getvars.bat
+cd %freeRdpDir%\..\OpenSSL
+git clean -xdff
+
 set "START_DIR=%CD%"
 call "%vsDir%\VC\Auxiliary\Build\vcvars64.bat"
 cd /D "%START_DIR%"
+
 
 perl Configure VC-WIN64A no-asm --prefix=..\OpenSSL-VC-64
 call ms\do_win64a

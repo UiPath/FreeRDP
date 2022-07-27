@@ -7,5 +7,6 @@ rem checkout openssl
 mkdir OpenSSL
 cd OpenSSL
 git clone https://github.com/openssl/openssl .
-git checkout OpenSSL_1_0_2u
+git branch buildOpenSSl %openSSLTag%
+git checkout buildOpenSSl
 popd
