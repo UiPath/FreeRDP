@@ -26,8 +26,10 @@ parameters:
 
 steps:
 - task: CmdLine@2
+  name: getVersions
   inputs:
     script: |
+      call .ci\Scripts\getVars
       set
       
       cmake --version
@@ -37,4 +39,4 @@ steps:
   - task: BatchScript@1
     name: ${{ value }}
     inputs:
-      filename: ${{ value }}
+      filename: .ci\Scripts\${{ value }}

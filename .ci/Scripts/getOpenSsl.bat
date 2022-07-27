@@ -1,8 +1,9 @@
+call %~dp0\getvars.bat
+
 pushd .
-set freeRdpDir=%~dp0
 cd %freeRdpDir%\..
 
-rem checkout and build openssl libs
+rem checkout openssl
 mkdir OpenSSL
 cd OpenSSL
 git clone https://github.com/openssl/openssl .

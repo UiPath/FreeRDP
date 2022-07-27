@@ -1,3 +1,5 @@
+call %~dp0\getvars.bat
+cd %freeRdpDir%
 cmake . -B"./Build/x86" -G"Visual Studio 17 2022"^
 	-A Win32^
 	-DOPENSSL_ROOT_DIR="../OpenSSL-VC-32"^
