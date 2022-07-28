@@ -1584,6 +1584,14 @@ BOOL freerdp_settings_set_uint16(WINPR_ATTR_UNUSED rdpSettings* settings,
 			settings->TextANSICodePage = cnv.c;
 			break;
 
+		case FreeRDP_TLSMaxVersion:
+			settings->TLSMaxVersion = val;
+			break;
+
+		case FreeRDP_TLSMinVersion:
+			settings->TLSMinVersion = val;
+			break;
+
 		default:
 			WLog_ERR(TAG, "Invalid key index %" PRIuz " [%s|%s]", id,
 			         freerdp_settings_get_name_for_key(id),
