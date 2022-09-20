@@ -47,21 +47,17 @@ namespace FreeRdpClient
 		return S_OK;
 	}
 
-	DWORD SetError(rdpContext* context)
+	DWORD SetError(DWORD rdpError)
 	{
-		if (context)
-		{
-			DWORD rdpError = freerdp_get_last_error(context);
-			const char* rdpErrorString = freerdp_get_last_error_string(rdpError);
+		const char* rdpErrorString = freerdp_get_last_error_string(rdpError);
 
-			DT_ERROR("Connection failed: %x, Message: '%s'", rdpError, rdpErrorString);
+		DT_ERROR("Connection failed: %x, Message: '%s'", rdpError, rdpErrorString);
 
-			WCHAR szMsgBuff[MAX_TRACE_MSG];
-			swprintf_s(szMsgBuff, _countof(szMsgBuff),
-			           L"Rdp connection failed: Message: %S, Last error: %d", rdpErrorString,
-			           rdpError);
-			SetErrorInfo(szMsgBuff);
-		}
+		WCHAR szMsgBuff[MAX_TRACE_MSG];
+		swprintf_s(szMsgBuff, _countof(szMsgBuff),
+			        L"Rdp connection failed: Message: %S, Last error: %d", rdpErrorString,
+			        rdpError);
+		SetErrorInfo(szMsgBuff);
 
 		return ERROR_INTERNAL_ERROR;
 	}
@@ -254,7 +250,7 @@ namespace FreeRdpClient
 	}
 	HRESULT STDAPICALLTYPE RdpLogon(ConnectOptions* rdpOptions, BSTR& releaseEventName)
 	{
-		DT_TRACE(L"Start for user: [%s], domain: [%s], clientNmae: [%s]", rdpOptions->User,
+		DT_TRACE(L"Start for user: [%s], domain: [%s], clientName: [%s]", rdpOptions->User,
 		         rdpOptions->Domain, rdpOptions->ClientName);
 		releaseEventName = NULL;
 		auto instance = CreateFreeRdpInstance();
@@ -265,6 +261,7 @@ namespace FreeRdpClient
 		PrepareRdpContext(context, rdpOptions);
 
 		auto connectResult = freerdp_connect(instance);
+		DWORD rdpError = freerdp_get_last_error(context);
 
 		// secure the password
 		SecureFreeMemory(context->settings->Password);
@@ -285,7 +282,7 @@ namespace FreeRdpClient
 			}
 		}
 
-		DWORD dwError = SetError(context);
+		DWORD dwError = SetError(rdpError);
 
 		freerdp_context_free(instance);
 		freerdp_free(instance);

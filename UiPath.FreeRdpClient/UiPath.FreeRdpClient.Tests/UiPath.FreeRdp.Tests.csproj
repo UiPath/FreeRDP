@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsTestProject>true</IsTestProject>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="NativeMethods.json" />
+		<None Remove="NativeMethods.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="NativeMethods.json" />
+		<AdditionalFiles Include="NativeMethods.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+		<PackageReference Include="MartinCostello.Logging.XUnit" Version="0.3.0" />
+		<PackageReference Include="coverlet.collector" Version="3.1.7-uipath.g2fcf8e4e15" GeneratePathProperty="true">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<ExcludeAssets>build</ExcludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+		<PackageReference Include="Moq" Version="4.16.1" />
+		<PackageReference Include="Nito.Disposables" Version="2.2.1" />
+		<PackageReference Include="Shouldly" Version="4.0.3" />
+		<PackageReference Include="xunit" Version="2.4.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+		<PackageReference Include="NuGet.Frameworks" Version="6.3.0" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.691-beta">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="UiPath.FreeRdpClient" Version="*-*" />
+		<ProjectReference Include="..\UiPath.FreeRdpClient\UiPath.FreeRdpClient.csproj">
+			<ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+		</ProjectReference>
+	</ItemGroup>
+	<PropertyGroup>
+		<RestoreSources>
+			$(CppOutDir);
+		</RestoreSources>
+		<RuntimeIdentifier Condition="'$(Build32Bit)' != 'true'">win7-x64</RuntimeIdentifier>
+		<RuntimeIdentifier Condition="'$(Build32Bit)' == 'true'">win7-x86</RuntimeIdentifier>
+	</PropertyGroup>
+	<Target Name="EnforceRestoreBeforeBuild" BeforeTargets="BeforeBuild" DependsOnTargets="Restore" />
+</Project>

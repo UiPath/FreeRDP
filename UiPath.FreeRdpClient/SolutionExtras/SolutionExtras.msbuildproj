@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.Build.NoTargets">
+  <ItemGroup>
+    <None Include="..\*.*">
+      <Link>SolutionFolderFiles\%(Filename)%(Extension)</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\.ci\**\*.*">
+      <Link>.ci\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+    </None>
+  </ItemGroup>
+</Project>
