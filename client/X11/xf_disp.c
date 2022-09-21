@@ -330,6 +330,23 @@ static void xf_disp_OnWindowStateChange(void* context, const WindowStateChangeEv
 	xf_disp_sendResize(xfDisp, FALSE);
 }
 
+static void xf_disp_OnWindowStateChange(void* context, const WindowStateChangeEventArgs* e)
+{
+	xfContext* xfc;
+	xfDispContext* xfDisp;
+	rdpSettings* settings;
+
+	WINPR_UNUSED(e);
+
+	if (!xf_disp_check_context(context, &xfc, &xfDisp, &settings))
+		return;
+
+	if (!xfDisp->activated || !xfc->fullscreen)
+		return;
+
+	xf_disp_sendResize(xfDisp);
+}
+
 xfDispContext* xf_disp_new(xfContext* xfc)
 {
 	xfDispContext* ret = NULL;
