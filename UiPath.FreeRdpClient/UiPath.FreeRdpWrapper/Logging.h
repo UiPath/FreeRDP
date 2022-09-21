@@ -1,4 +1,3 @@
-#pragma once
 #ifndef FRW_Logging_H
 #define FRW_Logging_H
 #include "pch.h"

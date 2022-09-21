@@ -76,10 +76,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-	  <OutDir>$(CppOutDir)\$(Configuration)\$(PlatformTarget)\</OutDir>
-	  <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
-	  <SourcePath>$(SourcePath)</SourcePath>
-	  <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(CppOutDir)\$(Configuration)\$(PlatformTarget)\</OutDir>
+    <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
+    <SourcePath>$(SourcePath)</SourcePath>
+    <IntDir>$(CppOutDir)\obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -91,6 +91,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>-d2ssa-all- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,6 +113,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>-d2ssa-all- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,6 +137,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>-d2ssa-all- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,6 +163,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>-d2ssa-all- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

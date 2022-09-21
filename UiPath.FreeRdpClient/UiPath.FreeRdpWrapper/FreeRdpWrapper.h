@@ -1,4 +1,3 @@
-#pragma once
 #ifndef FreeRdpWrapper_H
 #define FreeRdpWrapper_H
 #include "pch.h"

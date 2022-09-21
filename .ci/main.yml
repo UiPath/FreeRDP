@@ -30,9 +30,28 @@ steps:
 - powershell: .\.ci\Scripts\buildFreeRdpWrapper
   displayName: buildFreeRdpWrapper
 
-- powershell: if ((Get-ChildItem -Path Output -Filter *.dll -Recurse -Name | Measure-Object).Count -ne 4) {throw "not all output there"}
-  displayName: Check output
+- powershell: .\.ci\Scripts\TestFreeRdpClient.bat
+  displayName: TestFreeRdpClient
 
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+    testResultsFiles: '..\_temp\*.trx' 
+    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+    mergeTestResults: true # Optional
+    failTaskOnFailedTests: true # Optional
+    #testRunTitle: # Optional
+    #buildPlatform: # Optional
+    #buildConfiguration: # Optional
+    #publishRunAttachments: true # Optional
+
+- task: DotNetCoreCLI@2
+  displayName: 'build Session.Tests'
+  inputs:
+    command: 'test'
+    arguments: '--no-build'
+    projects: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj'
 
 - task: PublishPipelineArtifact@1
   name: publishFreeRDPWrapper

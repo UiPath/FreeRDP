@@ -1,15 +1,22 @@
 ﻿<Project Sdk="Microsoft.Build.NoTargets">
 	<Target Name="BuildAllCpp" BeforeTargets="Build">
 		<MSBuild Projects="UiPath.FreeRdpWrapper\UiPath.FreeRdpWrapper.vcxproj"
-				 Properties="Configuration=$(Configuration);Platform=Win32" RebaseOutputs="true" />
+				 BuildInParallel="false"
+				 Properties="Configuration=$(Configuration);Platform=Win32" />
 		<MSBuild Projects="UiPath.FreeRdpWrapper\UiPath.FreeRdpWrapper.vcxproj"
-				 Properties="Configuration=$(Configuration);Platform=x64" RebaseOutputs="true" />
+				 BuildInParallel="false"
+				 Properties="Configuration=$(Configuration);Platform=x64" />
 	</Target>
 	<Target Name="CleanAllCpp" BeforeTargets="Clean">
 		<MSBuild Projects="UiPath.FreeRdpWrapper\UiPath.FreeRdpWrapper.vcxproj"
-				 Properties="Configuration=$(Configuration);Platform=Win32" Targets="Clean" />
+				 Properties="Configuration=$(Configuration);Platform=Win32"
+				 BuildInParallel="false"
+				 Targets="Clean" />
 		<MSBuild Projects="UiPath.FreeRdpWrapper\UiPath.FreeRdpWrapper.vcxproj"
-				 Properties="Configuration=$(Configuration);Platform=x64" Targets="Clean" />
+				 Properties="Configuration=$(Configuration);Platform=x64" 
+				 BuildInParallel="false"
+				 Targets="Clean"  />
+		<Exec Command="RMDIR /S /Q $(CppOutDir)" />
 	</Target>
 	<ItemGroup>
 		<ProjectReference Include="UiPath.FreeRdpWrapper\UiPath.FreeRdpWrapper.vcxproj" />
