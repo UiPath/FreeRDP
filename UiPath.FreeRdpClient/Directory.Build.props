@@ -16,6 +16,7 @@
 		<LangVersion>latest</LangVersion>
 		<SolutionDir>$(MSBuildThisFileDirectory)</SolutionDir>
 		<CppOutDir>$(MSBuildThisFileDirectory)\..\Output\bin</CppOutDir>
+		<NugetsOutDir>$(MSBuildThisFileDirectory)\..\Output\nugets</NugetsOutDir>
 		<IsConfigurationRelease Condition="'$(Configuration)'=='Release'">true</IsConfigurationRelease>
 		<!-- Disable synchronous async methods warning 1998 -->
 		<!-- disable warning for no XML doc for public members 1591-->

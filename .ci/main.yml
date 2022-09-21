@@ -10,27 +10,100 @@ pool:
   - visualstudio
 
 steps:
-- task: CmdLine@2
+- task: NuGetToolInstaller@1
+  displayName: 'Use NuGet'
+
+- task: NuGetAuthenticate@0
+
+- script: |
+    call .ci\Scripts\getVars
+   
+    cmake --version
+    perl -v
+    msbuild -version
+
+    set
   name: getVersions
-  inputs:
-    script: |
-      call .ci\Scripts\getVars
-      set
-      
-      cmake --version
-      perl -v
-      msbuild -version
 
-- powershell: .\.ci\Scripts\getOpenSsl
+- script: .\.ci\Scripts\getOpenSsl
   displayName: getOpenSsl
-- powershell: .\.ci\Scripts\buildOpenSsl
+- script: .\.ci\Scripts\buildOpenSsl
   displayName: buildOpenSsl
-- powershell: .\.ci\Scripts\buildFreeRDP
+- script: .\.ci\Scripts\buildFreeRDP
   displayName: buildFreeRDP
-- powershell: .\.ci\Scripts\buildFreeRdpWrapper
-  displayName: buildFreeRdpWrapper
+#- script: .\.ci\Scripts\buildFreeRdpWrapper
+#  displayName: buildFreeRdpWrapper
 
-- powershell: .\.ci\Scripts\TestFreeRdpClient.bat
+- task: VSBuild@1
+  condition: succeededOrFailed()
+  displayName: msbuild FreeRdpWrapper restore
+  inputs:
+    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
+    #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
+    msbuildArgs: '/t:Restore /p:Configuration=Release'
+    #platform: # Optional
+    configuration: Release
+    #clean: false # Optional
+    #maximumCpuCount: false # Optional
+    restoreNugetPackages: true # Optional
+    #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
+    #logProjectEvents: true # Optional
+    #createLogFile: false # Optional
+    #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
+
+
+- task: VSBuild@1
+  condition: succeededOrFailed()
+  displayName: msbuild FreeRdpWrapper
+  inputs:
+    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient\UiPath.FreeRdpClient.csproj' 
+    #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
+    msbuildArgs: '/t:Build'
+    #platform: # Optional
+    configuration: Release
+    #clean: false # Optional
+    #maximumCpuCount: false # Optional
+    restoreNugetPackages: true # Optional
+    #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
+    #logProjectEvents: true # Optional
+    #createLogFile: false # Optional
+    #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
+
+- task: VSBuild@1
+  condition: succeededOrFailed()
+  displayName: msbuild FreeRdpWrapper tests
+  inputs:
+    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj' 
+    #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
+    msbuildArgs: '/t:Restore'
+    #platform: # Optional
+    configuration: Release
+    #clean: false # Optional
+    #maximumCpuCount: false # Optional
+    restoreNugetPackages: true # Optional
+    #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
+    #logProjectEvents: true # Optional
+    #createLogFile: false # Optional
+    #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
+
+- task: VSBuild@1
+  condition: succeededOrFailed()
+  displayName: msbuild FreeRdpWrapper tests
+  inputs:
+    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj' 
+    #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
+    msbuildArgs: '/t:Build'
+    #platform: # Optional
+    configuration: Release
+    #clean: false # Optional
+    #maximumCpuCount: false # Optional
+    restoreNugetPackages: true # Optional
+    #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
+    #logProjectEvents: true # Optional
+    #createLogFile: false # Optional
+    #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
+
+- script: .\.ci\Scripts\TestFreeRdpClient.bat
   displayName: TestFreeRdpClient
 
 - task: PublishTestResults@2
@@ -47,11 +120,18 @@ steps:
     #publishRunAttachments: true # Optional
 
 - task: DotNetCoreCLI@2
-  displayName: 'build Session.Tests'
+  displayName: 'Test FreeRdpClient'
   inputs:
     command: 'test'
-    arguments: '--no-build'
+    arguments: '--no-build /p:Configuration=Release'
     projects: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj'
+
+- task: NuGetCommand@2
+  displayName: 'NuGet Push to UiPath-Internal'
+  inputs:
+    command: push
+    packagesToPush: 'Output\bin\UiPath.FreeRdpClient.*.nupkg'
+    publishVstsFeed: '5b98d55c-1b14-4a03-893f-7a59746f1246/788028a9-5a01-48ee-b925-3af51ae46294'
 
 - task: PublishPipelineArtifact@1
   name: publishFreeRDPWrapper

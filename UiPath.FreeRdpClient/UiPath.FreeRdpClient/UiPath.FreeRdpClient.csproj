@@ -6,7 +6,7 @@
 		<Description>FreeRdp client for c#</Description>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>
-		<PackageOutputPath>$(CppOutDir)</PackageOutputPath>
+		<PackageOutputPath>$(NugetsOutDir)</PackageOutputPath>
 		<VersionPrefix>22.9.0</VersionPrefix>
 	</PropertyGroup>
 	<ItemGroup>
@@ -30,4 +30,7 @@
 		  <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
 		</ProjectReference>
 	</ItemGroup>
+	<Target Name="RemoveNugetsOnClean" BeforeTargets="Clean">
+		<RemoveDir Directories="$(NugetsOutDir)" ContinueOnError="true" />
+	</Target>
 </Project>

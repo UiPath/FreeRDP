@@ -5,6 +5,7 @@
 		<Nullable>enable</Nullable>
 		<IsTestProject>true</IsTestProject>
 		<IsPackable>false</IsPackable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -20,7 +21,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
 		<PackageReference Include="MartinCostello.Logging.XUnit" Version="0.3.0" />
-		<PackageReference Include="coverlet.collector" Version="3.1.7-uipath.g2fcf8e4e15" GeneratePathProperty="true">
+		<PackageReference Include="coverlet.collector" Version="3.1.2" GeneratePathProperty="true">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<ExcludeAssets>build</ExcludeAssets>
@@ -32,24 +33,24 @@
 		<PackageReference Include="xunit" Version="2.4.1" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
 		<PackageReference Include="NuGet.Frameworks" Version="6.3.0" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.691-beta">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.63-beta">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="33.0.18-preview" />
+		<PackageReference Include="Microsoft.Windows.SDK.Win32Docs" Version="0.1.8-alpha" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="UiPath.FreeRdpClient" Version="*-*" />
+		<PackageReference Condition="Exists('$(NugetsOutDir)')" Include="UiPath.FreeRdpClient" Version="*-*" />
 		<ProjectReference Include="..\UiPath.FreeRdpClient\UiPath.FreeRdpClient.csproj">
 			<ReferenceOutputAssembly>False</ReferenceOutputAssembly>
 		</ProjectReference>
 	</ItemGroup>
 	<PropertyGroup>
-		<RestoreSources>
-			$(CppOutDir);
-		</RestoreSources>
+		<RestoreIgnoreFailedSources>true</RestoreIgnoreFailedSources>
+		<RestoreSources Condition="Exists('$(NugetsOutDir)')">$(NugetsOutDir);https://api.nuget.org/v3/index.json;$(RestoreSources)</RestoreSources>
 		<RuntimeIdentifier Condition="'$(Build32Bit)' != 'true'">win7-x64</RuntimeIdentifier>
 		<RuntimeIdentifier Condition="'$(Build32Bit)' == 'true'">win7-x86</RuntimeIdentifier>
 	</PropertyGroup>
-	<Target Name="EnforceRestoreBeforeBuild" BeforeTargets="BeforeBuild" DependsOnTargets="Restore" />
 </Project>

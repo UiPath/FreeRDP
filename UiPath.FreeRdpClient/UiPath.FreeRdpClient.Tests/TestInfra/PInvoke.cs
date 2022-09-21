@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using Windows.Win32.Foundation;
 
 namespace Windows.Win32;
-internal partial class PInvoke
+internal static partial class PInvoke
 {
     public static Win32Exception GetWin32Exception(int error, string? source = null)
         => new PInvokeException(error, source);

@@ -155,3 +155,4 @@ packaging/deb/freerdp-nightly/freerdp-nightly-dbg
 cache/
 /**/.vs
 /**/obj
+/Output/nugets
