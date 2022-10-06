@@ -1,12 +1,23 @@
-#ifndef FRW_Logging_H
-#define FRW_Logging_H
+#pragma once
+
 #include "pch.h"
 
 namespace Logging
 {
+#define MAX_TRACE_MSG 2048
 #define DT_ERROR(format, ...) Logging::Log(Error, format, __VA_ARGS__)
 #define DT_TRACE(format, ...) Logging::Log(Trace, format, __VA_ARGS__)
-#define MAX_TRACE_MSG 2048
+
+#define CHECK_HRESULT_RET_HR(Stmt)													  \
+	{                                                                                 \
+		HRESULT hrTmp = Stmt;                                                         \
+		if (FAILED(hrTmp))                                                            \
+		{                                                                             \
+			DT_ERROR(L"%S:%d: error: %u [%x]", __FUNCTION__, __LINE__, hrTmp, hrTmp); \
+			return hrTmp;                                                             \
+		}                                                                             \
+	}
+
 
 	enum LogLevel // copy/paste from Microsoft.Extensions.Logging.LogLevel.cs
 	{
@@ -56,8 +67,5 @@ namespace Logging
 	EXTERN_C __declspec(dllexport) HRESULT STDAPICALLTYPE
 	    InitializeLogging(pLogCallback logCallback);
 
-	void Log(LogLevel level, const wchar_t* fmt, ...);
-
-	void Log(LogLevel level, const char* fmt, ...);
+	void Log(LogLevel level, const wchar_t* fmt, ...);	
 }
-#endif

@@ -2,10 +2,10 @@
 #include "FreeRdpWrapper.h"
 #include "Logging.h"
 
-#pragma warning( disable: 4324 4201 4245 )
+#pragma warning(disable : 4324 4201 4245)
 #include <freerdp/freerdp.h>
 #include <freerdp/cache/cache.h>
-#pragma warning( default: 4324 4201 4245 )
+#pragma warning(default : 4324 4201 4245)
 #pragma once
 using namespace Logging;
 using namespace FreeRdpClient;
@@ -21,19 +21,6 @@ namespace FreeRdpClient
 	// constants for RD Service
 	LPCSTR HOST_NAME = "localhost";
 
-	inline void SecureFreeMemory(char*& data)
-	{
-		if (data != nullptr)
-		{
-			if (strlen(data) > 0)
-				::SecureZeroMemory(data, strlen(data));
-
-			free(data);
-
-			data = nullptr;
-		}
-	}
-
 	inline HRESULT SetErrorInfo(LPCWSTR szError)
 	{
 		CComPtr<ICreateErrorInfo> pICEI;
@@ -47,19 +34,17 @@ namespace FreeRdpClient
 		return S_OK;
 	}
 
-	DWORD SetError(DWORD rdpError)
+	void SetLastError(rdpContext* context)
 	{
+		auto rdpError = freerdp_get_last_error(context);
 		const char* rdpErrorString = freerdp_get_last_error_string(rdpError);
 
-		DT_ERROR("Connection failed: %x, Message: '%s'", rdpError, rdpErrorString);
+		DT_ERROR(L"Connection failed: %x, Message: '%s'", rdpError, rdpErrorString);
 
 		WCHAR szMsgBuff[MAX_TRACE_MSG];
 		swprintf_s(szMsgBuff, _countof(szMsgBuff),
-			        L"Rdp connection failed: Message: %S, Last error: %d", rdpErrorString,
-			        rdpError);
-		SetErrorInfo(szMsgBuff);
-
-		return ERROR_INTERNAL_ERROR;
+		           L"Rdp connection failed: Message: %S, Last error: %d", rdpErrorString, rdpError);
+		SetErrorInfo(szMsgBuff);		
 	}
 
 	freerdp* CreateFreeRdpInstance()
@@ -69,14 +54,14 @@ namespace FreeRdpClient
 		instance = freerdp_new();
 		if (instance == NULL)
 		{
-			DT_ERROR("Failed create the rdp instance");
+			DT_ERROR(L"Failed create the rdp instance");
 			return NULL;
 		}
 
 		if (freerdp_context_new(instance) == FALSE)
 		{
 			freerdp_free(instance);
-			DT_ERROR("Failed create the rdp context");
+			DT_ERROR(L"Failed create the rdp context");
 			return NULL;
 		}
 		return instance;
@@ -85,17 +70,14 @@ namespace FreeRdpClient
 	void PrepareRdpContext(rdpContext* context, const ConnectOptions* rdpOptions)
 	{
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convToUTF8;
-
-		context->settings->SoftwareGdi = TRUE;
+		
 		context->settings->ServerHostname = _strdup(HOST_NAME);
 		context->settings->Domain = _strdup(convToUTF8.to_bytes(rdpOptions->Domain).c_str());
 		context->settings->Username = _strdup(convToUTF8.to_bytes(rdpOptions->User).c_str());
 		context->settings->Password = _strdup(convToUTF8.to_bytes(rdpOptions->Pass).c_str());
+		context->settings->ClientHostname = _strdup(convToUTF8.to_bytes(rdpOptions->ClientName).c_str());
 
-		if (rdpOptions->ClientName)
-			context->settings->ClientHostname =
-			    _strdup(convToUTF8.to_bytes(rdpOptions->ClientName).c_str());
-
+		context->settings->SoftwareGdi = TRUE;
 		context->settings->LocalConnection = TRUE;
 		context->settings->ProxyType = PROXY_TYPE_IGNORE;
 
@@ -120,11 +102,11 @@ namespace FreeRdpClient
 
 	DWORD ReleaseAll(instance_data* instanceData)
 	{
-		DT_TRACE("RdpRelease: Start");
+		DT_TRACE(L"RdpRelease: Start");
 
 		if (instanceData == NULL || instanceData->context == NULL)
 		{
-			DT_ERROR("RdpRelease: Invalid context data");
+			DT_ERROR(L"RdpRelease: Invalid context data");
 			return ERROR_INVALID_PARAMETER;
 		}
 
@@ -143,7 +125,7 @@ namespace FreeRdpClient
 
 		free(instanceData);
 
-		DT_TRACE("RdpRelease: Finish");
+		DT_TRACE(L"RdpRelease: Finish");
 		return ERROR_SUCCESS;
 	}
 
@@ -158,7 +140,7 @@ namespace FreeRdpClient
 		if (instanceData == NULL || instanceData->context == NULL ||
 		    instanceData->transportStopEvent == NULL)
 		{
-			DT_ERROR("Invalid freerdp instance data");
+			DT_ERROR(L"Invalid freerdp instance data");
 			return 1;
 		}
 
@@ -175,7 +157,7 @@ namespace FreeRdpClient
 			DWORD nCountTmp = freerdp_get_event_handles(context, &handles[nCount], 64 - nCount);
 			if (nCountTmp == 0)
 			{
-				DT_ERROR("freerdp_get_event_handles failed");
+				DT_ERROR(L"freerdp_get_event_handles failed");
 				break;
 			}
 
@@ -184,7 +166,7 @@ namespace FreeRdpClient
 
 			if (status == WAIT_OBJECT_0)
 			{
-				DT_TRACE("freerdp: transportStopEvent triggered");
+				DT_TRACE(L"freerdp: transportStopEvent triggered");
 				break;
 			}
 
@@ -193,14 +175,14 @@ namespace FreeRdpClient
 				freerdp_check_event_handles(context);
 				if (freerdp_shall_disconnect(context->instance))
 				{
-					DT_TRACE("freerdp_shall_disconnect()");
+					DT_TRACE(L"freerdp_shall_disconnect()");
 					freerdp_set_error_info(context->rdp, ERRINFO_PEER_DISCONNECTED);
 					break;
 				}
 			}
 			else
 			{
-				DT_ERROR("WaitForMultipleObjects returned 0x%08", status);
+				DT_ERROR(L"WaitForMultipleObjects returned 0x%08", status);
 				break;
 			}
 		}
@@ -221,8 +203,7 @@ namespace FreeRdpClient
 		if (existingEvent)
 		{
 			CloseHandle(existingEvent);
-			DT_ERROR(_T("Failed to create freerdp transport stop event, error: alreadyExists: %s"),
-			         eventName);
+			DT_ERROR(L"Failed to create freerdp transport stop event, error: alreadyExists: %s", eventName);
 			free(instanceData);
 			return NULL;
 		}
@@ -230,8 +211,7 @@ namespace FreeRdpClient
 		instanceData->transportStopEvent = CreateEvent(NULL, TRUE, FALSE, eventName);
 		if (!instanceData->transportStopEvent)
 		{
-			DT_ERROR(_T("Failed to create freerdp transport stop event, error: %u"),
-			         GetLastError());
+			DT_ERROR(L"Failed to create freerdp transport stop event, error: %u", GetLastError());
 			free(instanceData);
 			return NULL;
 		}
@@ -239,8 +219,7 @@ namespace FreeRdpClient
 		auto transportThreadHandle = CreateThread(NULL, 0, transport_thread, instanceData, 0, NULL);
 		if (!transportThreadHandle)
 		{
-			DT_ERROR(_T("Failed to create freerdp transport client thread, error: %u"),
-			         GetLastError());
+			DT_ERROR(L"Failed to create freerdp transport client thread, error: %u", GetLastError());
 			CloseHandle(instanceData->transportStopEvent);
 			free(instanceData);
 			return NULL;
@@ -248,6 +227,7 @@ namespace FreeRdpClient
 		CloseHandle(transportThreadHandle);
 		return instanceData;
 	}
+
 	HRESULT STDAPICALLTYPE RdpLogon(ConnectOptions* rdpOptions, BSTR& releaseEventName)
 	{
 		DT_TRACE(L"Start for user: [%s], domain: [%s], clientName: [%s]", rdpOptions->User,
@@ -255,48 +235,43 @@ namespace FreeRdpClient
 		releaseEventName = NULL;
 		auto instance = CreateFreeRdpInstance();
 		if (!instance)
-			return ERROR_INTERNAL_ERROR;
+			return E_OUTOFMEMORY;
 
 		rdpContext* context = instance->context;
 		PrepareRdpContext(context, rdpOptions);
 
 		auto connectResult = freerdp_connect(instance);
-		DWORD rdpError = freerdp_get_last_error(context);
-
-		// secure the password
-		SecureFreeMemory(context->settings->Password);
-
 		if (connectResult)
 		{
-			auto eventName = "Global\\" + (_bstr_t)(rdpOptions->ClientName);
+			auto eventName = L"Global\\" + (_bstr_t)(rdpOptions->ClientName);
 			auto lpData = transport_start(context, eventName);
 			if (lpData)
 			{
-				releaseEventName = ::SysAllocString(eventName);
-				DT_TRACE("Connection succeeded");
-				return ERROR_SUCCESS;
+				releaseEventName = eventName.Detach();
+				DT_TRACE(L"Connection succeeded");
+				return S_OK;
 			}
 			else
 			{
-				DT_ERROR("Failed start the freerdp transport thread");
+				DT_ERROR(L"Failed start the freerdp transport thread");
 			}
 		}
 
-		DWORD dwError = SetError(rdpError);
+		SetLastError(context);
 
 		freerdp_context_free(instance);
 		freerdp_free(instance);
 
-		return dwError;
+		return E_FAIL;
 	}
 
-	HRESULT STDAPICALLTYPE RdpRelease(LPCWSTR releaseEventName)
+	HRESULT STDAPICALLTYPE RdpRelease(BSTR releaseEventName)
 	{
-		DT_TRACE("RdpRelease");
+		DT_TRACE(L"RdpRelease");
 		auto eventHandle = OpenEvent(EVENT_MODIFY_STATE, false, releaseEventName);
-
 		if (!eventHandle)
-			return ERROR_SUCCESS;
+			return S_OK;
+
 		if (!SetEvent(eventHandle))
 		{
 			auto lastError = GetLastError();
@@ -305,6 +280,6 @@ namespace FreeRdpClient
 		}
 
 		CloseHandle(eventHandle);
-		return ERROR_SUCCESS;
+		return S_OK;
 	}
 }

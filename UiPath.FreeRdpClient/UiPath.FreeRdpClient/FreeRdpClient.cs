@@ -2,10 +2,8 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Nito.Disposables;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 
@@ -20,40 +18,32 @@ public static class FreeRdpClient
         public int Height;
         public int Depth;
         public bool FontSmoothing;
+        [MarshalAs(UnmanagedType.BStr)]
         public string User;
+        [MarshalAs(UnmanagedType.BStr)]
         public string Domain;
+        [MarshalAs(UnmanagedType.BStr)]
         public string Password;
+        [MarshalAs(UnmanagedType.BStr)]
         public string ClientName;
     }
 
     const string FreeRdpClientDll = "UiPath.FreeRdpWrapper.dll";
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
     private delegate void LogCallback([MarshalAs(UnmanagedType.I4)] LogLevel logLevel, [MarshalAs(UnmanagedType.LPWStr)] string message);
 
     private static LogCallback LogCallbackDelegate = Log;
     private static ILogger? Logger { get; set; }
 
-    //private static IntPtr DllHandle { get; }
-    //static FreeRdpClient()
-    //{
-    //    var dllPath = "Rdp\\x";
-    //    dllPath += Environment.Is64BitProcess ? "64" : "86";
-
-    //    DllHandle = LoadLibrary(dllPath + "\\" + FreeRdpClientDll);
-    //}
-
-    [DllImport("kernel32.dll")]
-    private static extern IntPtr LoadLibrary(string dllToLoad);
-
-    [DllImport(FreeRdpClientDll, CharSet = CharSet.Unicode)]
+    [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
     private extern static uint InitializeLogging([MarshalAs(UnmanagedType.FunctionPtr)] LogCallback logCallback);
 
-    [DllImport(FreeRdpClientDll, CharSet = CharSet.Unicode)]
-    private extern static uint RdpLogon(ref ConnectOptions rdpOptions, [MarshalAs(UnmanagedType.BStr)] out string releaseObjectName);
+    [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
+    private extern static uint RdpLogon([In] ConnectOptions rdpOptions,  [MarshalAs(UnmanagedType.BStr)]out string releaseObjectName);
 
-    [DllImport(FreeRdpClientDll, CharSet = CharSet.Unicode)]
-    private extern static uint RdpRelease([MarshalAs(UnmanagedType.LPWStr)] string releaseObjectName);
+    [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
+    private extern static uint RdpRelease(string releaseObjectName);
 
     public static async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
@@ -71,7 +61,7 @@ public static class FreeRdpClient
 
         return await Task.Run(() =>
         {
-            ThrowOnFail(RdpLogon(ref connectOptions, out var releaseObjectName));
+            RdpLogon(connectOptions, out var releaseObjectName);
             return new AsyncDisposable(() => { Disconnect(releaseObjectName); return ValueTask.CompletedTask; });
         });
     }
@@ -82,36 +72,17 @@ public static class FreeRdpClient
     public static void SetupLogging(ILogger? logger)
     {
         Logger = logger;
-        ThrowOnFail(InitializeLogging(LogCallbackDelegate));
+        InitializeLogging(LogCallbackDelegate);
     }
 
     private static void Disconnect(string releaseObjectName)
     {
         if (releaseObjectName != default)
-            ThrowOnFail(RdpRelease(releaseObjectName));
-    }
-
-    private static void ThrowOnFail(uint pinvokeResult, Action? cleanUp = null, [CallerMemberName] string? method = null, [CallerArgumentExpression("pinvokeResult")] string? expression = null)
-    {
-        if (pinvokeResult == 0)
-        {
-            return;
-        }
-
-        var error = (int)pinvokeResult;
-        try
-        {
-            cleanUp?.Invoke();
-        }
-        finally
-        {
-            var source = $"{method}:{expression}";
-            throw new Win32Exception(error);
-        }
+            RdpRelease(releaseObjectName);
     }
 
     public static IServiceCollection AddFreeRdp(this IServiceCollection services)
-    => services.AddHostedService<FreeRdpInitilizer>();
+        => services.AddHostedService<FreeRdpInitilizer>();
 
     private class FreeRdpInitilizer : IHostedService
     {
@@ -138,7 +109,6 @@ public static class FreeRdpClient
 
 public class RdpConnectionSettings
 {
-
     public string Username { get; init; }
     public string Domain { get; init; }
     public string Password { get; init; }

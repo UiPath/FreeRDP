@@ -8,7 +8,7 @@ namespace Logging
 	HRESULT STDAPICALLTYPE InitializeLogging(pLogCallback logCallback)
 	{
 		_logCallback = logCallback;
-		return ERROR_SUCCESS;
+		return S_OK;
 	}
 
 	void Log(LogLevel level, const wchar_t* fmt, ...)
@@ -21,18 +21,5 @@ namespace Logging
 		vswprintf(buffer, _countof(buffer), fmt, args);
 		_logCallback(level, buffer);
 		va_end(args);
-	}
-
-	void Log(LogLevel level, const char* fmt, ...)
-	{
-		if (!_logCallback)
-			return;
-		va_list args;
-		va_start(args, fmt);
-		char buffer[MAX_TRACE_MSG];
-		vsprintf_s(buffer, _countof(buffer), fmt, args);
-		_bstr_t asWString = buffer;
-		_logCallback(level, asWString);
-		va_end(args);
-	}
+	}	
 }
