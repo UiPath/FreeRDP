@@ -363,6 +363,9 @@ static INLINE BOOL zgfx_decompress_segment(ZGFX_CONTEXT* WINPR_RESTRICT zgfx,
 						else if (zgfx->pbInputCurrent + count > zgfx->pbInputEnd)
 							return FALSE;
 
+						if (count > zgfx->cBitsRemaining / 8)
+							return FALSE;
+
 						CopyMemory(&(zgfx->OutputBuffer[zgfx->OutputCount]), zgfx->pbInputCurrent,
 						           count);
 						zgfx_history_buffer_ring_write(zgfx, zgfx->pbInputCurrent, count);
