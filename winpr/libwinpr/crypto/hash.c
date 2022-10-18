@@ -62,6 +62,7 @@
 
 #if defined(WITH_INTERNAL_MD5)
 #include "md5.h"
+#include "hmac_md5.h"
 #endif
 
 /**
