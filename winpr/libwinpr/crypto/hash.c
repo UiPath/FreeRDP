@@ -56,6 +56,10 @@
 #include "../log.h"
 #define TAG WINPR_TAG("crypto.hash")
 
+#if defined(WITH_INTERNAL_MD4)
+#include "md4.h"
+#endif
+
 /**
  * HMAC
  */
