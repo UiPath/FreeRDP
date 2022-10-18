@@ -60,6 +60,10 @@
 #include "md4.h"
 #endif
 
+#if defined(WITH_INTERNAL_MD5)
+#include "md5.h"
+#endif
+
 /**
  * HMAC
  */

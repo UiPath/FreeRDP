@@ -228,5 +228,6 @@
 #cmakedefine HAVE_AF_VSOCK_H
 
 #cmakedefine WITH_INTERNAL_MD4
+#cmakedefine WITH_INTERNAL_MD5
 
 #endif /* FREERDP_CONFIG_H */
