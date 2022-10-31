@@ -16,14 +16,24 @@
 		<PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="$(CppOutDir)\$(Configuration)\**\UiPath.FreeRdpWrapper.dll"
+		<!--<None Include="$(CppOutDir)\$(Configuration)\**\UiPath.FreeRdpWrapper.dll"
 			  Pack="True" PackagePath="runtimes\win-%(RecursiveDir)native\%(Filename)%(Extension)" >
 			<Link>runtimes\win-%(RecursiveDir)native\%(Filename)%(Extension)</Link>
 		</None>
 		<None Include="$(CppOutDir)\$(Configuration)\**\UiPath.FreeRdpWrapper.pdb"
 			  Pack="True" PackagePath="runtimes\win-%(RecursiveDir)native\%(Filename)%(Extension)">
 			<Link>runtimes\win-%(RecursiveDir)native\%(Filename)%(Extension)</Link>
-		</None>
+		</None>-->
+		<Content Include="$(CppOutDir)\$(Configuration)\x64\UiPath.FreeRdpWrapper.dll"
+				 Pack="True" PackagePath="runtimes\win\native\%(Filename)%(Extension)" >
+			<Link>runtimes\win\native\%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="$(CppOutDir)\$(Configuration)\x64\UiPath.FreeRdpWrapper.pdb"
+				 Pack="True" PackagePath="runtimes\win\native\%(Filename)%(Extension)" >
+			<Link>runtimes\win\native\%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\BuildCpp.msbuildproj">

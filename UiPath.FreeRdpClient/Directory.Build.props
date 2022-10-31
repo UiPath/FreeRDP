@@ -12,7 +12,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net6.0-windows</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<SolutionDir>$(MSBuildThisFileDirectory)</SolutionDir>
 		<CppOutDir>$(MSBuildThisFileDirectory)\..\Output\bin</CppOutDir>
