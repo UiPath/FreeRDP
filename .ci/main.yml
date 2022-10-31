@@ -40,13 +40,13 @@ steps:
   inputs:
     solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
     #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
-    msbuildArgs: '/t:Restore /p:Configuration=Release'
+    msbuildArgs: '/t:restore'
     #platform: # Optional
     configuration: Release
     #clean: false # Optional
     #maximumCpuCount: false # Optional
     restoreNugetPackages: true # Optional
-    #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
+    msbuildArchitecture: 'x64' # Optional. Options: x86, x64
     #logProjectEvents: true # Optional
     #createLogFile: false # Optional
     #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
@@ -54,54 +54,21 @@ steps:
 
 - task: VSBuild@1
   condition: succeededOrFailed()
-  displayName: msbuild FreeRdpWrapper
+  displayName: msbuild FreeRdpWrapper build
   inputs:
-    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient\UiPath.FreeRdpClient.csproj' 
+    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
     #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
-    msbuildArgs: '/t:Build'
+    #msbuildArgs: '/p:Configuration=Release /p:Platform=x64'
     #platform: # Optional
     configuration: Release
     #clean: false # Optional
     #maximumCpuCount: false # Optional
     restoreNugetPackages: true # Optional
-    #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
+    msbuildArchitecture: 'x64' # Optional. Options: x86, x64
     #logProjectEvents: true # Optional
     #createLogFile: false # Optional
     #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
 
-- task: VSBuild@1
-  condition: succeededOrFailed()
-  displayName: msbuild FreeRdpWrapper tests
-  inputs:
-    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj' 
-    #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
-    msbuildArgs: '/t:Restore'
-    #platform: # Optional
-    configuration: Release
-    #clean: false # Optional
-    #maximumCpuCount: false # Optional
-    restoreNugetPackages: true # Optional
-    #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
-    #logProjectEvents: true # Optional
-    #createLogFile: false # Optional
-    #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
-
-- task: VSBuild@1
-  condition: succeededOrFailed()
-  displayName: msbuild FreeRdpWrapper tests
-  inputs:
-    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj' 
-    #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
-    msbuildArgs: '/t:Build'
-    #platform: # Optional
-    configuration: Release
-    #clean: false # Optional
-    #maximumCpuCount: false # Optional
-    restoreNugetPackages: true # Optional
-    #msbuildArchitecture: 'x86' # Optional. Options: x86, x64
-    #logProjectEvents: true # Optional
-    #createLogFile: false # Optional
-    #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
 
 - script: .\.ci\Scripts\TestFreeRdpClient.bat
   displayName: TestFreeRdpClient
@@ -121,6 +88,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: 'Test FreeRdpClient'
+  condition: succeededOrFailed()
   inputs:
     command: 'test'
     arguments: '--no-build /p:Configuration=Release'
