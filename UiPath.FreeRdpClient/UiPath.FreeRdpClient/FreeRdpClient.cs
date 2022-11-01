@@ -26,6 +26,8 @@ public static class FreeRdpClient
         public string Password;
         [MarshalAs(UnmanagedType.BStr)]
         public string ClientName;
+        [MarshalAs(UnmanagedType.BStr)]
+        public string HostName;
     }
 
     const string FreeRdpClientDll = "UiPath.FreeRdpWrapper.dll";
@@ -56,7 +58,8 @@ public static class FreeRdpClient
             User = connectionSettings.Username,
             Domain = connectionSettings.Domain,
             Password = connectionSettings.Password,
-            ClientName = connectionSettings.ClientName
+            ClientName = connectionSettings.ClientName,
+            HostName = connectionSettings.HostName
         };
 
         return await Task.Run(() =>
@@ -121,7 +124,7 @@ public class RdpConnectionSettings
     }
 
     private static volatile int ConnectionId = 0;
-    private static readonly string ClientNameBase = "NG_" + Process.GetCurrentProcess().Id % 1e7 + "_";
+    private static readonly string ClientNameBase = "RDP_" + Process.GetCurrentProcess().Id % 1e6 + "_";
 
     public int DesktopWidth { get; set; } = 1024;
 
@@ -132,4 +135,5 @@ public class RdpConnectionSettings
     [MaxLength(15, ErrorMessage = "Sometimes :) Windows returns only first 15 chars for a session ClientName")]
     public string ClientName { get; set; } = ClientNameBase + Interlocked.Increment(ref ConnectionId) % 1e4;
     public bool FontSmoothing { get; set; }
+    public string HostName { get; set; } = "localhost";
 }

@@ -18,9 +18,6 @@ namespace FreeRdpClient
 		HANDLE transportStopEvent;
 	};
 
-	// constants for RD Service
-	LPCSTR HOST_NAME = "localhost";
-
 	inline HRESULT SetErrorInfo(LPCWSTR szError)
 	{
 		CComPtr<ICreateErrorInfo> pICEI;
@@ -71,7 +68,8 @@ namespace FreeRdpClient
 	{
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convToUTF8;
 		
-		context->settings->ServerHostname = _strdup(HOST_NAME);
+		context->settings->ServerHostname =
+		    _strdup(convToUTF8.to_bytes(rdpOptions->HostName).c_str());
 		context->settings->Domain = _strdup(convToUTF8.to_bytes(rdpOptions->Domain).c_str());
 		context->settings->Username = _strdup(convToUTF8.to_bytes(rdpOptions->User).c_str());
 		context->settings->Password = _strdup(convToUTF8.to_bytes(rdpOptions->Pass).c_str());
@@ -276,7 +274,7 @@ namespace FreeRdpClient
 		{
 			auto lastError = GetLastError();
 			CloseHandle(eventHandle);
-			return lastError;
+			return HRESULT_FROM_WIN32(lastError);
 		}
 
 		CloseHandle(eventHandle);

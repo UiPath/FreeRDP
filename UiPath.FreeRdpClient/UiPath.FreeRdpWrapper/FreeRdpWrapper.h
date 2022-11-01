@@ -14,6 +14,7 @@ namespace FreeRdpClient
 		BSTR Domain;
 		BSTR Pass;
 		BSTR ClientName;
+		BSTR HostName;
 	} ConnectOptions;
 
 	EXTERN_C __declspec(dllexport) HRESULT STDAPICALLTYPE
