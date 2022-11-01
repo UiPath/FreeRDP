@@ -45,7 +45,7 @@ steps:
     platform: 'x64'
     configuration: 'Release'
     msbuildArchitecture: 'x64'
-    msbuildArguments: '/p:VersionSuffix=$(Build.BuildId)'
+    msbuildArguments: '/p:VersionSuffix=$(Date:yyyyMMdd)$(Rev:-rr)'
 
 - task: DotNetCoreCLI@2
   displayName: 'Test FreeRdpClient'
