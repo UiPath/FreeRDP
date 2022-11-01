@@ -38,21 +38,19 @@ steps:
     restoreSolution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln'
 
 - task: MSBuild@1
-  condition: succeededOrFailed()
   displayName: msbuild FreeRdpWrapper build
   inputs:
     solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
     platform: 'x64'
     configuration: 'Release'
     msbuildArchitecture: 'x64'
-    msbuildArguments: '/p:VersionSuffix=$(Date:yyyyMMdd)$(Rev:-rr)'
+    msbuildArguments: "/p:VersionSuffix=$(Build.BuildNumber)"
 
 - task: DotNetCoreCLI@2
   displayName: 'Test FreeRdpClient'
-  condition: succeededOrFailed()
   inputs:
     command: 'test'
-    arguments: '--no-build /p:Configuration=Release'
+    arguments: '--no-build /p:Configuration=Release /p:Platform=x64'
     projects: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj'
 
 - task: NuGetCommand@2

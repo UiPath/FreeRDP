@@ -6,7 +6,6 @@
 		<IsTestProject>true</IsTestProject>
 		<IsPackable>false</IsPackable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<!--<UseNugetRef>true</UseNugetRef>-->
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -48,20 +47,23 @@
 		<PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="33.0.18-preview" />
 		<PackageReference Include="Microsoft.Windows.SDK.Win32Docs" Version="0.1.8-alpha" />
 	</ItemGroup>
-
-	<ItemGroup Condition="'$(UseNugetRef)' == 'true'">
-		<PackageReference Condition="Exists('$(NugetsOutDir)')" Include="UiPath.FreeRdpClient" Version="*-*" />
-		<ProjectReference Include="..\UiPath.FreeRdpClient\UiPath.FreeRdpClient.csproj">
-			<ReferenceOutputAssembly>False</ReferenceOutputAssembly>
-		</ProjectReference>
-	</ItemGroup>
-	<ItemGroup Condition="'$(UseNugetRef)' != 'true'">
+	<ItemGroup>
 		<ProjectReference Include="..\UiPath.FreeRdpClient\UiPath.FreeRdpClient.csproj" />
 	</ItemGroup>
-	<PropertyGroup>
-		<RestoreIgnoreFailedSources>true</RestoreIgnoreFailedSources>
-		<RestoreSources Condition="Exists('$(NugetsOutDir)')">$(NugetsOutDir);https://api.nuget.org/v3/index.json;$(RestoreSources)</RestoreSources>
-		<RuntimeIdentifier Condition="'$(Build32Bit)' != 'true'">win7-x64</RuntimeIdentifier>
-		<RuntimeIdentifier Condition="'$(Build32Bit)' == 'true'">win7-x86</RuntimeIdentifier>
-	</PropertyGroup>
+
+	<Choose>
+		<When Condition="'UseNugetRef'=='!UseNugetRef'">
+			<PropertyGroup>
+				<RestoreIgnoreFailedSources>true</RestoreIgnoreFailedSources>
+				<RestoreSources Condition="Exists('$(NugetsOutDir)')">$(NugetsOutDir);https://api.nuget.org/v3/index.json;$(RestoreSources)</RestoreSources>
+			</PropertyGroup>
+			<ItemGroup>
+				<PackageReference Condition="Exists('$(NugetsOutDir)')" Include="UiPath.FreeRdpClient" Version="*-*" />
+				<ProjectReference Update="..\UiPath.FreeRdpClient\UiPath.FreeRdpClient.csproj">
+					<ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+				</ProjectReference>
+			</ItemGroup>
+		</When>
+		<Otherwise></Otherwise>
+	</Choose>
 </Project>
