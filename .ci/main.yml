@@ -34,40 +34,19 @@ steps:
 #- script: .\.ci\Scripts\buildFreeRdpWrapper
 #  displayName: buildFreeRdpWrapper
 
-- task: VSBuild@1
-  condition: succeededOrFailed()
-  displayName: msbuild FreeRdpWrapper restore
+- task: NuGetCommand@2
   inputs:
-    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
-    #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
-    msbuildArgs: '/t:restore'
-    #platform: # Optional
-    configuration: Release
-    #clean: false # Optional
-    #maximumCpuCount: false # Optional
-    restoreNugetPackages: true # Optional
-    msbuildArchitecture: 'x64' # Optional. Options: x86, x64
-    #logProjectEvents: true # Optional
-    #createLogFile: false # Optional
-    #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
+    command: 'restore'
+    restoreSolution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln'
 
-
-- task: VSBuild@1
+- task: MSBuild@1
   condition: succeededOrFailed()
   displayName: msbuild FreeRdpWrapper build
   inputs:
     solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
-    #vsVersion: 'latest' # Optional. Options: latest, 16.0, 15.0, 14.0, 12.0, 11.0
-    #msbuildArgs: '/p:Configuration=Release /p:Platform=x64'
-    #platform: # Optional
-    configuration: Release
-    #clean: false # Optional
-    #maximumCpuCount: false # Optional
-    restoreNugetPackages: true # Optional
-    msbuildArchitecture: 'x64' # Optional. Options: x86, x64
-    #logProjectEvents: true # Optional
-    #createLogFile: false # Optional
-    #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
+    platform: 'x64'
+    configuration: 'Release'
+    msbuildArchitecture: 'x64'
 
 
 #- script: .\.ci\Scripts\TestFreeRdpClient.bat
