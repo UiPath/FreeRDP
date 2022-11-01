@@ -29,4 +29,4 @@ winget install -e --id StrawberryPerl.StrawberryPerl
 ### Work on the FreeRdpClient
 * Open [UiPath.FreeRdpClient/UiPath.FreeRdpClient.sln](file://UiPath.FreeRdpClient/UiPath.FreeRdpClient.sln)
 * To test with a nugetRef instead of projectRef edit the [UiPath.FreeRdp.Tests.csproj](file://UiPath.FreeRdpClient/UiPath.FreeRdpClient.Tests/UiPath.FreeRdp.Tests.csproj)
-search for: `<When Condition="'UseNugetRef'=='!UseNugetRef'">`
+search for: `<When Condition="'$(UseNugetRef)'!=''">`

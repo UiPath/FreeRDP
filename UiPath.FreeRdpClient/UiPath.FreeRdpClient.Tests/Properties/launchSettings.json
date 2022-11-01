@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "UiPath.FreeRdp.Tests": {
-      "commandName": "Project",
-      "nativeDebugging": true
-    }
-  }
-}
