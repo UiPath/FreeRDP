@@ -70,21 +70,21 @@ steps:
     #logFileVerbosity: 'normal' # Optional. Options: quiet, minimal, normal, detailed, diagnostic
 
 
-- script: .\.ci\Scripts\TestFreeRdpClient.bat
-  displayName: TestFreeRdpClient
+#- script: .\.ci\Scripts\TestFreeRdpClient.bat
+#  displayName: TestFreeRdpClient
 
-- task: PublishTestResults@2
-  condition: succeededOrFailed()
-  inputs:
-    testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
-    testResultsFiles: '..\_temp\*.trx' 
-    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
-    mergeTestResults: true # Optional
-    failTaskOnFailedTests: true # Optional
-    #testRunTitle: # Optional
-    #buildPlatform: # Optional
-    #buildConfiguration: # Optional
-    #publishRunAttachments: true # Optional
+#- task: PublishTestResults@2
+#  condition: succeededOrFailed()
+#  inputs:
+#    testResultsFormat: 'VSTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+#    testResultsFiles: '..\_temp\*.trx' 
+#    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+#    mergeTestResults: true # Optional
+#    failTaskOnFailedTests: true # Optional
+#    #testRunTitle: # Optional
+#    #buildPlatform: # Optional
+#    #buildConfiguration: # Optional
+#    #publishRunAttachments: true # Optional
 
 - task: DotNetCoreCLI@2
   displayName: 'Test FreeRdpClient'
@@ -98,34 +98,27 @@ steps:
   displayName: 'NuGet Push to UiPath-Internal'
   inputs:
     command: push
-    packagesToPush: 'Output\bin\UiPath.FreeRdpClient.*.nupkg'
+    packagesToPush: 'Output\nugets\UiPath.FreeRdpClient.*.nupkg'
     publishVstsFeed: '5b98d55c-1b14-4a03-893f-7a59746f1246/788028a9-5a01-48ee-b925-3af51ae46294'
 
-- task: PublishPipelineArtifact@1
-  name: publishFreeRDPWrapper
-  inputs:
-    targetPath: 'Output\bin' 
-    artifactName: 'freeRdpWrapper'
-    parallel: true
+#- task: PublishPipelineArtifact@1
+#  name: publishFreeRDPWrapper
+#  inputs:
+#    targetPath: 'Output\bin' 
+#    artifactName: 'freeRdpWrapper'
+#    parallel: true
 
-- task: PublishPipelineArtifact@1
-  name: publishFreeRDPOnly
-  inputs:
-    targetPath: '.' 
-    artifactName: 'freeRdpOnly' 
-    parallel: true
+#- task: PublishPipelineArtifact@1
+#  name: publishFreeRDPOnly
+#  inputs:
+#    targetPath: '.' 
+#    artifactName: 'freeRdpOnly' 
+#    parallel: true
 
-- task: PublishPipelineArtifact@1
-  name: publishOpenSSL32
-  inputs:
-    targetPath: '..\OpenSSL-VC-32' 
-    artifactName: 'openSSL-32' 
-    parallel: true
-
-- task: PublishPipelineArtifact@1
-  name: publishOpenSSL64
-  inputs:
-    targetPath: '..\OpenSSL-VC-64' 
-    artifactName: 'openSSL-64' 
-    parallel: true
+#- task: PublishPipelineArtifact@1
+#  name: publishOpenSSL64
+#  inputs:
+#    targetPath: '..\OpenSSL-VC-64' 
+#    artifactName: 'openSSL-64' 
+#    parallel: true
 
