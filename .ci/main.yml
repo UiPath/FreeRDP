@@ -50,7 +50,7 @@ steps:
   displayName: 'Test FreeRdpClient'
   inputs:
     command: 'test'
-    arguments: '--no-build /p:Configuration=Release /p:Platform=x64'
+    arguments: '--no-build /p:Configuration=Release'
     projects: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj'
 
 - task: NuGetCommand@2
