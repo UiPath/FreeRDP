@@ -33,12 +33,13 @@ steps:
   displayName: buildFreeRDP
 
 - task: NuGetCommand@2
+  displayName: restore
   inputs:
     command: 'restore'
     restoreSolution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln'
 
 - task: MSBuild@1
-  displayName: msbuild FreeRdpWrapper build
+  displayName: build
   inputs:
     solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
     platform: 'x64'
@@ -47,10 +48,35 @@ steps:
     msbuildArguments: "/p:VersionSuffix=$(Build.BuildNumber)"
 
 - task: DotNetCoreCLI@2
-  displayName: 'Test FreeRdpClient'
+  displayName: 'test'
   inputs:
     command: 'test'
     arguments: '--no-build /p:Configuration=Release'
+    projects: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj'
+
+- task: MSBuild@1
+  displayName: restore (UseNugetRef)
+  inputs:
+    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
+    platform: 'x64'
+    configuration: 'Release'
+    msbuildArchitecture: 'x64'
+    msbuildArguments: "/t:restore /p:VersionSuffix=$(Build.BuildNumber) /p:UseNugetRef=true"
+
+- task: MSBuild@1
+  displayName: build (UseNugetRef)
+  inputs:
+    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
+    platform: 'x64'
+    configuration: 'Release'
+    msbuildArchitecture: 'x64'
+    msbuildArguments: "/p:VersionSuffix=$(Build.BuildNumber) /p:UseNugetRef=true"
+
+- task: DotNetCoreCLI@2
+  displayName: 'test (UseNugetRef)'
+  inputs:
+    command: 'test'
+    arguments: '--no-build /p:Configuration=Release /p:UseNugetRef=true'
     projects: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.Tests\UiPath.FreeRdp.Tests.csproj'
 
 - task: NuGetCommand@2
