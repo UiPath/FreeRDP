@@ -9,4 +9,7 @@
       <Link>.ci\%(RecursiveDir)\%(Filename)%(Extension)</Link>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" Link="README.md" />
+  </ItemGroup>
 </Project>

@@ -7,7 +7,7 @@
 #### Build OpenSSL (dependency for FreeRDP)
 * Visual Studio 2022 installed in `C:\Program Files` required.  
 * For older VS versions you may need to install [CMake](https://cmake.org/download) and make sure the `cmake` command is in PATH.
-* Clone [OpenSSL](https://github.com/openssl/openssl) to `..\openssl` && Checkout tag `OpenSSL_1_0_2u` && Generate OpenSSL builds to `..\OpenSSL-VC-32` & `..\OpenSSL-VC-64`.
+* Clone [OpenSSL](https://github.com/openssl/openssl) to `..\openssl` && Checkout tag `OpenSSL_1_0_2u` && Generate OpenSSL build to `..\OpenSSL-VC-64`.
 ```
 cd .ci/Scripts
 .\getOpenSsl
@@ -23,7 +23,10 @@ winget install -e --id StrawberryPerl.StrawberryPerl
 * Use CMake to generate and then build Visual Studio 2022 solutions.  The cmake invocation is in the `BuildFreeRDPx*.bat` files. 
 ```
 .\buildFreeRDP
-.\buildFreeRDPWrapper
 ```
-* The freerdp solutions are generated in `.\Build\x86\` and `.\Build\x64\` directories.
-* The freerdpWrapper dlls are generated in `.\Output\[Debug|Release]\[x86|x64]\` directories.
+* The freerdp solution is generated in `.\Build\x64\` directories.
+
+### Work on the FreeRdpClient
+* Open [UiPath.FreeRdpClient/UiPath.FreeRdpClient.sln](file://UiPath.FreeRdpClient/UiPath.FreeRdpClient.sln)
+* To test with a nugetRef instead of projectRef edit the [UiPath.FreeRdp.Tests.csproj](file://UiPath.FreeRdpClient/UiPath.FreeRdpClient.Tests/UiPath.FreeRdp.Tests.csproj)
+search for: `<When Condition="'UseNugetRef'=='!UseNugetRef'">`
