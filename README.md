@@ -29,7 +29,7 @@ cd .ci/Scripts
 cd .ci/Scripts
 .\getOpenSsl
 .\buildOpenSsl
-.\buildFreeRDP
+.\buildFreeRDP Debug
 ```
 
 ### Work on the FreeRdpClient

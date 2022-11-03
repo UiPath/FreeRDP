@@ -3,7 +3,8 @@ pushd .
 cd %freeRdpDir%
 git clean -xdff
 
-cmake . -B"./Build/x64" -G"Visual Studio 17 2022"^
+rem create freerdp sln
+cmd /c cmake . -B"./Build/x64" -G"Visual Studio 17 2022"^
 	-A x64^
 	-DOPENSSL_ROOT_DIR="../OpenSSL-VC-64"^
 	-DCMAKE_INSTALL_PREFIX="./Install/x64"^
@@ -15,7 +16,8 @@ cmake . -B"./Build/x64" -G"Visual Studio 17 2022"^
 	-DWITH_MEDIA_FOUNDATION=OFF^
 
 rem build freerdp libs
+set Configuration=%1
+if [%Configuration%] == [] set Configuration=Debug
+%msbuild% "%buildDir%\x64\FreeRDP.sln" /p:Configuration=%Configuration% /p:Platform=x64
 
-%msbuild% "%buildDir%\x64\FreeRDP.sln" /p:Configuration=Debug /p:Platform=x64
-%msbuild% "%buildDir%\x64\FreeRDP.sln" /p:Configuration=Release /p:Platform=x64
 popd

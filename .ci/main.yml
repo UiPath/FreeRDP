@@ -30,7 +30,7 @@ steps:
 - script: .\.ci\Scripts\buildOpenSsl
   displayName: buildOpenSsl
 - script: .\.ci\Scripts\buildFreeRDP
-  displayName: buildFreeRDP
+  displayName: buildFreeRDP Release
 
 - task: NuGetCommand@2
   displayName: restore
