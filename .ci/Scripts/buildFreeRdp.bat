@@ -18,6 +18,7 @@ cmd /c cmake . -B"./Build/x64" -G"Visual Studio 17 2022"^
 rem build freerdp libs
 set Configuration=%1
 if [%Configuration%] == [] set Configuration=Debug
+echo building freerdp configuration:<%Configuration%>
 %msbuild% "%buildDir%\x64\FreeRDP.sln" /p:Configuration=%Configuration% /p:Platform=x64
 
 popd
