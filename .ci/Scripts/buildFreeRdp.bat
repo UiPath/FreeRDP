@@ -3,7 +3,16 @@ pushd .
 cd %freeRdpDir%
 git clean -xdff
 
-cmd /c "%scriptsDir%\BuildFreeRDPx64.bat"
+cmake . -B"./Build/x64" -G"Visual Studio 17 2022"^
+	-A x64^
+	-DOPENSSL_ROOT_DIR="../OpenSSL-VC-64"^
+	-DCMAKE_INSTALL_PREFIX="./Install/x64"^
+	-DMSVC_RUNTIME="static"^
+	-DBUILD_SHARED_LIBS=OFF^
+	-DWITH_CLIENT_INTERFACE=ON^
+	-DBUILTIN_CHANNELS=OFF^
+	-DWITH_CHANNELS=OFF^
+	-DWITH_MEDIA_FOUNDATION=OFF^
 
 rem build freerdp libs
 
