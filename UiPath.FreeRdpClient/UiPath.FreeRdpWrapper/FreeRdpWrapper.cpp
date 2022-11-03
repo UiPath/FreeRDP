@@ -79,6 +79,13 @@ namespace FreeRdpClient
 		context->settings->LocalConnection = TRUE;
 		context->settings->ProxyType = PROXY_TYPE_IGNORE;
 
+		// Without this setting the RDP session getting disconnected unexpectedly after a time
+		// This issue can be reproduced using 2.5.0 freerdp version
+		// (https://uipath.atlassian.net/browse/ROBO-2607) and seems to be introduced by this
+		// commit:
+		// https://github.com/FreeRDP/FreeRDP/pull/5151/commits/7610917a48e2ea4f1e1065bd226643120cbce4e5
+		context->settings->BitmapCacheEnabled = TRUE;
+
 		// Increase the TcpAckTimeout to 60 seconds (default is 9 seconds). Used to wait for an
 		// active tcp connection (CONNECTION_STATE_ACTIVE)
 		// https://github.com/FreeRDP/FreeRDP/blob/fa3cf9417ffb67a3433ecb48d18a1c2b3190a03e/libfreerdp/core/connection.c#L380
