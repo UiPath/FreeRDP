@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using UiPath.FreeRdp.Tests.TestInfra;
-using UiPath.Rdp;
+﻿using UiPath.Rdp;
 
 namespace UiPath.FreeRdp.Tests.TestInfra;
 
