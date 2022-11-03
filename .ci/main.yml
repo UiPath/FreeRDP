@@ -29,8 +29,8 @@ steps:
   displayName: getOpenSsl
 - script: .\.ci\Scripts\buildOpenSsl
   displayName: buildOpenSsl
-- script: .\.ci\Scripts\buildFreeRDP
-  displayName: buildFreeRDP Release
+- script: .\.ci\Scripts\buildFreeRDP Release
+  displayName: buildFreeRDP
 
 - task: NuGetCommand@2
   displayName: restore
