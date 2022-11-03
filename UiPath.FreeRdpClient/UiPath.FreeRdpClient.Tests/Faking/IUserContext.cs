@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
-using UiPath.FreeRdp.Tests.TestInfra;
 
 namespace UiPath.FreeRdp.Tests.Faking;
 
@@ -19,7 +18,7 @@ public class UserExistsDetail
 
 public interface IUserContext
 {
-    Task EnsureUserExists(UserExistsDetail userDetail);
+    Task<bool> EnsureUserExists(UserExistsDetail userDetail);
 }
 
 
@@ -32,14 +31,16 @@ public class UserContextReal : UserContextBase
         _log = log;
     }
 
-    protected override async Task DoCreateUser(UserExistsDetail userDetail)
+    protected override async Task<bool> DoCreateUser(UserExistsDetail userDetail)
     {
         var username = userDetail.UserName.ToLowerInvariant().Replace(UserNames.DefaultDomainName.ToLowerInvariant() + "\\", "");
-        await new ProcessStartInfo
+        var exitCode = await new ProcessStartInfo
         {
             Arguments = $"user {username} {userDetail.Password} /add",
             FileName = "net"
         }.ExecuteWithLogs(_log);
+        var newlyCreated = exitCode == 0;
+
         await new ProcessStartInfo
         {
             Arguments = $"user {username} /active /expires:never",
@@ -49,6 +50,11 @@ public class UserContextReal : UserContextBase
         {
             Arguments = $"user {username} /passwordchg:no",
             FileName = "net"
+        }.ExecuteWithLogs(_log);
+        await new ProcessStartInfo
+        {
+            Arguments = $"useraccount WHERE Name='{username}' set PasswordExpires=false",
+            FileName = "wmic"
         }.ExecuteWithLogs(_log);
         await new ProcessStartInfo
         {
@@ -74,6 +80,8 @@ public class UserContextReal : UserContextBase
             Arguments = $"localgroup \"Administrators\"",
             FileName = "net"
         }.ExecuteWithLogs(_log);
+
+        return newlyCreated;
     }
 
 }
@@ -81,14 +89,15 @@ public abstract class UserContextBase : IUserContext
 {
     protected static readonly ConcurrentDictionary<string, string> CreatedUsersByName = new();
 
-    public async Task EnsureUserExists(UserExistsDetail userDetail)
+    public async Task<bool> EnsureUserExists(UserExistsDetail userDetail)
     {
         var userDetailAsJson = JsonConvert.SerializeObject(userDetail);
         CreatedUsersByName.TryGetValue(userDetail.UserName, out var user);
         if (user == userDetailAsJson)
-            return;
-        await DoCreateUser(userDetail);
+            return false;
+        var newlyCreated = await DoCreateUser(userDetail);
         CreatedUsersByName.TryAdd(userDetail.UserName, userDetailAsJson);
+        return newlyCreated;
     }
 
     public UserExistsDetail? GetUser(string userName)
@@ -99,11 +108,11 @@ public abstract class UserContextBase : IUserContext
         return null;
     }
 
-    protected abstract Task DoCreateUser(UserExistsDetail userDetail);
+    protected abstract Task<bool> DoCreateUser(UserExistsDetail userDetail);
 }
 
 public class UserContextFake : UserContextBase
 {
-    protected override Task DoCreateUser(UserExistsDetail userDetail)
-    => Task.CompletedTask;
+    protected override Task<bool> DoCreateUser(UserExistsDetail userDetail)
+    => Task.FromResult(false);
 }

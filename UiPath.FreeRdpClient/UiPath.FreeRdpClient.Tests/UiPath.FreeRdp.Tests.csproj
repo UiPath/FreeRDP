@@ -6,6 +6,7 @@
 		<IsTestProject>true</IsTestProject>
 		<IsPackable>false</IsPackable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<UserSecretsId>57c50d74-20d6-40cc-b246-b316d10bf8c8</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -18,6 +19,7 @@
 		<AdditionalFiles Include="NativeMethods.txt" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
 		<PackageReference Include="MartinCostello.Logging.XUnit" Version="0.3.0" />
 		<PackageReference Include="coverlet.collector" Version="3.1.2" GeneratePathProperty="true">

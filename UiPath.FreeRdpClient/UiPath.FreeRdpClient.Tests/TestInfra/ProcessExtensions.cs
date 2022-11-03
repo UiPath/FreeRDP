@@ -21,7 +21,7 @@ public static partial class ProcessExtensions
     /// <exception cref="TimeoutException">
     /// Thrown asynchronously when a non-infinite <paramref name="timeout"/> is reached.
     /// </exception>
-    public static async Task<Process> ExecuteWithLogs(this ProcessStartInfo psi, ILogger log, TimeSpan timeout = default)
+    public static async Task<int> ExecuteWithLogs(this ProcessStartInfo psi, ILogger log, TimeSpan timeout = default)
     {
         if (timeout == default)
         {
@@ -48,11 +48,12 @@ public static partial class ProcessExtensions
 
         var stdout = process.StandardOutput.ReadToEndAsync();
         var stderr = process.StandardError.ReadToEndAsync();
-
+        var exitcode = -12345;
         try
         {
             await process.WaitForExitAsync(timeoutToken);
-            return process;
+            exitcode = process.ExitCode;
+            return exitcode;
         }
         catch (OperationCanceledException ex) when (ex.CancellationToken == timeoutToken)
         {
@@ -60,7 +61,7 @@ public static partial class ProcessExtensions
         }
         finally
         {
-            log.LogDidExecutedWithLogs(psi.FileName, psi.Arguments, process.ExitCode, await stdout, await stderr);
+            log.LogDidExecutedWithLogs(psi.FileName, psi.Arguments, exitcode, await stdout, await stderr);
         }
 
         static IDisposable? CreateTimeoutToken(in TimeSpan timeout, out CancellationToken token)
