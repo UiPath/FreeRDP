@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Nito.Disposables;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 
 
@@ -46,6 +47,12 @@ public static class FreeRdpClient
 
     [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
     private extern static uint RdpRelease(string releaseObjectName);
+
+    static FreeRdpClient()
+    {
+        //Make sure winsock is initialized
+        using var _ = new TcpClient();
+    }
 
     public static async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {

@@ -86,7 +86,6 @@ RelWithDebInfo
 *.resource.txt
 *.embed.manifest*
 *.intermediate.manifest*
-version.rc
 *.VC.db
 *.VC.opendb
 
