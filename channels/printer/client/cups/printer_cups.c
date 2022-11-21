@@ -452,6 +452,7 @@ FREERDP_ENTRY_POINT(UINT VCAPITYPE cups_freerdp_printer_client_subsystem_entry(v
 
 		uniq_cups_driver->id_sequence = 1;
 	}
+	uniq_cups_driver->driver.AddRef(&uniq_cups_driver->driver);
 
 	WINPR_ASSERT(uniq_cups_driver->driver.AddRef);
 	uniq_cups_driver->driver.AddRef(&uniq_cups_driver->driver);

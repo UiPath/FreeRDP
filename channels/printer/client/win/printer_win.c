@@ -461,6 +461,7 @@ FREERDP_ENTRY_POINT(UINT VCAPITYPE win_freerdp_printer_client_subsystem_entry(vo
 
 		win_driver->id_sequence = 1;
 	}
+	win_driver->driver.AddRef(&win_driver->driver);
 
 	win_driver->driver.AddRef(&win_driver->driver);
 
