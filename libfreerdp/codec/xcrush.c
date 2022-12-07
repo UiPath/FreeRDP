@@ -769,6 +769,7 @@ static int xcrush_generate_output(XCRUSH_CONTEXT* WINPR_RESTRICT xcrush,
 static INLINE size_t xcrush_copy_bytes_no_overlap(BYTE* WINPR_RESTRICT dst,
                                                   const BYTE* WINPR_RESTRICT src, size_t num)
 {
+<<<<<<< HEAD
 	// src and dst overlaps
 	// we should copy the area that doesn't overlap repeatedly
 	const size_t diff = WINPR_ASSERTING_INT_CAST(size_t, (dst > src) ? dst - src : src - dst);
@@ -781,6 +782,9 @@ static INLINE size_t xcrush_copy_bytes_no_overlap(BYTE* WINPR_RESTRICT dst,
 	if (rest != 0)
 		memcpy(&dst[end], &src[end], rest);
 
+=======
+	memmove(dst, src, num);
+>>>>>>> d945f2f10 (fix #ROBO-2724 divideByZero)
 	return num;
 }
 
