@@ -302,6 +302,27 @@ static size_t rdp_get_client_address_max_size(const rdpRdp* rdp)
 	return 80;
 }
 
+/*
+ * Get the cbClientAddress size limit
+ * see [MS-RDPBCGR] 2.2.1.11.1.1.1 Extended Info Packet (TS_EXTENDED_INFO_PACKET)
+ */
+
+static size_t rdp_get_client_address_max_size(const rdpRdp* rdp)
+{
+	UINT32 version;
+	rdpSettings* settings;
+
+	WINPR_ASSERT(rdp);
+
+	settings = rdp->settings;
+	WINPR_ASSERT(settings);
+
+	version = freerdp_settings_get_uint32(settings, FreeRDP_RdpVersion);
+	if (version < RDP_VERSION_10_0)
+		return 64;
+	return 80;
+}
+
 /**
  * Read Extended Info Packet (TS_EXTENDED_INFO_PACKET).
  * msdn{cc240476}
