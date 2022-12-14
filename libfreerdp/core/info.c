@@ -85,6 +85,7 @@ static BOOL rdp_read_info_null_string(rdpSettings* settings, FreeRDP_Settings_Ke
 
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, (size_t)(cbLen)))
 		return FALSE;
+	}
 
 	if (cbLen > 0)
 	{
@@ -110,6 +111,13 @@ static BOOL rdp_read_info_null_string(rdpSettings* settings, FreeRDP_Settings_Ke
 			const char* domain = Stream_ConstPointer(s);
 			if (!freerdp_settings_set_string_len(settings, id, domain, cbLen))
 				return FALSE;
+		}
+
+		if (!Stream_SafeSeek(s, cbLen))
+		{
+			WLog_ERR(TAG, "protocol error: no data to read for %s [expected %" PRIuz "]", what,
+			         cbLen);
+			return FALSE;
 		}
 	}
 	Stream_Seek(s, cbLen);
