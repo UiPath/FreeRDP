@@ -1775,8 +1775,9 @@ static BOOL rdpdr_state_check(rdpdrPlugin* rdpdr, UINT16 packetid,
 	if (rdpdr->state != expected)
 	{
 		WLog_Print(rdpdr->log, WLOG_ERROR,
-		           "channel [RDPDR] received %s, expected state %s but have state %s, aborting.",
-		           rdpdr_packetid_string(packetid), rdpdr_state_str(expected), strstate);
+		           "channel [RDPDR] received %" PRIu16
+		           ", expected state %s but have state %s, aborting.",
+		           packetid, rdpdr_state_str(expected), strstate);
 
 		rdpdr_state_advance(rdpdr, RDPDR_CHANNEL_STATE_INITIAL);
 		return FALSE;
@@ -2424,7 +2425,7 @@ static VOID VCAPITYPE rdpdr_virtual_channel_init_event_ex(LPVOID lpUserParam, LP
 
 	if (!rdpdr || (rdpdr->InitHandle != pInitHandle))
 	{
-		WLog_ERR(TAG, "error no match");
+		WLog_Print(rdpdr->log, WLOG_ERROR, "error no match");
 		return;
 	}
 
@@ -2471,6 +2472,7 @@ static VOID VCAPITYPE rdpdr_virtual_channel_init_event_ex(LPVOID lpUserParam, LP
 }
 
 /* rdpdr is always built-in */
+#define TAG CHANNELS_TAG("rdpdr.client")
 #define VirtualChannelEntryEx rdpdr_VirtualChannelEntryEx
 
 FREERDP_ENTRY_POINT(BOOL VCAPITYPE VirtualChannelEntryEx(PCHANNEL_ENTRY_POINTS pEntryPoints,
@@ -2487,7 +2489,7 @@ FREERDP_ENTRY_POINT(BOOL VCAPITYPE VirtualChannelEntryEx(PCHANNEL_ENTRY_POINTS p
 
 	if (!rdpdr)
 	{
-		WLog_ERR(TAG, "calloc failed!");
+		WLog_Print(rdpdr->log, WLOG_ERROR, "calloc failed!");
 		return FALSE;
 	}
 	rdpdr->log = WLog_Get(TAG);
