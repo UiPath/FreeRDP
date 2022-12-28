@@ -33,7 +33,6 @@
 #include "xcrush.h"
 =======
 #include <freerdp/codec/xcrush.h>
-#include <winpr/wlog.h>
 
 #define TAG FREERDP_TAG("codec")
 >>>>>>> b787a8204 (complete fix with logs)
@@ -799,6 +798,7 @@ static INLINE size_t xcrush_copy_bytes(BYTE* dst, const BYTE* src, size_t num)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	WINPR_ASSERT(dst);
 	WINPR_ASSERT(src);
 
@@ -807,35 +807,33 @@ static INLINE size_t xcrush_copy_bytes(BYTE* dst, const BYTE* src, size_t num)
 	else if (src != dst)
 		return xcrush_copy_bytes_no_overlap(dst, src, num);
 =======
+=======
+>>>>>>> f2247aa4a (Revert "complete fix with logs")
 	size_t diff, rest, end, a;
 	if (src + num < dst || src > dst + num)
 	{
 		memcpy(dst, src, num);
 	}
 	else if (src != dst)
+<<<<<<< HEAD
 =======
 	if (src < dst && src + num > dst)
 >>>>>>> b787a8204 (complete fix with logs)
+=======
+>>>>>>> f2247aa4a (Revert "complete fix with logs")
 	{
-		const size_t diff = dst - src;
-		const size_t rest = num % diff;
-		const size_t end = num - rest;
 		// src and dst overlaps
 		// we should copy the area that doesn't overlap repeatly
-		WLog_INFO(TAG, "xcrush_copy_bytes overlap (src< dst) num = %d\t, diff = %d", num, diff);
-
-		for (size_t a = 0; a < end; a += diff)
-			memcpy(dst + a, src, diff);
-		if (rest != 0)
-			memcpy(dst + end, src, rest);
-	}
-	else
-	{
-		if (dst <= src && dst + num >= src)
+		diff = (dst > src) ? dst - src : src - dst;
+		rest = num % diff;
+		end = num - rest;
+		for (a = 0; a < end; a += diff)
 		{
-			WLog_INFO(TAG, "xcrush_copy_bytes overlap (src>=dst) num = %d, diff = %d", num, src-dst);
+			memcpy(&dst[a], &src[a], diff);
 		}
-		memmove(dst, src, num);
+
+		if (rest != 0)
+			memcpy(&dst[end], &src[end], rest);
 	}
 >>>>>>> 145f97b6d (Revert "fix #ROBO-2724 divideByZero")
 
