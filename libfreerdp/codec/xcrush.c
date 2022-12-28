@@ -33,7 +33,7 @@
 #include "xcrush.h"
 =======
 #include <freerdp/codec/xcrush.h>
-
+#include <winpr/wlog.h>
 #define TAG FREERDP_TAG("codec")
 >>>>>>> b787a8204 (complete fix with logs)
 
@@ -835,7 +835,14 @@ static INLINE size_t xcrush_copy_bytes(BYTE* dst, const BYTE* src, size_t num)
 		if (rest != 0)
 			memcpy(&dst[end], &src[end], rest);
 	}
+<<<<<<< HEAD
 >>>>>>> 145f97b6d (Revert "fix #ROBO-2724 divideByZero")
+=======
+	else
+	{
+		WLog_WARN(TAG, "xcrush_copy_bytes overlap (src==dst) num = %d, diff = %d", num, src - dst);
+	}
+>>>>>>> 884061259 (add log on dst==src)
 
 	return num;
 }
