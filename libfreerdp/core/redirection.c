@@ -613,6 +613,7 @@ int rdp_redirection_apply_settings(rdpRdp* rdp)
 		rdpCertificate* cert = freerdp_certificate_clone(redirection->TargetCertificate);
 		if (!freerdp_settings_set_pointer(settings, FreeRDP_RedirectionTargetCertificate, cert))
 			return -1;
+	}
 
 		BOOL pres = FALSE;
 		size_t length = 0;
