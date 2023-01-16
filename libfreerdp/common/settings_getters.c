@@ -1916,6 +1916,9 @@ UINT32 freerdp_settings_get_uint32(WINPR_ATTR_UNUSED const rdpSettings* settings
 		case FreeRDP_RedirectionPreferType:
 			return settings->RedirectionPreferType;
 
+		case FreeRDP_RedirectionTargetCertificateLength:
+			return settings->RedirectionTargetCertificateLength;
+
 		case FreeRDP_RedirectionTsvUrlLength:
 			return settings->RedirectionTsvUrlLength;
 
@@ -2403,12 +2406,20 @@ BOOL freerdp_settings_set_uint32(WINPR_ATTR_UNUSED rdpSettings* settings,
 			settings->RedirectionGuidLength = cnv.c;
 			break;
 
+		case FreeRDP_RedirectionGuidLength:
+			settings->RedirectionGuidLength = val;
+			break;
+
 		case FreeRDP_RedirectionPasswordLength:
 			settings->RedirectionPasswordLength = cnv.c;
 			break;
 
 		case FreeRDP_RedirectionPreferType:
 			settings->RedirectionPreferType = cnv.c;
+			break;
+
+		case FreeRDP_RedirectionTargetCertificateLength:
+			settings->RedirectionTargetCertificateLength = val;
 			break;
 
 		case FreeRDP_RedirectionTsvUrlLength:
@@ -4147,11 +4158,17 @@ void* freerdp_settings_get_pointer_writable(rdpSettings* settings, FreeRDP_Setti
 		case FreeRDP_RedirectionGuid:
 			return (void*)settings->RedirectionGuid;
 
+		case FreeRDP_RedirectionGuid:
+			return settings->RedirectionGuid;
+
 		case FreeRDP_RedirectionPassword:
 			return (void*)settings->RedirectionPassword;
 
 		case FreeRDP_RedirectionTargetCertificate:
 			return (void*)settings->RedirectionTargetCertificate;
+
+		case FreeRDP_RedirectionTargetCertificate:
+			return settings->RedirectionTargetCertificate;
 
 		case FreeRDP_RedirectionTsvUrl:
 			return (void*)settings->RedirectionTsvUrl;
@@ -4284,12 +4301,20 @@ BOOL freerdp_settings_set_pointer(WINPR_ATTR_UNUSED rdpSettings* settings,
 			settings->RedirectionGuid = (BYTE*)cnv.v;
 			break;
 
+		case FreeRDP_RedirectionGuid:
+			settings->RedirectionGuid = (void*)val;
+			break;
+
 		case FreeRDP_RedirectionPassword:
 			settings->RedirectionPassword = (BYTE*)cnv.v;
 			break;
 
 		case FreeRDP_RedirectionTargetCertificate:
 			settings->RedirectionTargetCertificate = (rdpCertificate*)cnv.v;
+			break;
+
+		case FreeRDP_RedirectionTargetCertificate:
+			settings->RedirectionTargetCertificate = (void*)val;
 			break;
 
 		case FreeRDP_RedirectionTsvUrl:
