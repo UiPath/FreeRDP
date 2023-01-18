@@ -330,7 +330,7 @@ static void xf_disp_OnWindowStateChange(void* context, const WindowStateChangeEv
 	xf_disp_sendResize(xfDisp, FALSE);
 }
 
-static void xf_disp_OnWindowStateChange(void* context, const WindowStateChangeEventArgs* e)
+static void xf_disp_OnWindowStateChange(void* context, WindowStateChangeEventArgs* e)
 {
 	xfContext* xfc;
 	xfDispContext* xfDisp;
