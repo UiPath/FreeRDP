@@ -304,6 +304,7 @@ WINPR_MD_TYPE crypto_cert_get_signature_alg(X509* xcert)
 			return WINPR_MD_SHAKE128;
 		case NID_shake256:
 			return WINPR_MD_SHAKE256;
+#endif
 		case NID_undef:
 		default:
 			return WINPR_MD_NONE;
