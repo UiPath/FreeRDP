@@ -125,17 +125,9 @@ public static class FreeRdpClient
 
     private static void RegisterThreadScope(string scope)
     {
-
         if (!ActivitiesByClientName.TryGetValue(scope, out var parentActivity))
         {
-            LoggerFactory?.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scope);
-            return;
-        }
-
-        ActivitiesByClientName.TryRemove(scope, out _);
-        if (parentActivity.GetBaggageItem(ScopeName) is { } scopeValue)
-        {
-            LoggerFactory?.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scopeValue);
+            BeginScope(scope);
             return;
         }
 
@@ -143,6 +135,17 @@ public static class FreeRdpClient
         foreach (var bagage in parentActivity.Baggage)
             activity.AddBaggage(bagage.Key, bagage.Value);
         activity.Start();
+
+        ActivitiesByClientName.TryRemove(scope, out _);
+        if (parentActivity.GetBaggageItem(ScopeName) is { } inheritedScopeValue)
+        {
+            BeginScope(inheritedScopeValue);
+        }
+
+        static void BeginScope(string scopeValue)
+        {
+            _ = LoggerFactory?.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scopeValue);
+        }
     }
 
     private static void Log(string category, LogLevel logLevel, string message)
