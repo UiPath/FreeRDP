@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using Nito.Disposables;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -51,20 +52,41 @@ public static class FreeRdpClient
         "com.freerdp.core.transport",
         "com.freerdp.core",
         "com.freerdp.core.update",
+        "com.freerdp.core.rdp"
     };
     public static string[] DefaultFilterNotContains { get; private set; } = new[]
     {
         "Fastpath update Orders [0] failed, status 0",
         "fastpath_recv_update() - -1",
         "fastpath_recv_update_data() fail",
+        "Stream_GetRemainingLength() < size",
+        "fastpath_recv_update_data: Unexpected FASTPATH_FRAGMENT_LAST",  
+        "fastpath_recv_update_data: Unexpected FASTPATH_FRAGMENT_NEXT",  
+        "fastpath_recv_update_data: Unexpected FASTPATH_FRAGMENT_FIRST",
+        "bulk_decompress() failed",
+        "Fastpath update UNKNOWN [c] failed, status 0",
+        "Fastpath update UNKNOWN [e] failed, status 0",
+        "exceeds MultifragMaxRequestSize (65535)",
+        "Unexpected FASTPATH_FRAGMENT_SINGLE",
+
 
         "transport_check_fds: transport->ReceiveCallback() - -4",
 
         "freerdp_check_fds() failed - 0",
+        "Unknown bulk compression type",
+        "Decompression failure!",
+
 
         "order flags 01 failed",
         "SECONDARY ORDER [0x05] Cache Bitmap V2 (Compressed) failed",
         "order flags 03 failed",
+        "Stream_GetRemainingLength(s)",
+
+
+
+        "WARNING: invalid packet signature",
+        "rdp_recv_tpkt_pdu: rdp_read_share_control_header() fail",  //1
+        "transport_check_fds: transport->ReceiveCallback() - -1",   //1
     };
 
     public static string[] FilterCategories { get; private set; }
