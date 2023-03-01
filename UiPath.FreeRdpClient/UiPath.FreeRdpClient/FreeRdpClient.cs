@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Nito.Disposables;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -59,6 +60,7 @@ public static class FreeRdpClient
         //Make sure winsock is initialized
         using var _ = new TcpClient();
     }
+    private readonly static ConcurrentDictionary<string, Activity> ActivitiesByClientName = new();
 
     public static async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
@@ -76,11 +78,19 @@ public static class FreeRdpClient
             Port = connectionSettings.Port ?? default
         };
 
-        Activity currentActivity;
-
-        return await Task.Run(() =>
+        return await Task.Run(async () =>
         {
+
+            if (Activity.Current is { } activity)
+            {
+                ActivitiesByClientName[connectOptions.ClientName] = activity;
+            }
+            using var releaseActivity = Disposable.Create(() => ActivitiesByClientName.TryRemove(connectOptions.ClientName, out _));
             RdpLogon(connectOptions, out var releaseObjectName);
+
+            while (ActivitiesByClientName.ContainsKey(connectOptions.ClientName))
+                await Task.Delay(10);
+
             return new AsyncDisposable(() =>
             {
                 Disconnect(releaseObjectName); 
@@ -89,12 +99,26 @@ public static class FreeRdpClient
         });
     }
 
-    private static IDisposable BeginScope(ILogger logger, string scope)
-    => logger.BeginScope("{RdpScope}", scope);
-
     private static void RegisterThreadScope(string scope)
     {
-        LoggerFactory.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scope);
+
+        if (!ActivitiesByClientName.TryGetValue(scope, out var parentActivity))
+        {
+            LoggerFactory?.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scope);
+            return;
+        }
+
+        ActivitiesByClientName.TryRemove(scope, out _);
+        if (parentActivity.GetBaggageItem(ScopeName) is { } scopeValue)
+        {
+            LoggerFactory?.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scopeValue);
+            return;
+        }
+
+        var activity = new Activity("FreeRdp_transport_loop");
+        foreach (var bagage in parentActivity.Baggage)
+            activity.AddBaggage(bagage.Key, bagage.Value);
+        activity.Start();
     }
 
     private static void Log(string category, LogLevel loglevel, string message)

@@ -58,6 +58,7 @@ public class RdpClientTests : TestsBase
             ColorDepth = colorDepthInput
         };
         Host.GetRequiredService<ILogger<TestHost>>().BeginScope("{RunId}", "runId_someAmbientRunId");
+        using var activity = new Activity("ShouldConnect").SetBaggage("RunId", $"runId_{connectionSettings.ClientName}").Start();
         await using var sut = await FreeRdpClient.Connect(connectionSettings);
         var sessionId = WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName);
         sessionId.HasValue.ShouldBeTrue();
