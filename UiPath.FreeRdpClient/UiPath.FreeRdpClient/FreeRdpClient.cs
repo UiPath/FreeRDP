@@ -45,6 +45,30 @@ public static class FreeRdpClient
     private static RegisterThreadScopeCallback RegisterThreadScopeCallbackDelegate = RegisterThreadScope;
 
     private static ILoggerFactory? LoggerFactory { get; set; }
+    public static string[] DefaultFilterCategories { get; private set; } = new[]
+    {
+        "com.freerdp.core.fastpath",
+        "com.freerdp.core.transport",
+        "com.freerdp.core",
+        "com.freerdp.core.update",
+    };
+    public static string[] DefaultFilterNotContains { get; private set; } = new[]
+    {
+        "Fastpath update Orders [0] failed, status 0",
+        "fastpath_recv_update() - -1",
+        "fastpath_recv_update_data() fail",
+
+        "transport_check_fds: transport->ReceiveCallback() - -4",
+
+        "freerdp_check_fds() failed - 0",
+
+        "order flags 01 failed",
+        "SECONDARY ORDER [0x05] Cache Bitmap V2 (Compressed) failed",
+        "order flags 03 failed",
+    };
+
+    public static string[] FilterCategories { get; private set; }
+    public static string[] FilterNotContains { get; private set; }
 
     [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
     private extern static uint InitializeLogging([MarshalAs(UnmanagedType.FunctionPtr)] LogCallback logCallback, [MarshalAs(UnmanagedType.FunctionPtr)]  RegisterThreadScopeCallback registerThreadScopeCallback);
@@ -121,13 +145,16 @@ public static class FreeRdpClient
         activity.Start();
     }
 
-    private static void Log(string category, LogLevel loglevel, string message)
+    private static void Log(string category, LogLevel logLevel, string message)
     {
         if (LoggerFactory is null)
             return;
 
+        if (!FilterLogs(category, logLevel, message))
+            return;
+
         var log = LoggerFactory.CreateLogger(category);
-        log.Log(loglevel, message);
+        log.Log(logLevel, message);
     }
 
     public static void SetupLogging(ILoggerFactory? loggerFactory)
@@ -146,6 +173,23 @@ public static class FreeRdpClient
     {
         ScopeName = scopeName;
         return services.AddHostedService<FreeRdpInitilizer>();
+    }
+
+    public static IServiceCollection UseFreeRdpFailLogFilter(this IServiceCollection services, string[]? categories = null, string[]? notContains = null)
+    {
+        FilterCategories ??= DefaultFilterCategories;
+        FilterNotContains ??= DefaultFilterNotContains;
+        return services;
+    }
+
+    private static bool FilterLogs(string category, LogLevel logLevel, string message)
+    {
+        if (logLevel is LogLevel.Error
+            && FilterCategories!.Contains(category)
+            && FilterNotContains.Any(f => message.Contains(f)))
+            return false;
+
+        return true;
     }
 
     private sealed class FreeRdpInitilizer : IHostedService
