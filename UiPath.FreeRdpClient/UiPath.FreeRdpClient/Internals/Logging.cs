@@ -60,13 +60,6 @@ internal static class Logging
         "Unknown bulk compression type 00000003",
     }.ToHashSet();
 
-    public static HashSet<string> FilterDebugMessages { get; private set; } = new[]
-    {
-        "rdp_recv_callback: CONNECTION_STATE_ACTIVE - rdp_recv_pdu() - -1",
-        "rdp_recv_callback: CONNECTION_STATE_ACTIVE - rdp_recv_pdu() - -4",
-        "transport_check_fds() - -1",
-        "rdp_check_fds() - -1",
-    }.ToHashSet();
     private static void Log(string category, LogLevel logLevel, string message)
     {
         if (LoggerFactory is null)
@@ -81,7 +74,7 @@ internal static class Logging
 
     public static void SetupLogging(ILoggerFactory? loggerFactory)
     {
-        var forwardFreeRdpLogs = Environment.GetEnvironmentVariable("WLOG_LEVEL") is null;
+        var forwardFreeRdpLogs = Environment.GetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_PATH") is null;
         LoggerFactory = loggerFactory;
         NativeInterface.InitializeLogging(logCallback: LogCallbackDelegate,
                                           registerThreadScopeCallback: RegisterThreadScopeCallbackDelegate,
@@ -103,10 +96,6 @@ internal static class Logging
         if (logLevel is LogLevel.Error
             && FilterErrorsInCategories.Contains(category)
             && (FilterErrorMessages.Contains(message) || FilterNotStartsWith.Any(message.StartsWith)))
-            return false;
-
-        if (logLevel is LogLevel.Debug
-            && FilterDebugMessages.Contains(message))
             return false;
 
         return true;

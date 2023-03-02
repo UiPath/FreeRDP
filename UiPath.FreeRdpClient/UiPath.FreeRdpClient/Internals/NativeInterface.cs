@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
-
 namespace UiPath.Rdp;
 
 internal class NativeInterface 
 {
+    const string FreeRdpClientDll = "UiPath.FreeRdpWrapper.dll";
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct ConnectOptions
     {
@@ -26,8 +27,6 @@ internal class NativeInterface
         public int Port;
     }
 
-    const string FreeRdpClientDll = "UiPath.FreeRdpWrapper.dll";
-
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
     public delegate void LogCallback([MarshalAs(UnmanagedType.LPStr)] string category, [MarshalAs(UnmanagedType.I4)] LogLevel logLevel, [MarshalAs(UnmanagedType.LPWStr)] string message);
 
@@ -42,5 +41,4 @@ internal class NativeInterface
 
     [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
     public extern static uint RdpRelease(string releaseObjectName);
-
 }

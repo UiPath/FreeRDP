@@ -4,9 +4,7 @@ using Microsoft.Extensions.Logging;
 using Nito.Disposables;
 using System.Net.Sockets;
 
-
 namespace UiPath.Rdp;
-
 
 public static class FreeRdpClient
 {
@@ -42,7 +40,6 @@ public static class FreeRdpClient
             });
         });
     }
-
 
     private static void Disconnect(string releaseObjectName)
     {
