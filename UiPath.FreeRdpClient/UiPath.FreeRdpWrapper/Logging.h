@@ -26,7 +26,8 @@ namespace Logging
 	EXTERN_C __declspec(dllexport) HRESULT STDAPICALLTYPE
 	    InitializeLogging(
 			pLogCallback logCallback, 
-			pRegisterThreadScopeCallback registerThreadScopeCallback 
+			pRegisterThreadScopeCallback registerThreadScopeCallback,
+	        bool forwardFreeRdpLogs
 		);
 
 	void Log(DWORD level, const wchar_t* fmt, ...);

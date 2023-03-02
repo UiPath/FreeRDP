@@ -7,7 +7,7 @@ namespace Logging
 	static pRegisterThreadScopeCallback _registerThreadScopeCallback;
 	static pLogCallback _clientLogCallback;
 	static wLogCallbacks _wlogCallbacks = { 0 };
-	static char defaultCategory[] = "UiPath.FreeRdpWrapper";
+	static char _defaultCategory[] = "UiPath.FreeRdpWrapper";
 
 	BOOL wLog_Message(const wLogMessage* msg)
 	{
@@ -20,7 +20,8 @@ namespace Logging
 
 	HRESULT STDAPICALLTYPE InitializeLogging(
 	    pLogCallback logCallback,
-		pRegisterThreadScopeCallback registerThreadScopeCallback
+		pRegisterThreadScopeCallback registerThreadScopeCallback,
+		bool forwardFreeRdpLogs
 	)
 	{
 		_clientLogCallback = logCallback;
@@ -31,13 +32,21 @@ namespace Logging
 		}
 
 		wLog* log = WLog_GetRoot();
+		if (!forwardFreeRdpLogs)
+		{
+			log = WLog_Get(_defaultCategory);
+		}
+
 		WLog_SetLogAppenderType(log, WLOG_APPENDER_CALLBACK);
 		auto appender = WLog_GetLogAppender(log);
 		_wlogCallbacks.message = wLog_Message;
 		WLog_ConfigureAppender(appender, "callbacks", &_wlogCallbacks);
 		auto layout = WLog_GetLogLayout(log);
 		WLog_Layout_SetPrefixFormat(log, layout, "%mn");
-		WLog_SetLogLevel(log, WLOG_TRACE);
+		WLog_SetLogLevel(log, WLOG_INFO);
+
+		auto negoLog = WLog_Get("com.freerdp.core.nego");
+		WLog_SetLogLevel(negoLog, WLOG_TRACE);
 
 		return S_OK;
 	}
@@ -48,7 +57,7 @@ namespace Logging
 		va_start(args, fmt);
 		wchar_t wBuffer[MAX_TRACE_MSG];
 		vswprintf(wBuffer, _countof(wBuffer), fmt, args);
-		_clientLogCallback(defaultCategory, level, wBuffer);
+		_clientLogCallback(_defaultCategory, level, wBuffer);
 		va_end(args);
 	}
 	

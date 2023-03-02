@@ -47,7 +47,7 @@ public class RdpClientTests : TestsBase
     public async Task ShouldConnect(int colorDepthInput, int expectedWtsApiValue)
     {
         var user = await Host.GivenUser();
-
+        EnableFreeRdpLogs();
         var connectionSettings = new RdpConnectionSettings(
             username: "User",
             password: "somePass4U@3",
@@ -65,6 +65,14 @@ public class RdpClientTests : TestsBase
         await Task.Delay(50000);
 
         await sut.DisposeAsync();
+    }
+
+    private void EnableFreeRdpLogs()
+    {
+        Environment.SetEnvironmentVariable("WLOG_APPENDER", "FILE");
+        Environment.SetEnvironmentVariable("WLOG_LEVEL", "DEBUG");
+        Environment.SetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_PATH", "c:\\temp");
+        Environment.SetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_NAME", "freerdp.log");
     }
 
     [Fact]
