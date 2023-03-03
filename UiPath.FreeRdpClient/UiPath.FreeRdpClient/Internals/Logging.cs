@@ -1,14 +1,14 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-
 namespace UiPath.Rdp;
 
 internal class Logging : IHostedService
 {
-    public static string ScopeName = "RunId";
-    private static NativeInterface.LogCallback LogCallbackDelegate = null!;
-    private static NativeInterface.RegisterThreadScopeCallback RegisterThreadScopeCallbackDelegate = null!;
+    public static string ScopeName { get; set; } = "RunId";
+    internal static Logging? Instance { get; private set; }
+    private readonly NativeInterface.LogCallback _logCallbackDelegate;
+    private readonly NativeInterface.RegisterThreadScopeCallback _registerThreadScopeCallbackDelegate;
 
     private ILoggerFactory? LoggerFactory { get; set; }
 
@@ -35,9 +35,13 @@ internal class Logging : IHostedService
 
         "order flags 01 failed", //3+
     };
+
     public Logging(ILoggerFactory loggerFactory)
     {
         LoggerFactory = loggerFactory;
+        _logCallbackDelegate = Log;
+        _registerThreadScopeCallbackDelegate = RegisterThreadScope;
+        Instance = this;
     }
 
     private void Log(string category, LogLevel logLevel, string message)
@@ -55,12 +59,7 @@ internal class Logging : IHostedService
 
     private void RegisterThreadScope(string scope)
     {
-        BeginScope(scope);
-
-        void BeginScope(string scopeValue)
-        {
-            _ = LoggerFactory?.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scopeValue);
-        }
+        _ = LoggerFactory?.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scope);
     }
 
     private bool FilterLogs(LogLevel logLevel, string message)
@@ -75,10 +74,8 @@ internal class Logging : IHostedService
     Task IHostedService.StartAsync(CancellationToken cancellationToken)
     {
         var forwardFreeRdpLogs = Environment.GetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_PATH") is null;
-        LogCallbackDelegate = Log;
-        RegisterThreadScopeCallbackDelegate = RegisterThreadScope;
-        NativeInterface.InitializeLogging(logCallback: LogCallbackDelegate,
-                                          registerThreadScopeCallback: RegisterThreadScopeCallbackDelegate,
+        NativeInterface.InitializeLogging(logCallback: _logCallbackDelegate,
+                                          registerThreadScopeCallback: _registerThreadScopeCallbackDelegate,
                                           forwardFreeRdpLogs: forwardFreeRdpLogs);
         return Task.CompletedTask;
     }

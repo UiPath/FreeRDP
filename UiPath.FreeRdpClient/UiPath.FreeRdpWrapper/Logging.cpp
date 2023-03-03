@@ -57,8 +57,8 @@ namespace Logging
 		va_start(args, fmt);
 		wchar_t wBuffer[MAX_TRACE_MSG];
 		vswprintf(wBuffer, _countof(wBuffer), fmt, args);
-		_clientLogCallback(_defaultCategory, level, wBuffer);
 		va_end(args);
+		_clientLogCallback(_defaultCategory, level, wBuffer);
 	}
 	
 	void RegisterCurrentThreadScope(char* scope)

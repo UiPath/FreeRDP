@@ -16,7 +16,6 @@ namespace FreeRdpClient
 	{
 		rdpContext* context;
 		HANDLE transportStopEvent;
-		LPWSTR loggingScope;
 	};
 
 	inline HRESULT SetErrorInfo(LPCWSTR szError)

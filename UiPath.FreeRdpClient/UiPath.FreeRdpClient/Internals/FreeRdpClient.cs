@@ -19,27 +19,8 @@ internal class FreeRdpClient : IFreeRdpClient
     }
 
     private readonly ILogger<FreeRdpClient> _log;
-    private static AsyncLock? InitLock = new();
-
-    private async Task<IDisposable?> TryAcquireInitLock()
-    {
-        /// Make sure freerdp static initilizers are not run concurrently
-        /// when they do they fail with 
-        if (InitLock is null)
-            return null;
-
-        var releaseLock = await InitLock.LockAsync();
-        if (InitLock is null)
-            return null;
-
-        _log.LogInformation("RdpInitLock acquired.");
-        return Disposable.Create(() =>
-        {
-            InitLock = null;
-            releaseLock.Dispose();
-            _log.LogInformation("RdpInitLock released.");
-        });
-    }
+    private readonly AsyncLock _initLock = new();
+    private bool _initialized = false;
 
     public async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
@@ -56,14 +37,29 @@ internal class FreeRdpClient : IFreeRdpClient
             HostName = connectionSettings.HostName,
             Port = connectionSettings.Port ?? default
         };
-        using var releaseInitLock = await TryAcquireInitLock();
-        return await Task.Run(async () =>
+
+        using (await _initLock.LockAsync())
+        {
+            /// Make sure freerdp static initilizers are not run concurrently
+            /// when they do they fail with 
+            if (!_initialized)
+            {
+                _log.LogInformation("RdpInitLock acquired.");
+                var connection = await DoConnect();
+                _initialized = true;
+                _log.LogInformation("RdpInitLock released.");
+                return connection;
+            }
+        }
+
+        return await DoConnect();
+
+        Task<AsyncDisposable> DoConnect() => Task.Run(() =>
         {
             NativeInterface.RdpLogon(connectOptions, out var releaseObjectName);
-            return new AsyncDisposable(() =>
+            return new AsyncDisposable(async () =>
             {
                 Disconnect(releaseObjectName);
-                return ValueTask.CompletedTask;
             });
         });
     }
