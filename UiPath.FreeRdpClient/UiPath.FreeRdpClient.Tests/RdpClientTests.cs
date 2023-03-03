@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Nito.Disposables;
 using Shouldly;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,6 +13,14 @@ public class RdpClientTests : TestsBase
 {
     private const string StateEstablished = "ESTABLISHED";
     private const string StateListening = "LISTENING";
+    private IFreeRdpClient FreeRdpClient => Host.GetRequiredService<IFreeRdpClient>();
+    private ILogger Log => Host.GetRequiredService<ILogger<RdpClientTests>>();
+
+    private async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
+    {
+        using var logScope = Log.BeginScope($"{Logging.ScopeName}", connectionSettings.ClientName);
+        return await FreeRdpClient.Connect(connectionSettings);
+    }
 
     public RdpClientTests(ITestOutputHelper output) : base(output)
     {
@@ -58,7 +67,7 @@ public class RdpClientTests : TestsBase
             ColorDepth = colorDepthInput
         };
 
-        await using var sut = await FreeRdpClient.Connect(connectionSettings);
+        await using var sut = await Connect(connectionSettings);
         var sessionId = WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName);
         sessionId.HasValue.ShouldBeTrue();
         var displayInfo = WtsApi.GetSessionDisplayInfo(sessionId.Value);
@@ -71,12 +80,52 @@ public class RdpClientTests : TestsBase
         await WaitFor.Predicate(() => WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName) == null);
     }
 
-    private void EnableFreeRdpLogs()
+    [Fact]
+    public async Task ParallelConnectWorksOnFirstUse()
     {
-        Environment.SetEnvironmentVariable("WLOG_APPENDER", "FILE");
-        Environment.SetEnvironmentVariable("WLOG_LEVEL", "DEBUG");
-        Environment.SetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_PATH", "c:\\temp");
-        Environment.SetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_NAME", "freerdp.log");
+        var user = await Host.GivenUser();
+        var connectionSettings1 = new RdpConnectionSettings(
+            username: user.UserName.Split("\\")[1],
+            password: user.Password,
+            domain: user.UserName.Split("\\")[0]
+        )
+        {
+        };
+
+        user = await Host.GivenUserOther();
+        var connectionSettings2 = new RdpConnectionSettings(
+            username: user.UserName.Split("\\")[1],
+            password: user.Password,
+            domain: user.UserName.Split("\\")[0]
+        )
+        {
+        };
+        var iterations = 10;
+
+        while (iterations-- > 0)
+        {
+            var freerdpAppDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "freerdp");
+            if (Directory.Exists(freerdpAppDataFolder))
+                Directory.Delete(freerdpAppDataFolder, recursive: true);
+
+            freerdpAppDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), "config\\systemprofile\\AppData\\Roaming\\freerdp");
+            if (Directory.Exists(freerdpAppDataFolder))
+                Directory.Delete(freerdpAppDataFolder, recursive: true);
+
+            freerdpAppDataFolder = @"C:\Windows\System32\config\systemprofile\AppData\Roaming\freerdp";
+            if (Directory.Exists(freerdpAppDataFolder))
+                Directory.Delete(freerdpAppDataFolder, recursive: true);
+
+            var connect1Task = Connect(connectionSettings1);
+            var connect2Task = Connect(connectionSettings2);
+
+            await using var d = new CollectionAsyncDisposable(await Task.WhenAll(connect1Task, connect2Task));
+
+            await d.DisposeAsync();
+            await WaitFor.Predicate(() => WtsApi.FindFirstSessionByClientName(connectionSettings1.ClientName) == null);
+            await WaitFor.Predicate(() => WtsApi.FindFirstSessionByClientName(connectionSettings2.ClientName) == null);
+
+        }
     }
 
     [Fact]
@@ -99,7 +148,7 @@ public class RdpClientTests : TestsBase
 
         await ShouldNotHavePortWithState(port, StateEstablished);
 
-        await using var sut = await FreeRdpClient.Connect(connectionSettings);
+        await using var sut = await Connect(connectionSettings);
         var sessionId = WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName);
         sessionId.HasValue.ShouldBeTrue();
 
@@ -153,7 +202,7 @@ public class RdpClientTests : TestsBase
             password: user.Password + "_",
             domain: user.UserName.Split("\\")[0]
         );
-        var exception = await FreeRdpClient.Connect(connectionSettings).ShouldThrowAsync<COMException>();
+        var exception = await Connect(connectionSettings).ShouldThrowAsync<COMException>();
         exception.Message.Contains("Logon Failed", StringComparison.InvariantCultureIgnoreCase);
     }
 }

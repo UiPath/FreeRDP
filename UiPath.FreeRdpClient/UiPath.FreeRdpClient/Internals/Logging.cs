@@ -1,17 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 
 namespace UiPath.Rdp;
 
-internal static class Logging 
+internal class Logging : IHostedService
 {
     public static string ScopeName = "RunId";
-    internal static NativeInterface.LogCallback LogCallbackDelegate = Log;
-    private static NativeInterface.RegisterThreadScopeCallback RegisterThreadScopeCallbackDelegate = RegisterThreadScope;
+    private static NativeInterface.LogCallback LogCallbackDelegate = null!;
+    private static NativeInterface.RegisterThreadScopeCallback RegisterThreadScopeCallbackDelegate = null!;
 
-    private static ILoggerFactory? LoggerFactory { get; set; }
+    private ILoggerFactory? LoggerFactory { get; set; }
 
-    public static string[] FilterNotStartsWith { get; private set; } = new[]
+    public string[] FilterNotStartsWith { get; private set; } = new[]
     {
         // ordered by frequency
         "freerdp_check_fds() failed - 0", //24000+ in 50 sec
@@ -34,8 +35,12 @@ internal static class Logging
 
         "order flags 01 failed", //3+
     };
+    public Logging(ILoggerFactory loggerFactory)
+    {
+        LoggerFactory = loggerFactory;
+    }
 
-    private static void Log(string category, LogLevel logLevel, string message)
+    private void Log(string category, LogLevel logLevel, string message)
     {
         if (LoggerFactory is null)
             return;
@@ -47,31 +52,40 @@ internal static class Logging
         log.Log(logLevel, message);
     }
 
-    public static void SetupLogging(ILoggerFactory? loggerFactory)
-    {
-        var forwardFreeRdpLogs = Environment.GetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_PATH") is null;
-        LoggerFactory = loggerFactory;
-        NativeInterface.InitializeLogging(logCallback: LogCallbackDelegate,
-                                          registerThreadScopeCallback: RegisterThreadScopeCallbackDelegate,
-                                          forwardFreeRdpLogs: forwardFreeRdpLogs);
-    }
 
-    private static void RegisterThreadScope(string scope)
+    private void RegisterThreadScope(string scope)
     {
         BeginScope(scope);
 
-        static void BeginScope(string scopeValue)
+        void BeginScope(string scopeValue)
         {
             _ = LoggerFactory?.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scopeValue);
         }
     }
 
-    private static bool FilterLogs(LogLevel logLevel, string message)
+    private bool FilterLogs(LogLevel logLevel, string message)
     {
         if (logLevel is LogLevel.Error
             && FilterNotStartsWith.Any(message.StartsWith))
             return false;
 
         return true;
+    }
+
+    Task IHostedService.StartAsync(CancellationToken cancellationToken)
+    {
+        var forwardFreeRdpLogs = Environment.GetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_PATH") is null;
+        LogCallbackDelegate = Log;
+        RegisterThreadScopeCallbackDelegate = RegisterThreadScope;
+        NativeInterface.InitializeLogging(logCallback: LogCallbackDelegate,
+                                          registerThreadScopeCallback: RegisterThreadScopeCallbackDelegate,
+                                          forwardFreeRdpLogs: forwardFreeRdpLogs);
+        return Task.CompletedTask;
+    }
+
+    Task IHostedService.StopAsync(CancellationToken cancellationToken)
+    {
+        LoggerFactory = null;
+        return Task.CompletedTask;
     }
 }
