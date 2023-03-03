@@ -11,61 +11,52 @@ internal static class Logging
 
     private static ILoggerFactory? LoggerFactory { get; set; }
 
-    public static HashSet<string> FilterErrorsInCategories { get; private set; } = new[]
-    {
-        "com.freerdp.core.fastpath",
-        "com.freerdp.core.transport",
-        "com.freerdp.core",
-        "com.freerdp.core.update",
-        "com.freerdp.core.rdp",
-        "com.freerdp.codec.mppc",
-        "com.freerdp.core.surface"
-    }.ToHashSet();
-
     public static string[] FilterNotStartsWith { get; private set; } = new[]
     {
-        "Fastpath update UNKNOWN [",//c] failed, status 0",
-        "Total size (",
-        "Fastpath update Surface Commands [",//4] failed, status -1",
-        "Fastpath update Color Pointer [",//9] failed, status 0",
-        "unknown cmdType 0x",
-    };
-    public static HashSet<string> FilterErrorMessages { get; private set; } = new[]
-    {
+        // ordered by frequency
+        "freerdp_check_fds() failed - 0", //24000+ in 50 sec
+        "WARNING: invalid packet signature",
+        "transport_check_fds: transport->ReceiveCallback() - -4",
+        "fastpath_recv_update_data() fail",
+        "Stream_GetRemainingLength() < size",//20000+ in 50 sec
+        "Fastpath update Orders [0] failed, status 0",//??
+        "Total size (", // 21234214) exceeds MultifragMaxRequestSize (65535) // 2000+ in 50 secs
+        "Unexpected FASTPATH_FRAGMENT_SINGLE",//800+ in 50 sec
+        "SECONDARY ORDER [0x",//<04/05/...>] Cache Bitmap V2 (Compressed) failed",
+        "bulk_decompress() failed",
+        "Decompression failure!",
+        "Unknown bulk compression type 00000003",
+        "Unsupported bulk compression type 00000003",
+        "history buffer index out of range",//10+
+        "history buffer overflow",
+/*        
+        // appeared once in last run
+        "fastpath_recv_update() - -1",
+        "rdp_recv_tpkt_pdu: rdp_read_share_control_header() fail",
+        "transport_check_fds: transport->ReceiveCallback() - -1",
+
+        // did not appear in last run
+        "fastpath_recv_update_data: fastpath_recv_update() - -1",
         "fastpath_recv_update_data: Unexpected FASTPATH_FRAGMENT_LAST",
         "fastpath_recv_update_data: Unexpected FASTPATH_FRAGMENT_NEXT",
         "fastpath_recv_update_data: Unexpected FASTPATH_FRAGMENT_FIRST",
-        "fastpath_recv_update() - -1",
-        "fastpath_recv_update_data() fail",
-        "fastpath_recv_update_data: fastpath_recv_update() - -1",
-        "Stream_GetRemainingLength() < size",
-        "bulk_decompress() failed",
-        "Unexpected FASTPATH_FRAGMENT_SINGLE",
-        "transport_check_fds: transport->ReceiveCallback() - -4",
-        "Decompression failure!",
-        "Unsupported bulk compression type 00000003",
-        "WARNING: invalid packet signature",
-        //"rdp_recv_tpkt_pdu: rdp_read_share_control_header() fail",  //1
-        //"transport_check_fds: transport->ReceiveCallback() - -1",   //1
-        "history buffer index out of range",
-        "history buffer overflow",
-
-
+        "order flags 03 failed",
         "order flags 01 failed",
         "SECONDARY ORDER [0x05] Cache Bitmap V2 (Compressed) failed",
-        "order flags 03 failed",
         "Stream_GetRemainingLength(s)",
-
-        "freerdp_check_fds() failed - 0",
-        "Unknown bulk compression type 00000003",
-    }.ToHashSet();
+        "Fastpath update UNKNOWN [",//c] failed, status 0",
+        "Fastpath update Surface Commands [",//4] failed, status -1",
+        "Fastpath update Color Pointer [",//9] failed, status 0",
+        "unknown cmdType 0x",
+*/
+    };
 
     private static void Log(string category, LogLevel logLevel, string message)
     {
         if (LoggerFactory is null)
             return;
 
-        if (!FilterLogs(category, logLevel, message))
+        if (!FilterLogs(logLevel, message))
             return;
 
         var log = LoggerFactory.CreateLogger(category);
@@ -91,11 +82,10 @@ internal static class Logging
         }
     }
 
-    private static bool FilterLogs(string category, LogLevel logLevel, string message)
+    private static bool FilterLogs(LogLevel logLevel, string message)
     {
         if (logLevel is LogLevel.Error
-            && FilterErrorsInCategories.Contains(category)
-            && (FilterErrorMessages.Contains(message) || FilterNotStartsWith.Any(message.StartsWith)))
+            && FilterNotStartsWith.Any(message.StartsWith))
             return false;
 
         return true;
