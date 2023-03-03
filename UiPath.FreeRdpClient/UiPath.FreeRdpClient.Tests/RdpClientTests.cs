@@ -36,11 +36,6 @@ public class RdpClientTests : TestsBase
             clientNamesHistory.Add(connectionSettings.ClientName).ShouldBe(true);
         }
     }
-    public override Task InitializeAsync()
-    {
-        EnableFreeRdpLogs();
-        return base.InitializeAsync();
-    }
 
     [InlineData(32, 32)]
     [InlineData(24, 8)]
@@ -53,22 +48,27 @@ public class RdpClientTests : TestsBase
     {
         var user = await Host.GivenUser();
         var connectionSettings = new RdpConnectionSettings(
-            username: "User",
-            password: "somePass4U@3",
-            domain: "SESSION"
+            username: user.UserName.Split("\\")[1],
+            password: user.Password,
+            domain: user.UserName.Split("\\")[0]
         )
         {
-            HostName = "WinS2019Tests",
-            DesktopWidth = 3*4*101,
-            DesktopHeight = 3*4*71,
+            DesktopWidth = 3 * 4 * 101,
+            DesktopHeight = 3 * 4 * 71,
             ColorDepth = colorDepthInput
         };
-        Host.GetRequiredService<ILogger<TestHost>>().BeginScope("{RunId}", "runId_someAmbientRunId");
-        using var activity = new Activity("ShouldConnect").SetBaggage("RunId", $"runId_{connectionSettings.ClientName}").Start();
+
         await using var sut = await FreeRdpClient.Connect(connectionSettings);
-        await Task.Delay(50000);
+        var sessionId = WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName);
+        sessionId.HasValue.ShouldBeTrue();
+        var displayInfo = WtsApi.GetSessionDisplayInfo(sessionId.Value);
+
+        ((int)displayInfo.HorizontalResolution).ShouldBe(connectionSettings.DesktopWidth);
+        ((int)displayInfo.VerticalResolution).ShouldBe(connectionSettings.DesktopHeight);
+        //((int)displayInfo.ColorDepth).ShouldBe(expectedWtsApiValue);
 
         await sut.DisposeAsync();
+        await WaitFor.Predicate(() => WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName) == null);
     }
 
     private void EnableFreeRdpLogs()
