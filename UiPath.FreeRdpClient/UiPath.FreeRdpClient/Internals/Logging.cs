@@ -29,26 +29,10 @@ internal static class Logging
         "Unsupported bulk compression type 00000003",
         "history buffer index out of range",//10+
         "history buffer overflow",
-/*        
-        // appeared once in last run
         "fastpath_recv_update() - -1",
-        "rdp_recv_tpkt_pdu: rdp_read_share_control_header() fail",
-        "transport_check_fds: transport->ReceiveCallback() - -1",
-
-        // did not appear in last run
-        "fastpath_recv_update_data: fastpath_recv_update() - -1",
-        "fastpath_recv_update_data: Unexpected FASTPATH_FRAGMENT_LAST",
-        "fastpath_recv_update_data: Unexpected FASTPATH_FRAGMENT_NEXT",
-        "fastpath_recv_update_data: Unexpected FASTPATH_FRAGMENT_FIRST",
         "order flags 03 failed",
-        "order flags 01 failed",
-        "SECONDARY ORDER [0x05] Cache Bitmap V2 (Compressed) failed",
-        "Stream_GetRemainingLength(s)",
-        "Fastpath update UNKNOWN [",//c] failed, status 0",
-        "Fastpath update Surface Commands [",//4] failed, status -1",
-        "Fastpath update Color Pointer [",//9] failed, status 0",
-        "unknown cmdType 0x",
-*/
+
+        "order flags 01 failed", //3+
     };
 
     private static void Log(string category, LogLevel logLevel, string message)
