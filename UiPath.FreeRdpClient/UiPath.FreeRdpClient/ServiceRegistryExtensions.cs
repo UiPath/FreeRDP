@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace UiPath.Rdp;
 
@@ -11,6 +9,7 @@ public static class ServiceRegistryExtensions
         Logging.ScopeName = scopeName;
         return services
             .AddSingleton<IFreeRdpClient, FreeRdpClient>()
-            .AddHostedService<Logging>();
+            .AddSingleton<Logging>()
+            .AddHostedService(sp => sp.GetRequiredService<Logging>());
     }
 }

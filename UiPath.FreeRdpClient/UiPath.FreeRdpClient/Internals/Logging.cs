@@ -7,12 +7,12 @@ internal class Logging : IHostedService
 {
     public static string ScopeName { get; set; } = "RunId";
     internal static Logging? Instance { get; private set; }
-    private readonly NativeInterface.LogCallback _logCallbackDelegate;
+    internal readonly NativeInterface.LogCallback LogCallbackDelegate;
     private readonly NativeInterface.RegisterThreadScopeCallback _registerThreadScopeCallbackDelegate;
 
     private ILoggerFactory? LoggerFactory { get; set; }
 
-    public string[] FilterNotStartsWith { get; private set; } = new[]
+    public string[] FilterRemoveStartsWith { get; set; } = new[]
     {
         // ordered by frequency
         "freerdp_check_fds() failed - 0", //24000+ in 50 sec
@@ -38,7 +38,7 @@ internal class Logging : IHostedService
     public Logging(ILoggerFactory loggerFactory)
     {
         LoggerFactory = loggerFactory;
-        _logCallbackDelegate = Log;
+        LogCallbackDelegate = Log;
         _registerThreadScopeCallbackDelegate = RegisterThreadScope;
         Instance = this;
     }
@@ -69,7 +69,7 @@ internal class Logging : IHostedService
     private bool FilterLogs(LogLevel logLevel, string message)
     {
         if (logLevel is LogLevel.Error
-            && FilterNotStartsWith.Any(message.StartsWith))
+            && FilterRemoveStartsWith.Any(message.StartsWith))
             return false;
 
         return true;
@@ -78,7 +78,7 @@ internal class Logging : IHostedService
     Task IHostedService.StartAsync(CancellationToken cancellationToken)
     {
         var forwardFreeRdpLogs = Environment.GetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_PATH") is null;
-        NativeInterface.InitializeLogging(logCallback: _logCallbackDelegate,
+        NativeInterface.InitializeLogging(logCallback: LogCallbackDelegate,
                                           registerThreadScopeCallback: _registerThreadScopeCallbackDelegate,
                                           forwardFreeRdpLogs: forwardFreeRdpLogs);
         return Task.CompletedTask;
@@ -87,6 +87,7 @@ internal class Logging : IHostedService
     Task IHostedService.StopAsync(CancellationToken cancellationToken)
     {
         LoggerFactory = null;
+        NativeInterface.InitializeLogging(logCallback: null, registerThreadScopeCallback: null, forwardFreeRdpLogs: false);
         return Task.CompletedTask;
     }
 }

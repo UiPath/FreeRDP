@@ -34,7 +34,7 @@ internal class NativeInterface
     public delegate void RegisterThreadScopeCallback([MarshalAs(UnmanagedType.LPStr)] string category);
 
     [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
-    public extern static uint InitializeLogging([MarshalAs(UnmanagedType.FunctionPtr)] LogCallback logCallback, [MarshalAs(UnmanagedType.FunctionPtr)] RegisterThreadScopeCallback registerThreadScopeCallback, bool forwardFreeRdpLogs);
+    public extern static uint InitializeLogging([MarshalAs(UnmanagedType.FunctionPtr)] LogCallback? logCallback, [MarshalAs(UnmanagedType.FunctionPtr)] RegisterThreadScopeCallback? registerThreadScopeCallback, bool forwardFreeRdpLogs);
 
     [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
     public extern static uint RdpLogon([In] ConnectOptions rdpOptions, [MarshalAs(UnmanagedType.BStr)] out string releaseObjectName);

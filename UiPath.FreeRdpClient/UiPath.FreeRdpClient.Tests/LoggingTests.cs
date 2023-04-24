@@ -10,8 +10,9 @@ namespace UiPath.FreeRdp.Tests;
 
 public class LoggingTests : TestsBase
 {
-    private readonly ConcurrentDictionary<string, ConcurrentBag<(LogLevel logLevel, string message)>> _loggers = new ();
-    private readonly Mock<ILoggerProvider> _loggingProviderMock = new();
+    private readonly ConcurrentDictionary<string, ConcurrentBag<(LogLevel logLevel, string message)>> _logsByCategory = new ();
+    private readonly ConcurrentBag<object> _scopes = new();
+    private readonly Mock<ILogger> _loggerMock = new();
     private Wts WtsApi => Host.GetWts();
 
     private IFreeRdpClient FreeRdpClient => Host.GetRequiredService<IFreeRdpClient>();
@@ -19,16 +20,22 @@ public class LoggingTests : TestsBase
 
     private async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
-        using var logScope = Log.BeginScope($"{Logging.ScopeName}", connectionSettings.ClientName);
+        using var logScope = Log.BeginScope($"{Logging.ScopeName}", connectionSettings.ClientName + "_fromTest");
         return await FreeRdpClient.Connect(connectionSettings);
     }
 
     public LoggingTests(ITestOutputHelper output) : base(output)
     {
-        _loggingProviderMock.Setup(p => p.CreateLogger(It.IsAny<string>()))
-            .Returns((string category) => new FakeLogger(_loggers.GetOrAdd(category, c => new())));
+        var logsByCategoryProvider = new Mock<ILoggerProvider>();
+        logsByCategoryProvider.Setup(p => p.CreateLogger(It.IsAny<string>()))
+            .Returns((string category) => new FakeLogger(_logsByCategory.GetOrAdd(category, c => new())));
+        Host.AddRegistry(s => s.AddLogging(b => b.AddProvider(logsByCategoryProvider.Object)));
 
-        Host.AddRegistry(s => s.AddLogging(b => b.AddProvider(_loggingProviderMock.Object)));
+        var scopesProvider = new Mock<ILoggerProvider>();
+        scopesProvider.Setup(p => p.CreateLogger(It.IsAny<string>()))
+            .Returns((string category) => _loggerMock.Object);
+        Host.AddRegistry(s => s.AddLogging(b => b.AddProvider(scopesProvider.Object)));
+        _loggerMock.Setup(l => l.BeginScope(It.IsAny<It.IsAnyType>())).Callback((object o) => _scopes.Add(o));
     }
 
     private class FakeLogger : ILogger
@@ -64,31 +71,69 @@ public class LoggingTests : TestsBase
         await using var sut = await Connect(connectionSettings);
         var sessionId = WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName)
             .ShouldNotBeNull();
-        await WaitFor.Predicate(() => WtsApi.QuerySessionInformation(sessionId).ConnectState() 
-                    is Windows.Win32.System.RemoteDesktop.WTS_CONNECTSTATE_CLASS.WTSActive 
+        await WaitFor.Predicate(() => WtsApi.QuerySessionInformation(sessionId).ConnectState()
+                    is Windows.Win32.System.RemoteDesktop.WTS_CONNECTSTATE_CLASS.WTSActive
                     or Windows.Win32.System.RemoteDesktop.WTS_CONNECTSTATE_CLASS.WTSConnected);
 
         await sut.DisposeAsync();
         await WaitFor.Predicate(() => WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName) == null);
 
         var acceptedDebugCategory = "com.freerdp.core.nego";
-        var negoLogs = _loggers.Where(kv => kv.Key.StartsWith(acceptedDebugCategory))
+        var negoLogs = _logsByCategory.Where(kv => kv.Key.StartsWith(acceptedDebugCategory))
             .SelectMany(kv => kv.Value)
             .Where(l => l.logLevel == LogLevel.Debug)
             .ToArray();
         negoLogs.ShouldNotBeEmpty();
 
         var wrapperCategory = "UiPath.FreeRdpWrapper";
-        var wrapperLogs = _loggers.Where(kv => kv.Key.StartsWith(wrapperCategory))
+        var wrapperLogs = _logsByCategory.Where(kv => kv.Key.StartsWith(wrapperCategory))
             .SelectMany(kv => kv.Value)
             .ToArray();
         wrapperLogs.ShouldNotBeEmpty();
 
         var freerdpCategoryPrefix = "com.freerdp";
-        var nonDebugFreeRdpLogs = _loggers.Where(kv => kv.Key.StartsWith(freerdpCategoryPrefix) && !kv.Key.StartsWith(acceptedDebugCategory))
+        var nonDebugFreeRdpLogs = _logsByCategory.Where(kv => kv.Key.StartsWith(freerdpCategoryPrefix) && !kv.Key.StartsWith(acceptedDebugCategory))
             .SelectMany(kv => kv.Value)
             .ToArray();
         nonDebugFreeRdpLogs.ShouldNotBeEmpty();
         nonDebugFreeRdpLogs.Where(l => l.logLevel == LogLevel.Debug).ShouldBeEmpty();
+        nonDebugFreeRdpLogs.Where(l => l.logLevel == LogLevel.Error).ShouldBeEmpty();
+
+        var scopes = _scopes.OfType<IReadOnlyList<KeyValuePair<string, object?>>>()
+            .Where(kvl => kvl.Any(kv => kv.Key == Logging.ScopeName && connectionSettings.ClientName.Equals(kv.Value)))
+            .ToArray();
+        scopes.ShouldNotBeEmpty();
     }
+
+    [Fact]
+    public async Task ErrorLogsShouldBeFilteredAndTranslatedToWarn()
+    {
+        var logging = Host.GetRequiredService<Logging>();
+        logging.FilterRemoveStartsWith = new[] { Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString() };
+
+        var someTestCategory = Guid.NewGuid().ToString();
+        var testLogs = _logsByCategory.Where(kv => kv.Key == someTestCategory)
+            .SelectMany(kv => kv.Value);
+
+        foreach (var startWith in logging.FilterRemoveStartsWith)
+        {
+            logging.LogCallbackDelegate.Invoke(someTestCategory, LogLevel.Error, startWith + "_extra1");
+            logging.LogCallbackDelegate.Invoke(someTestCategory, LogLevel.Error, startWith + "_extra2");
+            logging.LogCallbackDelegate.Invoke(someTestCategory, LogLevel.Error, startWith);
+        }
+        testLogs.ShouldBeEmpty();
+
+        foreach (var startWith in logging.FilterRemoveStartsWith)
+        {
+            logging.LogCallbackDelegate.Invoke(someTestCategory, LogLevel.Error, "_" + startWith);
+        }
+        testLogs.Count()
+            .ShouldBe(logging.FilterRemoveStartsWith.Length);
+        testLogs.Count(l => l.logLevel is LogLevel.Warning)
+            .ShouldBe(logging.FilterRemoveStartsWith.Length);
+        testLogs.Where(l => l.logLevel is LogLevel.Error)
+            .ShouldBeEmpty();
+    }
+
+
 }
