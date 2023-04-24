@@ -91,7 +91,7 @@ internal sealed class NativeLoggingForwarder : IDisposable
 
     public void Dispose()
     {
-        _disposed = false;
+        _disposed = true;
         DisableNativeLogsForwarding();
     }
 }
