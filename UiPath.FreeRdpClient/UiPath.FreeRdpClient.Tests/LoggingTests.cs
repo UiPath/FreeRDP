@@ -4,6 +4,7 @@ using Moq;
 using Nito.Disposables;
 using System.Collections.Concurrent;
 using UiPath.Rdp;
+using UiPath.SessionTools;
 
 namespace UiPath.FreeRdp.Tests;
 
@@ -11,6 +12,7 @@ public class LoggingTests : TestsBase
 {
     private readonly ConcurrentDictionary<string, ConcurrentBag<(LogLevel logLevel, string message)>> _loggers = new ();
     private readonly Mock<ILoggerProvider> _loggingProviderMock = new();
+    private Wts WtsApi => Host.GetWts();
 
     private IFreeRdpClient FreeRdpClient => Host.GetRequiredService<IFreeRdpClient>();
     private ILogger Log => Host.GetRequiredService<ILogger<RdpClientTests>>();
@@ -60,8 +62,11 @@ public class LoggingTests : TestsBase
         };
 
         await using var sut = await Connect(connectionSettings);
-        var sessionId = WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName);
-        sessionId.HasValue.ShouldBeTrue();
+        var sessionId = WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName)
+            .ShouldNotBeNull();
+        await WaitFor.Predicate(() => WtsApi.QuerySessionInformation(sessionId).ConnectState() 
+                    is Windows.Win32.System.RemoteDesktop.WTS_CONNECTSTATE_CLASS.WTSActive 
+                    or Windows.Win32.System.RemoteDesktop.WTS_CONNECTSTATE_CLASS.WTSConnected);
 
         await sut.DisposeAsync();
         await WaitFor.Predicate(() => WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName) == null);
