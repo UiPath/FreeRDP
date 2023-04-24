@@ -29,12 +29,10 @@ internal class Logging : IHostedService
         "Decompression failure!",
         "Unknown bulk compression type 00000003",
         "Unsupported bulk compression type 00000003",
+        "order flags ",
         "history buffer index out of range",//10+
         "history buffer overflow",
         "fastpath_recv_update() - -1",
-        "order flags 03 failed",
-
-        "order flags 01 failed", //3+
     };
 
     public Logging(ILoggerFactory loggerFactory)
@@ -52,6 +50,11 @@ internal class Logging : IHostedService
 
         if (!FilterLogs(logLevel, message))
             return;
+
+        if (logLevel is LogLevel.Error)
+        {
+            logLevel = LogLevel.Warning;
+        }
 
         var log = LoggerFactory.CreateLogger(category);
         log.Log(logLevel, message);
