@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using Microsoft.Extensions.Logging;
 using Nito.Disposables;
+using MartinCostello.Logging.XUnit;
 
 namespace UiPath.FreeRdp.Tests.TestInfra;
 
@@ -23,6 +24,9 @@ public class TestHost : IServiceProvider, IHost, IAsyncDisposable
     private readonly IMessageSink? _messageSink;
     private readonly CollectionAsyncDisposable _disposables = new();
     private bool _hostStarted;
+    private static volatile int HostCounter = 0;
+
+    public int HostId { get; } = Interlocked.Increment(ref HostCounter);
 
     private IHost _host => _hostLazy.Value;
 
@@ -73,25 +77,31 @@ public class TestHost : IServiceProvider, IHost, IAsyncDisposable
         .ConfigureServices(s => s.AddSingleton(this))
         .ConfigureServices(services => _configureServices.ForEach(cs => cs(services)))
         .ConfigureServices(AddFakes)
-        .ConfigureLogging((l) =>
+        .ConfigureLogging(loggingBuilder =>
         {
-            l.AddSimpleConsole(o => {
-                o.IncludeScopes = true;
-                o.UseUtcTimestamp = true; });
-            Action<MartinCostello.Logging.XUnit.XUnitLoggerOptions> configure = o =>
+            loggingBuilder.AddSimpleConsole(o =>
             {
+                o.UseUtcTimestamp = true;
+                o.TimestampFormat = $"[C {HostId} dd.HH:mm:ss.fffff] ";
                 o.IncludeScopes = true;
-                o.TimestampFormat = "dd.HH:mm:ss.fffff";
-            };
+            });
+
             if (_output != null)
             {
-                l.AddXUnit(_output, configure);
+                loggingBuilder.AddXUnit(_output, ConfigureXUnit);
             }
 
             if (_messageSink != null)
-                l.AddXUnit(_messageSink, configure);
+            {
+                loggingBuilder.AddXUnit(_messageSink, ConfigureXUnit);
+            }
 
-            l.SetMinimumLevel(LogLevel.Trace);
+            loggingBuilder.SetMinimumLevel(LogLevel.Trace);
+            void ConfigureXUnit(XUnitLoggerOptions o)
+            {
+                o.TimestampFormat = $"X {HostId} dd.HH:mm:ss.fffff";
+                o.IncludeScopes = true;
+            }
         })
         .Build();
 
