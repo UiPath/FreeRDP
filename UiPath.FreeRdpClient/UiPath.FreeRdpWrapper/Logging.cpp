@@ -63,6 +63,9 @@ namespace Logging
 	
 	void RegisterCurrentThreadScope(char* scope)
 	{
+		if (!_registerThreadScopeCallback)
+			return;
+		
 		_registerThreadScopeCallback(scope);
 	}
 }
