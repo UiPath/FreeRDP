@@ -4,8 +4,8 @@
 
 namespace Logging
 {
-	static pRegisterThreadScopeCallback _registerThreadScopeCallback;
-	static pLogCallback _clientLogCallback;
+	static pRegisterThreadScopeCallback _registerThreadScopeCallback = nullptr;
+	static pLogCallback _clientLogCallback = nullptr;
 	static wLogCallbacks _wlogCallbacks = { 0 };
 	static char _defaultCategory[] = "UiPath.FreeRdpWrapper";
 
@@ -53,6 +53,9 @@ namespace Logging
 
 	void Log(DWORD level, const wchar_t* fmt, ...)
 	{
+		if (!_clientLogCallback)
+			return;
+
 		va_list args;
 		va_start(args, fmt);
 		wchar_t wBuffer[MAX_TRACE_MSG];
