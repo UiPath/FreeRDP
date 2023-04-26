@@ -1,15 +1,14 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace UiPath.Rdp;
 
-internal class Logging : IHostedService
+internal sealed class Logging : IDisposable
 {
     public static string ScopeName { get; set; } = "RunId";
     internal static Logging? Instance { get; private set; }
     internal readonly NativeInterface.LogCallback LogCallbackDelegate;
     private readonly NativeInterface.RegisterThreadScopeCallback _registerThreadScopeCallbackDelegate;
-
+    private bool _logsForwardingEnabled = false;
     private ILoggerFactory? LoggerFactory { get; set; }
 
     public string[] FilterRemoveStartsWith { get; set; } = new[]
@@ -40,6 +39,7 @@ internal class Logging : IHostedService
         LoggerFactory = loggerFactory;
         LogCallbackDelegate = Log;
         _registerThreadScopeCallbackDelegate = RegisterThreadScope;
+        EnableNativeLogsForwarding();
         Instance = this;
     }
 
@@ -75,19 +75,30 @@ internal class Logging : IHostedService
         return true;
     }
 
-    Task IHostedService.StartAsync(CancellationToken cancellationToken)
+    private void EnableNativeLogsForwarding()
     {
         var forwardFreeRdpLogs = Environment.GetEnvironmentVariable("WLOG_FILEAPPENDER_OUTPUT_FILE_PATH") is null;
         NativeInterface.InitializeLogging(logCallback: LogCallbackDelegate,
                                           registerThreadScopeCallback: _registerThreadScopeCallbackDelegate,
                                           forwardFreeRdpLogs: forwardFreeRdpLogs);
-        return Task.CompletedTask;
+        _logsForwardingEnabled = true;
     }
 
-    Task IHostedService.StopAsync(CancellationToken cancellationToken)
+    private void DisableNativeLogsForwarding()
     {
         LoggerFactory = null;
         NativeInterface.InitializeLogging(logCallback: null, registerThreadScopeCallback: null, forwardFreeRdpLogs: false);
-        return Task.CompletedTask;
+        _logsForwardingEnabled = false;
+    }
+
+    internal void EnsureNativeLogsForwarding()
+    {
+        if (!_logsForwardingEnabled)
+            EnableNativeLogsForwarding();
+    }
+
+    public void Dispose()
+    {
+        DisableNativeLogsForwarding();
     }
 }

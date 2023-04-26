@@ -8,8 +8,11 @@ public static class ServiceRegistryExtensions
     {
         Logging.ScopeName = scopeName;
         return services
-            .AddSingleton<IFreeRdpClient, FreeRdpClient>()
             .AddSingleton<Logging>()
-            .AddHostedService(sp => sp.GetRequiredService<Logging>());
+            .AddSingleton<IFreeRdpClient>(sp =>
+            {
+                sp.GetRequiredService<Logging>().EnsureNativeLogsForwarding();
+                return ActivatorUtilities.CreateInstance<FreeRdpClient>(sp);
+            });
     }
 }
