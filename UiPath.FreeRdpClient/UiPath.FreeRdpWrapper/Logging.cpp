@@ -21,7 +21,7 @@ namespace Logging
 	HRESULT STDAPICALLTYPE InitializeLogging(
 	    pLogCallback logCallback,
 		pRegisterThreadScopeCallback registerThreadScopeCallback,
-		bool forwardFreeRdpLogs
+	    BOOL forwardFreeRdpLogs
 	)
 	{
 		_clientLogCallback = logCallback;
@@ -47,7 +47,7 @@ namespace Logging
 
 		auto negoLog = WLog_Get("com.freerdp.core.nego");
 		WLog_SetLogLevel(negoLog, WLOG_TRACE);
-
+		DT_TRACE(L"Native logging forwarding initialized.");
 		return S_OK;
 	}
 

@@ -2,6 +2,7 @@
 using Nito.AsyncEx;
 using Nito.Disposables;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 namespace UiPath.Rdp;
 
@@ -22,8 +23,18 @@ internal class FreeRdpClient : IFreeRdpClient
     private readonly AsyncLock _initLock = new();
     private bool _initialized = false;
 
+    private void ThrowIfNull(object? arg, [CallerArgumentExpression("arg")] string? argumentName = null)
+    {
+        if (arg is null)
+            throw new ArgumentNullException(argumentName);
+    }
+
     public async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
+        ThrowIfNull(connectionSettings.Username);
+        ThrowIfNull(connectionSettings.Domain);
+        ThrowIfNull(connectionSettings.Password);
+
         NativeInterface.ConnectOptions connectOptions = new()
         {
             Width = connectionSettings.DesktopWidth,
@@ -37,7 +48,7 @@ internal class FreeRdpClient : IFreeRdpClient
             HostName = connectionSettings.HostName,
             Port = connectionSettings.Port ?? default
         };
-
+        
         using (await _initLock.LockAsync())
         {
             /// Make sure freerdp static initilizers are not run concurrently
