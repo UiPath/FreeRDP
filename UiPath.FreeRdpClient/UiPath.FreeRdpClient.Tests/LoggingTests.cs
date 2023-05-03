@@ -117,15 +117,15 @@ public class LoggingTests : TestsBase
 
         foreach (var startWith in logging.FilterRemoveStartsWith)
         {
-            logging.LogCallbackDelegate.Invoke(someTestCategory, LogLevel.Error, startWith + "_extra1");
-            logging.LogCallbackDelegate.Invoke(someTestCategory, LogLevel.Error, startWith + "_extra2");
-            logging.LogCallbackDelegate.Invoke(someTestCategory, LogLevel.Error, startWith);
+            logging.LogCallbackDelegate(someTestCategory, LogLevel.Error, startWith + "_extra1");
+            logging.LogCallbackDelegate(someTestCategory, LogLevel.Error, startWith + "_extra2");
+            logging.LogCallbackDelegate(someTestCategory, LogLevel.Error, startWith);
         }
         testLogs.ShouldBeEmpty();
 
         foreach (var startWith in logging.FilterRemoveStartsWith)
         {
-            logging.LogCallbackDelegate.Invoke(someTestCategory, LogLevel.Error, "_" + startWith);
+            logging.LogCallbackDelegate(someTestCategory, LogLevel.Error, "_" + startWith);
         }
         testLogs.Count()
             .ShouldBe(logging.FilterRemoveStartsWith.Length);

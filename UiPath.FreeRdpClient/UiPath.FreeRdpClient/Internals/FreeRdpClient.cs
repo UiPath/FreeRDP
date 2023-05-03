@@ -23,17 +23,11 @@ internal class FreeRdpClient : IFreeRdpClient
     private readonly AsyncLock _initLock = new();
     private bool _initialized = false;
 
-    private void ThrowIfNull(object? arg, [CallerArgumentExpression("arg")] string? argumentName = null)
-    {
-        if (arg is null)
-            throw new ArgumentNullException(argumentName);
-    }
-
     public async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
-        ThrowIfNull(connectionSettings.Username);
-        ThrowIfNull(connectionSettings.Domain);
-        ThrowIfNull(connectionSettings.Password);
+        ArgumentNullException.ThrowIfNull(connectionSettings.Username);
+        ArgumentNullException.ThrowIfNull(connectionSettings.Domain);
+        ArgumentNullException.ThrowIfNull(connectionSettings.Password);
 
         NativeInterface.ConnectOptions connectOptions = new()
         {
