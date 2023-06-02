@@ -1766,6 +1766,57 @@ static BOOL tryAdvance(rdpdrPlugin* rdpdr)
 	return TRUE;
 }
 
+static BOOL rdpdr_state_check(rdpdrPlugin* rdpdr, UINT16 packetid,
+                              enum RDPDR_CHANNEL_STATE expected, enum RDPDR_CHANNEL_STATE next)
+{
+	WINPR_ASSERT(rdpdr);
+
+	const char* strstate = rdpdr_state_str(rdpdr->state);
+	if (rdpdr->state != expected)
+	{
+		WLog_Print(rdpdr->log, WLOG_ERROR,
+		           "channel [RDPDR] received %s, expected state %s but have state %s, aborting.",
+		           rdpdr_packetid_string(packetid), rdpdr_state_str(expected), strstate);
+
+		rdpdr_state_advance(rdpdr, RDPDR_CHANNEL_STATE_INITIAL);
+		return FALSE;
+	}
+	return rdpdr_state_advance(rdpdr, next);
+}
+
+static BOOL rdpdr_check_channel_state(rdpdrPlugin* rdpdr, UINT16 packetid)
+{
+	WINPR_ASSERT(rdpdr);
+
+	switch (packetid)
+	{
+		case PAKID_CORE_SERVER_ANNOUNCE:
+			/* windows servers sometimes send this message.
+			 * it seems related to session login (e.g. first initialization for RDP/TLS style login,
+			 * then reinitialize the channel after login successful
+			 */
+			rdpdr_state_advance(rdpdr, RDPDR_CHANNEL_STATE_INITIAL);
+			return rdpdr_state_check(rdpdr, packetid, RDPDR_CHANNEL_STATE_INITIAL,
+			                         RDPDR_CHANNEL_STATE_ANNOUNCE);
+		case PAKID_CORE_SERVER_CAPABILITY:
+			return rdpdr_state_check(rdpdr, packetid, RDPDR_CHANNEL_STATE_NAME_REQUEST,
+			                         RDPDR_CHANNEL_STATE_SERVER_CAPS);
+		case PAKID_CORE_CLIENTID_CONFIRM:
+			return rdpdr_state_check(rdpdr, packetid, RDPDR_CHANNEL_STATE_CLIENT_CAPS,
+			                         RDPDR_CHANNEL_STATE_CLIENTID_CONFIRM);
+		case PAKID_CORE_USER_LOGGEDON:
+			return rdpdr_state_check(rdpdr, packetid, RDPDR_CHANNEL_STATE_READY,
+			                         RDPDR_CHANNEL_STATE_USER_LOGGEDON);
+		default:
+		{
+			enum RDPDR_CHANNEL_STATE state = RDPDR_CHANNEL_STATE_READY;
+			if (rdpdr->state == RDPDR_CHANNEL_STATE_USER_LOGGEDON)
+				state = RDPDR_CHANNEL_STATE_USER_LOGGEDON;
+			return rdpdr_state_check(rdpdr, packetid, state, state);
+		}
+	}
+}
+
 /**
  * Function description
  *
