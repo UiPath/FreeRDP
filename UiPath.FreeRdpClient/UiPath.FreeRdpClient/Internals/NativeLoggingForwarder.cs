@@ -2,13 +2,13 @@
 
 namespace UiPath.Rdp;
 
-internal sealed class Logging : IDisposable
+internal sealed class NativeLoggingForwarder : IDisposable
 {
     public static string ScopeName { get; set; } = "RunId";
-    internal static Logging? Instance { get; private set; }
-    internal readonly NativeInterface.LogCallback LogCallbackDelegate;
+    public readonly NativeInterface.LogCallback LogCallbackDelegate;
     private readonly NativeInterface.RegisterThreadScopeCallback _registerThreadScopeCallbackDelegate;
-    private ILoggerFactory? LoggerFactory { get; set; }
+    private volatile bool _disposed = false;
+    private readonly ILoggerFactory _loggerFactory;
 
     public string[] FilterRemoveStartsWith { get; set; } = new[]
     {
@@ -33,18 +33,17 @@ internal sealed class Logging : IDisposable
         "fastpath_recv_update() - -1",
     };
 
-    public Logging(ILoggerFactory loggerFactory)
+    public NativeLoggingForwarder(ILoggerFactory loggerFactory)
     {
-        LoggerFactory = loggerFactory;
+        _loggerFactory = loggerFactory;
         LogCallbackDelegate = Log;
         _registerThreadScopeCallbackDelegate = RegisterThreadScope;
         EnableNativeLogsForwarding();
-        Instance = this;
     }
 
     private void Log(string category, LogLevel logLevel, string message)
     {
-        if (LoggerFactory is null)
+        if (_disposed)
             return;
 
         if (!FilterLogs(logLevel, message))
@@ -55,14 +54,17 @@ internal sealed class Logging : IDisposable
             logLevel = LogLevel.Warning;
         }
 
-        var log = LoggerFactory.CreateLogger(category);
+        var log = _loggerFactory.CreateLogger(category);
         log.Log(logLevel, message);
     }
 
 
     private void RegisterThreadScope(string scope)
     {
-        _ = LoggerFactory?.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scope);
+        if (_disposed)
+            return;
+
+        _ = _loggerFactory.CreateLogger(nameof(RegisterThreadScope)).BeginScope($"{{{ScopeName}}}", scope);
     }
 
     private bool FilterLogs(LogLevel logLevel, string message)
@@ -84,12 +86,12 @@ internal sealed class Logging : IDisposable
 
     private void DisableNativeLogsForwarding()
     {
-        LoggerFactory = null;
         NativeInterface.InitializeLogging(logCallback: null, registerThreadScopeCallback: null, forwardFreeRdpLogs: false);
     }
 
     public void Dispose()
     {
+        _disposed = false;
         DisableNativeLogsForwarding();
     }
 }

@@ -6,14 +6,14 @@ public static class ServiceRegistryExtensions
 {
     public static IServiceCollection AddFreeRdp(this IServiceCollection services, string scopeName = "RunId")
     {
-        Logging.ScopeName = scopeName;
+        NativeLoggingForwarder.ScopeName = scopeName;
         return services
-            .AddSingleton<Logging>()
+            .AddSingleton<NativeLoggingForwarder>()
             .AddSingleton<IFreeRdpClient>(sp =>
             {
                 EnsureNativeLogsForwarding();
                 return ActivatorUtilities.CreateInstance<FreeRdpClient>(sp);
-                void EnsureNativeLogsForwarding() => sp.GetRequiredService<Logging>();
+                void EnsureNativeLogsForwarding() => sp.GetRequiredService<NativeLoggingForwarder>();
             });
     }
 }

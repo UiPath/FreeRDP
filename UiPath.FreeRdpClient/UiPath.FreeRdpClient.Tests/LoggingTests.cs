@@ -20,7 +20,7 @@ public class LoggingTests : TestsBase
 
     private async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
-        using var logScope = Log.BeginScope($"{Logging.ScopeName}", connectionSettings.ClientName + "_fromTest");
+        using var logScope = Log.BeginScope($"{NativeLoggingForwarder.ScopeName}", connectionSettings.ClientName + "_fromTest");
         return await FreeRdpClient.Connect(connectionSettings);
     }
 
@@ -100,7 +100,7 @@ public class LoggingTests : TestsBase
         nonDebugFreeRdpLogs.Where(l => l.logLevel == LogLevel.Error).ShouldBeEmpty();
 
         var scopes = _scopes.OfType<IReadOnlyList<KeyValuePair<string, object?>>>()
-            .Where(kvl => kvl.Any(kv => kv.Key == Logging.ScopeName && connectionSettings.ClientName.Equals(kv.Value)))
+            .Where(kvl => kvl.Any(kv => kv.Key == NativeLoggingForwarder.ScopeName && connectionSettings.ClientName.Equals(kv.Value)))
             .ToArray();
         scopes.ShouldNotBeEmpty();
     }
@@ -108,29 +108,29 @@ public class LoggingTests : TestsBase
     [Fact]
     public async Task ErrorLogsShouldBeFilteredAndTranslatedToWarn()
     {
-        var logging = Host.GetRequiredService<Logging>();
-        logging.FilterRemoveStartsWith = new[] { Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString() };
+        var forwarder = Host.GetRequiredService<NativeLoggingForwarder>();
+        forwarder.FilterRemoveStartsWith = new[] { Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString() };
 
         var someTestCategory = Guid.NewGuid().ToString();
         var testLogs = _logsByCategory.Where(kv => kv.Key == someTestCategory)
             .SelectMany(kv => kv.Value);
 
-        foreach (var startWith in logging.FilterRemoveStartsWith)
+        foreach (var startWith in forwarder.FilterRemoveStartsWith)
         {
-            logging.LogCallbackDelegate(someTestCategory, LogLevel.Error, startWith + "_extra1");
-            logging.LogCallbackDelegate(someTestCategory, LogLevel.Error, startWith + "_extra2");
-            logging.LogCallbackDelegate(someTestCategory, LogLevel.Error, startWith);
+            forwarder.LogCallbackDelegate(someTestCategory, LogLevel.Error, startWith + "_extra1");
+            forwarder.LogCallbackDelegate(someTestCategory, LogLevel.Error, startWith + "_extra2");
+            forwarder.LogCallbackDelegate(someTestCategory, LogLevel.Error, startWith);
         }
         testLogs.ShouldBeEmpty();
 
-        foreach (var startWith in logging.FilterRemoveStartsWith)
+        foreach (var startWith in forwarder.FilterRemoveStartsWith)
         {
-            logging.LogCallbackDelegate(someTestCategory, LogLevel.Error, "_" + startWith);
+            forwarder.LogCallbackDelegate(someTestCategory, LogLevel.Error, "_" + startWith);
         }
         testLogs.Count()
-            .ShouldBe(logging.FilterRemoveStartsWith.Length);
+            .ShouldBe(forwarder.FilterRemoveStartsWith.Length);
         testLogs.Count(l => l.logLevel is LogLevel.Warning)
-            .ShouldBe(logging.FilterRemoveStartsWith.Length);
+            .ShouldBe(forwarder.FilterRemoveStartsWith.Length);
         testLogs.Where(l => l.logLevel is LogLevel.Error)
             .ShouldBeEmpty();
     }
