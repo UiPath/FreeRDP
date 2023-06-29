@@ -40,11 +40,11 @@ public class LoggingTests : TestsBase
 
     private class FakeLogger : ILogger
     {
-        private readonly ConcurrentBag<(LogLevel logLevel, string message)> logsBag;
+        private readonly ConcurrentBag<(LogLevel logLevel, string message)> _logsBag;
 
         public FakeLogger(ConcurrentBag<(LogLevel logLevel, string message)> logsBag)
         {
-            this.logsBag = logsBag;
+            _logsBag = logsBag;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -53,7 +53,7 @@ public class LoggingTests : TestsBase
         public bool IsEnabled(LogLevel logLevel) => true;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
-        => logsBag.Add(new(logLevel, formatter(state, exception)));
+        => _logsBag.Add(new(logLevel, formatter(state, exception)));
     }
 
     [Fact]
@@ -78,20 +78,20 @@ public class LoggingTests : TestsBase
         await sut.DisposeAsync();
         await WaitFor.Predicate(() => WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName) == null);
 
-        var acceptedDebugCategory = "com.freerdp.core.nego";
+        const string acceptedDebugCategory = "com.freerdp.core.nego";
         var negoLogs = _logsByCategory.Where(kv => kv.Key.StartsWith(acceptedDebugCategory))
             .SelectMany(kv => kv.Value)
             .Where(l => l.logLevel == LogLevel.Debug)
             .ToArray();
         negoLogs.ShouldNotBeEmpty();
 
-        var wrapperCategory = "UiPath.FreeRdpWrapper";
+        const string wrapperCategory = "UiPath.FreeRdpWrapper";
         var wrapperLogs = _logsByCategory.Where(kv => kv.Key.StartsWith(wrapperCategory))
             .SelectMany(kv => kv.Value)
             .ToArray();
         wrapperLogs.ShouldNotBeEmpty();
 
-        var freerdpCategoryPrefix = "com.freerdp";
+        const string freerdpCategoryPrefix = "com.freerdp";
         var nonDebugFreeRdpLogs = _logsByCategory.Where(kv => kv.Key.StartsWith(freerdpCategoryPrefix) && !kv.Key.StartsWith(acceptedDebugCategory))
             .SelectMany(kv => kv.Value)
             .ToArray();

@@ -11,8 +11,9 @@ public static class ServiceRegistryExtensions
             .AddSingleton<Logging>()
             .AddSingleton<IFreeRdpClient>(sp =>
             {
-                sp.GetRequiredService<Logging>().EnsureNativeLogsForwarding();
+                EnsureNativeLogsForwarding();
                 return ActivatorUtilities.CreateInstance<FreeRdpClient>(sp);
+                void EnsureNativeLogsForwarding() => sp.GetRequiredService<Logging>();
             });
     }
 }

@@ -8,7 +8,6 @@ internal sealed class Logging : IDisposable
     internal static Logging? Instance { get; private set; }
     internal readonly NativeInterface.LogCallback LogCallbackDelegate;
     private readonly NativeInterface.RegisterThreadScopeCallback _registerThreadScopeCallbackDelegate;
-    private bool _logsForwardingEnabled = false;
     private ILoggerFactory? LoggerFactory { get; set; }
 
     public string[] FilterRemoveStartsWith { get; set; } = new[]
@@ -81,20 +80,12 @@ internal sealed class Logging : IDisposable
         NativeInterface.InitializeLogging(logCallback: LogCallbackDelegate,
                                           registerThreadScopeCallback: _registerThreadScopeCallbackDelegate,
                                           forwardFreeRdpLogs: forwardFreeRdpLogs);
-        _logsForwardingEnabled = true;
     }
 
     private void DisableNativeLogsForwarding()
     {
         LoggerFactory = null;
         NativeInterface.InitializeLogging(logCallback: null, registerThreadScopeCallback: null, forwardFreeRdpLogs: false);
-        _logsForwardingEnabled = false;
-    }
-
-    internal void EnsureNativeLogsForwarding()
-    {
-        if (!_logsForwardingEnabled)
-            EnableNativeLogsForwarding();
     }
 
     public void Dispose()
