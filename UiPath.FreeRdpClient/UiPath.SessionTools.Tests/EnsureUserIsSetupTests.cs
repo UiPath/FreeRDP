@@ -31,7 +31,7 @@ public class EnsureUserIsSetupTests : IAsyncLifetime
 
         using (ProcessRunner.TimeoutToken(TimeSpan.FromSeconds(5), out var ct))
         {
-            await _processRunner.EnsureUserIsSetUp(Username, _password, ct);
+            await _processRunner.EnsureUserIsSetUp(Username, _password, admin: true, ct);
         }
 
         _userChecks.UserExistsAndHasPassword(Username, _password).ShouldBeTrue();
@@ -43,8 +43,7 @@ public class EnsureUserIsSetupTests : IAsyncLifetime
                 info => info.AccountExpirationDate.ShouldBeNull(),
                 info => info.PasswordNeverExpires.ShouldBeTrue(),
                 info => info.UserCannotChangePassword.ShouldBeTrue(),
-                info => info.GroupNames.ShouldContain("Administrators"),
-                info => info.GroupNames.ShouldContain("Remote Desktop Users"));
+                info => info.GroupNames.ShouldContain("Administrators"));
     }
 
     private async Task EnsureUserIsDeleted()
