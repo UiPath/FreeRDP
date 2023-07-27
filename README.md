@@ -1,4 +1,14 @@
-## UiPath fork of FreeRDP
+﻿## UiPath fork of FreeRDP
+
+This repo forks the FreeRDP repo, thus allowing us to make changes that fit our needs and augment the codebase with other components.
+From time to time there is a need to merge the changes from the original repo into this one.
+
+### ❗When updating the FreeRDP library from the official repo, please update the following in this file (README.md):
+
+|**Original repository tag/branch used:**| `2.5.0` |
+| --- | --- |
+|**Original corresponding commit hash:**| `d50aef95520df4216c638495a6049125c00742cb` |
+
 
 [UiPath/Driver](https://github.com/UiPath/Driver) has this fork as a static library dependency.
 
