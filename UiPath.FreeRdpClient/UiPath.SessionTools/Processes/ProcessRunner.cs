@@ -26,9 +26,9 @@ public partial class ProcessRunner
     }
 
     public virtual Task<Report> Run(string fileName, string arguments, string workingDirectory, CancellationToken ct = default)
-    => RunCore(fileName, arguments, workingDirectory, stdoutProgress: null, stderrProgress: null, ct: ct);
+    => RunCore(fileName, arguments, workingDirectory, stdoutLines: null, stderrLines: null, ct: ct);
 
-    internal async Task<Report> RunCore(string fileName, string arguments, string workingDirectory, IProgress<string>? stdoutProgress = null, IProgress<string>? stderrProgress = null, CancellationToken ct = default)
+    internal async Task<Report> RunCore(string fileName, string arguments, string workingDirectory, IProgress<string>? stdoutLines = null, IProgress<string>? stderrLines = null, CancellationToken ct = default)
     {
         var startInfo = StartInfo();
         _logger?.LogRunStarted(startInfo);
@@ -39,8 +39,8 @@ public partial class ProcessRunner
         int processId = process.Id;
         DateTime processStartTime = process.StartTime;
 
-        Pump stdout = new(process.StandardOutput, stdoutProgress);
-        Pump stderr = new(process.StandardError, stderrProgress);
+        Pump stdout = new(process.StandardOutput, stdoutLines);
+        Pump stderr = new(process.StandardError, stderrLines);
 
         try
         {

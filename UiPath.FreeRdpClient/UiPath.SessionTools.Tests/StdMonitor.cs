@@ -2,16 +2,16 @@
 
 namespace UiPath.SessionTools.Tests;
 
-internal sealed class ProgressMonitor : IProgress<string>
+internal sealed class StdMonitor : IProgress<string>
 {
     private readonly AsyncMonitor _asyncMonitor = new();
-    private readonly List<string> _values = new();
+    private readonly List<string> _lines = new();
 
-    public async Task WaitForValue(string value, CancellationToken ct)
+    public async Task WaitForLine(string line, CancellationToken ct)
     {
         using (await _asyncMonitor.EnterAsync(ct))
         {
-            while (!_values.Any(c => c.TrimEnd() == value))
+            while (!_lines.Any(c => c.TrimEnd() == line))
             {
                 await _asyncMonitor.WaitAsync(ct);
             }
@@ -22,7 +22,7 @@ internal sealed class ProgressMonitor : IProgress<string>
     {
         using (await _asyncMonitor.EnterAsync())
         {
-            _values.Add(value);
+            _lines.Add(value);
             _asyncMonitor.PulseAll();
         }
     }

@@ -17,18 +17,18 @@ public class ProcessRunnerTests
 
         using var _ = ProcessRunner.TimeoutToken(deadline, out var ct);
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        var monitor = new ProgressMonitor();
+        var monitor = new StdMonitor();
 
         var task = runner.RunCore(
             fileName: "cmd.exe",
             arguments: $"/c echo {reachable1} & echo {reachable2} & ping -n {runTime.TotalSeconds} 127.0.0.1 & echo {unreachable}",
             workingDirectory: "",
-            stdoutProgress: monitor,
-            stderrProgress: null,
+            stdoutLines: monitor,
+            stderrLines: null,
             ct: linkedCts.Token);
 
-        await monitor.WaitForValue(reachable1, ct);
-        await monitor.WaitForValue(reachable2, ct);
+        await monitor.WaitForLine(reachable1, ct);
+        await monitor.WaitForLine(reachable2, ct);
 
         linkedCts.Cancel();
 
