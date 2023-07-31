@@ -106,6 +106,7 @@ cd .ci/Scripts
 * To test with a nugetRef instead of projectRef edit the [UiPath.FreeRdp.Tests.csproj](file://UiPath.FreeRdpClient/UiPath.FreeRdpClient.Tests/UiPath.FreeRdp.Tests.csproj)
 search for: `<When Condition="'$(UseNugetRef)'!=''">`
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 159ff5b60 (freerdp client for Feature/mr session  (#1))
 =======
 
@@ -113,3 +114,5 @@ search for: `<When Condition="'$(UseNugetRef)'!=''">`
 
 Check this [wiki page](./UiPath.FreeRdpClient/README.md)
 >>>>>>> 805227adf (- author changes in the root README.md so that contributors are aware about the need for manually recording the current TAG and HASH from the offical FreeRDP repo)
+=======
+>>>>>>> e27f7dd78 (SessionTools: Fix flaky tests [ROBO-3137] (#21))
