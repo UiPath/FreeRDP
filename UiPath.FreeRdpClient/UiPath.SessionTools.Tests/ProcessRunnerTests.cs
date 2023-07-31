@@ -17,7 +17,7 @@ public class ProcessRunnerTests
 
         using var _ = ProcessRunner.TimeoutToken(deadline, out var ct);
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        var monitor = new ProgressMonitor<string>();
+        var monitor = new ProgressMonitor();
 
         var task = runner.RunCore(
             fileName: "cmd.exe",
@@ -27,8 +27,8 @@ public class ProcessRunnerTests
             stderrProgress: null,
             ct: linkedCts.Token);
 
-        await monitor.WaitForValue(candidate => candidate.TrimEnd() == reachable1, ct);
-        await monitor.WaitForValue(candidate => candidate.TrimEnd() == reachable2, ct);
+        await monitor.WaitForValue(reachable1, ct);
+        await monitor.WaitForValue(reachable2, ct);
 
         linkedCts.Cancel();
 

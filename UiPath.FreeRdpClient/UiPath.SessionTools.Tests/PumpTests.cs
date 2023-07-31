@@ -15,11 +15,11 @@ public class PumpTests
         using var _ = TimeoutToken(TimeSpan.FromMinutes(1), out var ct);
 
         MockReader reader = new(First);
-        var monitor = new ProgressMonitor<string>();
+        var monitor = new ProgressMonitor();
         var pump = new Pump(reader, monitor);
         await using (pump)
         {
-            await monitor.WaitForCount(Count, ct);
+            await monitor.WaitForValue($"{First + Count - 1}", ct);
         }
 
         ValidateAccumulatedConsecutiveNumbers(pump, First);
@@ -36,10 +36,10 @@ public class PumpTests
 
         MockReader reader = new(skip: First, take: Take);
 
-        var monitor = new ProgressMonitor<string>();
+        var monitor = new ProgressMonitor();
         await using var pump = new Pump(reader, monitor);
 
-        await monitor.WaitForCount(Take, ct);
+        await monitor.WaitForValue($"{First + Take - 1}", ct);
 
         ValidateAccumulatedConsecutiveNumbers(pump, First, ExclusiveLast);
     }
