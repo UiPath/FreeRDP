@@ -29,6 +29,8 @@
 #include <winpr/assert.h>
 #include <winpr/cast.h>
 #include <winpr/crt.h>
+#include <winpr/assert.h>
+#include <winpr/stream.h>
 
 #include <freerdp/codec/nsc.h>
 #include <freerdp/codec/color.h>
