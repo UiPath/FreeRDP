@@ -1626,8 +1626,15 @@ static BOOL update_read_multi_patblt_order(const char* orderName, wStream* s,
 		if (!update_read_delta_rects(s, multi_patblt->rectangles, &multi_patblt->numRectangles))
 			return FALSE;
 	}
-	else if (multi_patblt->numRectangles != 0)
+
+	if (numRectangles > multi_patblt->numRectangles)
+	{
+		const char* orderName = __func__;
+		WLog_ERR(TAG, "%s numRectangles %" PRIu32 " > %" PRIu32, orderName, numRectangles,
+		         multi_patblt->numRectangles);
 		return FALSE;
+	}
+	multi_patblt->numRectangles = numRectangles;
 
 	if (numRectangles > multi_patblt->numRectangles)
 	{
@@ -1739,7 +1746,7 @@ static BOOL update_read_multi_opaque_rect_order(const char* orderName, wStream* 
 	}
 	multi_opaque_rect->numRectangles = numRectangles;
 
-	return multi_opaque_rect->numRectangles == 0;
+	return TRUE;
 }
 
 static BOOL update_read_multi_draw_nine_grid_order(const char* orderName, wStream* s,
