@@ -1,4 +1,5 @@
 call %~dp0\getvars.bat
+pushd .
 cd %freeRdpDir%\..\OpenSSL
 git clean -xdff
 
@@ -8,4 +9,5 @@ popd
 
 perl Configure VC-WIN64A no-asm no-shared --prefix=%~dp0\..\..\..\OpenSSL-VC-64
 nmake
-nmake install
+nmake install_sw
+popd
