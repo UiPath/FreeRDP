@@ -17,7 +17,7 @@ public static class ProcessRunnerExtensions
     => await processRunner.PortWithStateExists(port, state, processId: null, ct);
     public static async Task<bool> PortWithStateExists(this ProcessRunner processRunner, int port, string state, int? processId, CancellationToken ct = default)
     {
-        (var output, var exitCode) = await processRunner.Run("cmd", GetArguments(), throwOnNonZero: true, ct: ct);
+        (var output, var exitCode) = await processRunner.Run("cmd", GetArguments(), throwOnNonZero: false, ct: ct);
 
         if (exitCode is not 0) { return false; }
 
