@@ -15,7 +15,7 @@ public partial class ProcessRunner
         _logger = logger;
     }
 
-    public virtual async Task<(string output, int exitCode)> Run(string fileName, string arguments, string workingDirectory = "", bool throwOnNonZero = false, bool killOnCancelation = false, CancellationToken ct = default)
+    public virtual async Task<(string output, int exitCode)> Run(string fileName, string arguments, string workingDirectory = "", bool throwOnNonZero = false, CancellationToken ct = default)
     {
         var startInfo = new ProcessStartInfo()
         {
@@ -51,12 +51,6 @@ public partial class ProcessRunner
         catch (OperationCanceledException)
         {
             _logger?.LogRunWaitCanceled(startInfo.FileName, startInfo.Arguments, stdout.ToString(), stderr.ToString());
-
-            if (killOnCancelation)
-            {
-                try { process.Kill(entireProcessTree: true); }
-                catch { /* ignored */ }
-            }
 
             throw;
         }

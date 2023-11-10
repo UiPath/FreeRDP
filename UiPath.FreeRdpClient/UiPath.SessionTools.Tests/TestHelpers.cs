@@ -28,7 +28,6 @@ internal static class TestHelpers
         It.IsAny<string>(),
         It.IsAny<string>(),
         It.Is(throwsOnNonZero, BoolComparer.Instance),
-        It.IsAny<bool>(),
         It.IsAny<CancellationToken>());
 
     private sealed class BoolComparer : IEqualityComparer<bool>

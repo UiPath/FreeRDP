@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using Moq;
+using Microsoft.Extensions.Logging.TraceSource;
+using System.Diagnostics;
+using System.Text;
 
 namespace UiPath.SessionTools.Tests;
 
@@ -13,32 +15,32 @@ public class ProcessRunnerTests
         const string reachable2 = "4da0af0dae7246e998a5c579e922041f";
         const string unreachable = "44c681c32fd14b8fb3fda81371970f52";
 
-        using var ctsTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        CreateSpyLogger(out var logger, out var sbLogs);
 
-        var mockLogger = new Mock<ILogger>();
-        mockLogger.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-        var act = () => new ProcessRunner(mockLogger.Object).Run(
+        var act = () => new ProcessRunner(logger).Run(
             fileName: "cmd.exe",
             arguments: $"/c echo {reachable1} & echo {reachable2} & ping -l 0 -n 30 127.0.0.1 & echo {unreachable}",
             workingDirectory: "",
             throwOnNonZero: true,
-            killOnCancelation: true,
-            ct: ctsTimeout.Token);
+            ct: cts.Token);
 
-        var ex = await act.ShouldThrowAsync<OperationCanceledException>();
+        await act.ShouldThrowAsync<OperationCanceledException>();
 
-        ValidateAppearances(reachable1, Times.AtLeastOnce());
-        ValidateAppearances(reachable2, Times.AtLeastOnce());
-        ValidateAppearances(unreachable, Times.Never());
+        var logs = sbLogs.ToString();
 
-        void ValidateAppearances(string text, Times times)
-        => mockLogger.Verify(x => x.Log(
-            It.IsAny<LogLevel>(),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Split(text, StringSplitOptions.None).Length >= 3),
-            It.IsAny<Exception>(),
-            It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
-            times);        
+        CountAppearances(reachable1, logs).ShouldBe(3); 
+        CountAppearances(reachable2, logs).ShouldBe(3); // The reachable strings appear twice in the command lines and once in the stdout.
+        CountAppearances(unreachable, logs).ShouldBe(2); // The unreachable string appears only in the command lines.
     }
+
+    private static void CreateSpyLogger(out ILogger logger, out StringBuilder sbLogs)
+    => logger = new TraceSourceLoggerProvider(
+        new SourceSwitch(name: "") { Level = SourceLevels.All },
+        new TextWriterTraceListener(new StringWriter(sbLogs = new StringBuilder())))
+        .CreateLogger("spy");
+
+    private static int CountAppearances(string needle, string haystack)
+    => haystack.Split(needle).Length - 1;
 }
