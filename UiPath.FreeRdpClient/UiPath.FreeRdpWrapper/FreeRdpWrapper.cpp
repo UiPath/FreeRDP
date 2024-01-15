@@ -16,6 +16,23 @@ namespace FreeRdpClient
 	{
 		rdpContext* context;
 		HANDLE transportStopEvent;
+		char* scopeName;
+
+		void freeIt()
+		{
+			CloseHandle(this->transportStopEvent);
+			this->transportStopEvent = NULL;
+			free(this->scopeName);
+			free(this);
+		}
+		void setScopeName(BSTR scopeName)
+		{
+			this->scopeName = _com_util::ConvertBSTRToString(scopeName);
+		}
+		_bstr_t getEventName()
+		{
+			return "Global\\" + (_bstr_t)(this->scopeName);
+		}
 	};
 
 	inline HRESULT SetErrorInfo(LPCWSTR szError)
@@ -77,7 +94,9 @@ namespace FreeRdpClient
 		context->settings->Domain = _strdup(convToUTF8.to_bytes(rdpOptions->Domain).c_str());
 		context->settings->Username = _strdup(convToUTF8.to_bytes(rdpOptions->User).c_str());
 		context->settings->Password = _strdup(convToUTF8.to_bytes(rdpOptions->Pass).c_str());
-		context->settings->ClientHostname = _strdup(convToUTF8.to_bytes(rdpOptions->ClientName).c_str());
+		
+		if (rdpOptions->ClientName)
+			context->settings->ClientHostname = _strdup(convToUTF8.to_bytes(rdpOptions->ClientName).c_str());
 
 		context->settings->SoftwareGdi = TRUE;
 		context->settings->LocalConnection = TRUE;
@@ -129,10 +148,7 @@ namespace FreeRdpClient
 		freerdp_context_free(instance);
 		freerdp_free(instance);
 
-		CloseHandle(instanceData->transportStopEvent);
-		instanceData->transportStopEvent = NULL;
-
-		free(instanceData);
+		instanceData->freeIt();
 
 		DT_TRACE(L"RdpRelease: Finish");
 		return ERROR_SUCCESS;
@@ -155,7 +171,7 @@ namespace FreeRdpClient
 
 		rdpContext* context = instanceData->context;
 
-		Logging::RegisterCurrentThreadScope(context->instance->settings->ClientHostname);
+		Logging::RegisterCurrentThreadScope(instanceData->scopeName);
 
 		context->cache = cache_new(context->instance->settings);
 
@@ -203,7 +219,7 @@ namespace FreeRdpClient
 		return 0;
 	}
 
-	instance_data* transport_start(rdpContext* context, LPCWSTR eventName)
+	instance_data* transport_start(rdpContext* context, BSTR scopeName)
 	{
 		instance_data* instanceData;
 		instanceData = (instance_data*)calloc(1, sizeof(instance_data));
@@ -211,16 +227,18 @@ namespace FreeRdpClient
 			return NULL;
 
 		instanceData->context = context;
-		auto existingEvent = OpenEvent(NULL, false, eventName);
+		instanceData->setScopeName(scopeName);
+		auto eventName = instanceData->getEventName();
+		auto existingEvent = OpenEvent(NULL, false, eventName.GetBSTR());
 		if (existingEvent)
 		{
 			CloseHandle(existingEvent);
-			DT_ERROR(L"Failed to create freerdp transport stop event, error: alreadyExists: %s", eventName);
+			DT_ERROR(L"Failed to create freerdp transport stop event, error: alreadyExists: %s", eventName.GetBSTR());
 			free(instanceData);
 			return NULL;
 		}
 
-		instanceData->transportStopEvent = CreateEvent(NULL, TRUE, FALSE, eventName);
+		instanceData->transportStopEvent = CreateEvent(NULL, TRUE, FALSE, eventName.GetBSTR());
 		if (!instanceData->transportStopEvent)
 		{
 			DT_ERROR(L"Failed to create freerdp transport stop event, error: %u", GetLastError());
@@ -232,8 +250,7 @@ namespace FreeRdpClient
 		if (!transportThreadHandle)
 		{
 			DT_ERROR(L"Failed to create freerdp transport client thread, error: %u", GetLastError());
-			CloseHandle(instanceData->transportStopEvent);
-			free(instanceData);
+			instanceData->freeIt();
 			return NULL;
 		}
 		CloseHandle(transportThreadHandle);
@@ -242,8 +259,8 @@ namespace FreeRdpClient
 
 	HRESULT STDAPICALLTYPE RdpLogon(ConnectOptions* rdpOptions, BSTR& releaseEventName)
 	{
-		DT_TRACE(L"Start for user: [%s], domain: [%s], clientName: [%s]", rdpOptions->User,
-		         rdpOptions->Domain, rdpOptions->ClientName);
+		DT_TRACE(L"Start for user: [%s], domain: [%s], scopeName: [%s]", rdpOptions->User,
+		         rdpOptions->Domain, rdpOptions->ScopeName);
 		releaseEventName = NULL;
 		auto instance = CreateFreeRdpInstance();
 		if (!instance)
@@ -255,10 +272,10 @@ namespace FreeRdpClient
 		auto connectResult = freerdp_connect(instance);
 		if (connectResult)
 		{
-			auto eventName = L"Global\\" + (_bstr_t)(rdpOptions->ClientName);
-			auto lpData = transport_start(context, eventName);
+			auto lpData = transport_start(context, rdpOptions->ScopeName);
 			if (lpData)
 			{
+				auto eventName = lpData->getEventName();
 				releaseEventName = eventName.Detach();
 				DT_TRACE(L"Connection succeeded");
 				return S_OK;

@@ -20,7 +20,7 @@ public class LoggingTests : TestsBase
 
     private async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
-        using var logScope = Log.BeginScope($"{NativeLoggingForwarder.ScopeName}", connectionSettings.ClientName + "_fromTest");
+        using var logScope = Log.BeginScope($"{NativeLoggingForwarder.ScopeName}", connectionSettings.ScopeName + "_fromTest");
         return await FreeRdpClient.Connect(connectionSettings);
     }
 
@@ -63,14 +63,14 @@ public class LoggingTests : TestsBase
         var connectionSettings = user.ToRdpConnectionSettings();
 
         await using var sut = await Connect(connectionSettings);
-        var sessionId = WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName)
+        var sessionId = WtsApi.FindFirstSession(connectionSettings)
             .ShouldNotBeNull();
         await WaitFor.Predicate(() => WtsApi.QuerySessionInformation(sessionId).ConnectState()
                     is Windows.Win32.System.RemoteDesktop.WTS_CONNECTSTATE_CLASS.WTSActive
                     or Windows.Win32.System.RemoteDesktop.WTS_CONNECTSTATE_CLASS.WTSConnected);
 
         await sut.DisposeAsync();
-        await WaitFor.Predicate(() => WtsApi.FindFirstSessionByClientName(connectionSettings.ClientName) == null);
+        await WaitFor.Predicate(() => WtsApi.FindFirstSession(connectionSettings) == null);
 
         const string acceptedDebugCategory = "com.freerdp.core.nego";
         var negoLogs = _logsByCategory.Where(kv => kv.Key.StartsWith(acceptedDebugCategory))
@@ -94,7 +94,7 @@ public class LoggingTests : TestsBase
         nonDebugFreeRdpLogs.Where(l => l.logLevel == LogLevel.Error).ShouldBeEmpty();
 
         var scopes = _scopes.OfType<IReadOnlyList<KeyValuePair<string, object?>>>()
-            .Where(kvl => kvl.Any(kv => kv.Key == NativeLoggingForwarder.ScopeName && connectionSettings.ClientName.Equals(kv.Value)))
+            .Where(kvl => kvl.Any(kv => kv.Key == NativeLoggingForwarder.ScopeName && connectionSettings.ScopeName.Equals(kv.Value)))
             .ToArray();
         scopes.ShouldNotBeEmpty();
     }

@@ -20,7 +20,7 @@ public class RdpClientTests : TestsBase
 
     private async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
-        using var logScope = Log.BeginScope($"{NativeLoggingForwarder.ScopeName}", connectionSettings.ClientName);
+        using var logScope = Log.BeginScope($"{NativeLoggingForwarder.ScopeName}", connectionSettings.ScopeName);
         return await FreeRdpClient.Connect(connectionSettings);
     }
 
@@ -41,7 +41,7 @@ public class RdpClientTests : TestsBase
         {
             var connectionSettings = user.ToRdpConnectionSettings();
 
-            clientNamesHistory.Add(connectionSettings.ClientName).ShouldBe(true);
+            clientNamesHistory.Add(connectionSettings.ScopeName).ShouldBe(true);
         }
     }
 
@@ -64,7 +64,7 @@ public class RdpClientTests : TestsBase
 
         await using (var sut = await Connect(connectionSettings))
         {
-            var sessionId = _wts.FindFirstSessionByClientName(connectionSettings.ClientName);
+            var sessionId = _wts.FindFirstSession(connectionSettings);
             sessionId.ShouldNotBeNull();
             var displayInfo = _wts.QuerySessionInformation(sessionId.Value).ClientDisplay();
 
@@ -73,7 +73,7 @@ public class RdpClientTests : TestsBase
             //((int)displayInfo.ColorDepth).ShouldBe(expectedWtsApiValue);
         }
 
-        await WaitFor.Predicate(() => _wts.FindFirstSessionByClientName(connectionSettings.ClientName) == null);
+        await WaitFor.Predicate(() => _wts.FindFirstSession(connectionSettings) == null);
     }
 
     [Fact]
@@ -122,8 +122,8 @@ public class RdpClientTests : TestsBase
             await using var d = new CollectionAsyncDisposable(await Task.WhenAll(connect1Task, connect2Task));
 
             await d.DisposeAsync();
-            await WaitFor.Predicate(() => _wts.FindFirstSessionByClientName(connectionSettings1.ClientName) == null);
-            await WaitFor.Predicate(() => _wts.FindFirstSessionByClientName(connectionSettings2.ClientName) == null);
+            await WaitFor.Predicate(() => _wts.FindFirstSession(connectionSettings1) == null);
+            await WaitFor.Predicate(() => _wts.FindFirstSession(connectionSettings2) == null);
         }
     }
 
@@ -146,14 +146,14 @@ public class RdpClientTests : TestsBase
         await ShouldNotHavePortWithState(port, StateEstablished);
 
         await using var sut = await Connect(connectionSettings);
-        var sessionId = _wts.FindFirstSessionByClientName(connectionSettings.ClientName);
+        var sessionId = _wts.FindFirstSession(connectionSettings);
         sessionId.HasValue.ShouldBeTrue();
 
         await ShouldHavePortWithState(port, StateEstablished, Environment.ProcessId);
 
         await sut.DisposeAsync();
         await ShouldNotHavePortWithState(port, StateEstablished);
-        await WaitFor.Predicate(() => _wts.FindFirstSessionByClientName(connectionSettings.ClientName) == null);
+        await WaitFor.Predicate(() => _wts.FindFirstSession(connectionSettings) == null);
     }
 
     private async Task WithPortRedirectToDefaultRdp(int port)
