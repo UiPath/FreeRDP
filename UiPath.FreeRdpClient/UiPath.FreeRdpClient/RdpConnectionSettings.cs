@@ -19,7 +19,7 @@ public class RdpConnectionSettings
 
     public string ScopeName { get; set; }
     [MaxLength(15, ErrorMessage = "Sometimes :) Windows returns only first 15 chars for a session ClientName")]
-    public string ClientName { get; set; }
+    public string? ClientName { get; set; }
 
     public DateTimeOffset? BeforeConnectTimestamp { get; set; }
 
