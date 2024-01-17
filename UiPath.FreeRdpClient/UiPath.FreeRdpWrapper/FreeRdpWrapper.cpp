@@ -20,13 +20,20 @@ namespace FreeRdpClient
 		return _strdup(convToUTF8.to_bytes(source).c_str());
 	}
 
-	struct instance_data
+	class instance_data
 	{
+	  public:
 		rdpContext* context;
 		HANDLE transportStopEvent;
 		char* scopeName;
 
-		void freeIt()
+		instance_data(rdpContext* context, ConnectOptions* rdpOptions)
+		{
+			transportStopEvent = NULL;
+			this->context = context;
+			this->scopeName = ConvToUtf8(rdpOptions->ScopeName);
+		}
+		~instance_data()
 		{
 			if (this->transportStopEvent)
 			{
@@ -38,7 +45,6 @@ namespace FreeRdpClient
 				free(this->scopeName);
 				this->scopeName = nullptr;
 			}
-			free(this);
 		}
 		_bstr_t getEventName()
 		{
@@ -156,7 +162,7 @@ namespace FreeRdpClient
 		freerdp_context_free(instance);
 		freerdp_free(instance);
 
-		instanceData->freeIt();
+		delete instanceData;
 
 		DT_TRACE(L"RdpRelease: Finish");
 		return ERROR_SUCCESS;
@@ -227,22 +233,19 @@ namespace FreeRdpClient
 		return 0;
 	}
 
-	instance_data* transport_start(rdpContext* context, BSTR scopeName)
+	instance_data* transport_start(rdpContext* context, ConnectOptions* rdpOptions)
 	{
-		instance_data* instanceData;
-		instanceData = (instance_data*)calloc(1, sizeof(instance_data));
+		instance_data* instanceData = new instance_data(context, rdpOptions);
 		if (!instanceData)
 			return NULL;
 
-		instanceData->context = context;
-		instanceData->scopeName = ConvToUtf8(scopeName);
 		auto eventName = instanceData->getEventName();
 		auto existingEvent = OpenEvent(NULL, false, eventName.GetBSTR());
 		if (existingEvent)
 		{
 			CloseHandle(existingEvent);
 			DT_ERROR(L"Failed to create freerdp transport stop event, error: alreadyExists: %s", eventName.GetBSTR());
-			instanceData->freeIt();
+			delete instanceData;
 			return NULL;
 		}
 
@@ -250,7 +253,7 @@ namespace FreeRdpClient
 		if (!instanceData->transportStopEvent)
 		{
 			DT_ERROR(L"Failed to create freerdp transport stop event, error: %u", GetLastError());
-			instanceData->freeIt();
+			delete instanceData;
 			return NULL;
 		}
 
@@ -258,7 +261,7 @@ namespace FreeRdpClient
 		if (!transportThreadHandle)
 		{
 			DT_ERROR(L"Failed to create freerdp transport client thread, error: %u", GetLastError());
-			instanceData->freeIt();
+			delete instanceData;
 			return NULL;
 		}
 		CloseHandle(transportThreadHandle);
@@ -280,7 +283,7 @@ namespace FreeRdpClient
 		auto connectResult = freerdp_connect(instance);
 		if (connectResult)
 		{
-			auto lpData = transport_start(context, rdpOptions->ScopeName);
+			auto lpData = transport_start(context, rdpOptions);
 			if (lpData)
 			{
 				auto eventName = lpData->getEventName();
