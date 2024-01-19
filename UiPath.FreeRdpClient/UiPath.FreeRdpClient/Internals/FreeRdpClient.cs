@@ -29,7 +29,6 @@ internal class FreeRdpClient : IFreeRdpClient
         ArgumentNullException.ThrowIfNull(connectionSettings.Domain);
         ArgumentNullException.ThrowIfNull(connectionSettings.Password);
 
-        connectionSettings.BeforeConnectTimestamp = DateTimeOffset.UtcNow;
         NativeInterface.ConnectOptions connectOptions = new()
         {
             Width = connectionSettings.DesktopWidth,

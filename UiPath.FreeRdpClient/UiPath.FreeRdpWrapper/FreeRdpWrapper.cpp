@@ -12,11 +12,9 @@ using namespace FreeRdpClient;
 
 namespace FreeRdpClient
 {
-
 	char* ConvToUtf8(BSTR source)
 	{
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convToUTF8;
-
 		return _strdup(convToUTF8.to_bytes(source).c_str());
 	}
 
@@ -146,12 +144,6 @@ namespace FreeRdpClient
 	{
 		DT_TRACE(L"RdpRelease: Start");
 
-		if (instanceData == NULL || instanceData->context == NULL)
-		{
-			DT_ERROR(L"RdpRelease: Invalid context data");
-			return ERROR_INVALID_PARAMETER;
-		}
-
 		freerdp* instance = instanceData->context->instance;
 		if (instance->context->cache != NULL)
 		{
@@ -176,12 +168,6 @@ namespace FreeRdpClient
 	DWORD WINAPI transport_thread(LPVOID pData)
 	{
 		instance_data* instanceData = (instance_data*)pData;
-		if (instanceData == NULL || instanceData->context == NULL ||
-		    instanceData->transportStopEvent == NULL)
-		{
-			DT_ERROR(L"Invalid freerdp instance data");
-			return 1;
-		}
 
 		rdpContext* context = instanceData->context;
 
@@ -236,8 +222,6 @@ namespace FreeRdpClient
 	instance_data* transport_start(rdpContext* context, ConnectOptions* rdpOptions)
 	{
 		instance_data* instanceData = new instance_data(context, rdpOptions);
-		if (!instanceData)
-			return NULL;
 
 		auto eventName = instanceData->getEventName();
 		auto existingEvent = OpenEvent(NULL, false, eventName.GetBSTR());

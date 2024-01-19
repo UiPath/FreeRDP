@@ -21,8 +21,6 @@ public class RdpConnectionSettings
     [MaxLength(15, ErrorMessage = "Sometimes :) Windows returns only first 15 chars for a session ClientName")]
     public string? ClientName { get; set; }
 
-    public DateTimeOffset? BeforeConnectTimestamp { get; set; }
-
     public RdpConnectionSettings(string username, string domain, string password)
     {
         Username = username;

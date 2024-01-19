@@ -13,15 +13,10 @@ public class LoggingTests : TestsBase
     private readonly ConcurrentDictionary<string, ConcurrentBag<(LogLevel logLevel, string message)>> _logsByCategory = new();
     private readonly ConcurrentBag<object> _scopes = new();
     private readonly Mock<ILogger> _loggerMock = new();
-    private Wts WtsApi => Host.GetWts();
-
-    private IFreeRdpClient FreeRdpClient => Host.GetRequiredService<IFreeRdpClient>();
-    private ILogger Log => Host.GetRequiredService<ILogger<RdpClientTests>>();
 
     private async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
-        using var logScope = Log.BeginScope($"{NativeLoggingForwarder.ScopeName}", connectionSettings.ScopeName + "_fromTest");
-        return await FreeRdpClient.Connect(connectionSettings);
+        return await Host.Connect(connectionSettings);
     }
 
     public LoggingTests(ITestOutputHelper output) : base(output)
@@ -63,13 +58,13 @@ public class LoggingTests : TestsBase
         var connectionSettings = user.ToRdpConnectionSettings();
 
         await using var sut = await Connect(connectionSettings);
-        var sessionId = await WtsApi.FindSession(connectionSettings);
-        await WaitFor.Predicate(() => WtsApi.QuerySessionInformation(sessionId).ConnectState()
+        var sessionId = await Host.FindSession(connectionSettings);
+        await WaitFor.Predicate(() => Host.GetWts().QuerySessionInformation(sessionId).ConnectState()
                     is Windows.Win32.System.RemoteDesktop.WTS_CONNECTSTATE_CLASS.WTSActive
                     or Windows.Win32.System.RemoteDesktop.WTS_CONNECTSTATE_CLASS.WTSConnected);
 
         await sut.DisposeAsync();
-        await WtsApi.WaitNoSession(connectionSettings);
+        await Host.WaitNoSession(connectionSettings);
 
         const string acceptedDebugCategory = "com.freerdp.core.nego";
         var negoLogs = _logsByCategory.Where(kv => kv.Key.StartsWith(acceptedDebugCategory))
