@@ -53,7 +53,8 @@ public class RdpClientTests : TestsBase
     {
         var user = await Host.GivenUser();
 
-        var connectionSettings = user.ToRdpConnectionSettings();
+        var disconnectCalled = false;
+        var connectionSettings = user.ToRdpConnectionSettings(disconnectCallback: () => { disconnectCalled = true; });
 
         connectionSettings.DesktopWidth = 3 * 4 * 101;
         connectionSettings.DesktopHeight = 3 * 4 * 71;
@@ -70,6 +71,7 @@ public class RdpClientTests : TestsBase
         }
 
         await Host.WaitNoSession(connectionSettings);
+        disconnectCalled.ShouldBeTrue();
     }
 
 

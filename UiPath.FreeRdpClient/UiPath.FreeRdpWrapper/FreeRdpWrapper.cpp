@@ -24,12 +24,14 @@ namespace FreeRdpClient
 		rdpContext* context;
 		HANDLE transportStopEvent;
 		char* scopeName;
+		pFreeRdpDisconnectedCallback freeRdpDisconnectedCallback;
 
-		instance_data(rdpContext* context, ConnectOptions* rdpOptions)
+		instance_data(rdpContext* context, ConnectOptions* rdpOptions, pFreeRdpDisconnectedCallback freeRdpDisconnectedCallback)
 		{
 			transportStopEvent = NULL;
 			this->context = context;
 			this->scopeName = ConvToUtf8(rdpOptions->ScopeName);
+			this->freeRdpDisconnectedCallback = freeRdpDisconnectedCallback;
 		}
 		~instance_data()
 		{
@@ -154,6 +156,11 @@ namespace FreeRdpClient
 		freerdp_context_free(instance);
 		freerdp_free(instance);
 
+		if (instanceData->freeRdpDisconnectedCallback)
+		{
+			instanceData->freeRdpDisconnectedCallback();
+		}
+
 		delete instanceData;
 
 		DT_TRACE(L"RdpRelease: Finish");
@@ -219,9 +226,12 @@ namespace FreeRdpClient
 		return 0;
 	}
 
-	instance_data* transport_start(rdpContext* context, ConnectOptions* rdpOptions)
+	instance_data* transport_start(
+		rdpContext* context,
+		ConnectOptions* rdpOptions,
+		pFreeRdpDisconnectedCallback freeRdpDisconnectedCallback)
 	{
-		instance_data* instanceData = new instance_data(context, rdpOptions);
+		instance_data* instanceData = new instance_data(context, rdpOptions, freeRdpDisconnectedCallback);
 
 		auto eventName = instanceData->getEventName();
 		auto existingEvent = OpenEvent(NULL, false, eventName.GetBSTR());
@@ -252,7 +262,10 @@ namespace FreeRdpClient
 		return instanceData;
 	}
 
-	HRESULT STDAPICALLTYPE RdpLogon(ConnectOptions* rdpOptions, BSTR& releaseEventName)
+	HRESULT STDAPICALLTYPE RdpLogon(
+		ConnectOptions* rdpOptions,
+		pFreeRdpDisconnectedCallback freeRdpDisconnectedCallback,
+		BSTR& releaseEventName)
 	{
 		DT_TRACE(L"Start for user: [%s], domain: [%s], scopeName: [%s]", rdpOptions->User,
 		         rdpOptions->Domain, rdpOptions->ScopeName);
@@ -267,7 +280,7 @@ namespace FreeRdpClient
 		auto connectResult = freerdp_connect(instance);
 		if (connectResult)
 		{
-			auto lpData = transport_start(context, rdpOptions);
+			auto lpData = transport_start(context, rdpOptions, freeRdpDisconnectedCallback);
 			if (lpData)
 			{
 				auto eventName = lpData->getEventName();
