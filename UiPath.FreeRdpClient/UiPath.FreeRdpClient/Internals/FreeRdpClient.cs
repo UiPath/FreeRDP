@@ -61,13 +61,16 @@ internal class FreeRdpClient : IFreeRdpClient
 
         Task<AsyncDisposable> DoConnect() => Task.Run(() =>
         {
+            NativeInterface.FreeRdpDisconnectedCallback? disconnectCallback = () =>
+                connectionSettings.DisconnectCallback?.Invoke();
             NativeInterface.RdpLogon(
                 rdpOptions: connectOptions,
-                freeRdpDisconnectedCallback: () => connectionSettings.DisconnectCallback?.Invoke(),
+                freeRdpDisconnectedCallback: disconnectCallback,
                 out var releaseObjectName);
             return new AsyncDisposable(async () =>
             {
                 Disconnect(releaseObjectName);
+                disconnectCallback = null; // prevent callback from being GC'd earlier
             });
         });
     }
