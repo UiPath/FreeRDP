@@ -151,6 +151,24 @@ public class RdpClientTests : TestsBase
         await Host.WaitNoSession(connectionSettings);
     }
 
+    [Fact]
+    public async Task DisconnectCallbackShouldNotBeGarbageCollected()
+    {
+        var callbackCalled = false;
+        var user = await Host.GivenUser();
+        var connectionSettings = user.ToRdpConnectionSettings(
+            disconnectCallback: () => { callbackCalled = true; });
+
+        var asyncDisposable = await Connect(connectionSettings);
+        connectionSettings.DisconnectCallback = null;
+        GC.Collect();
+        GC.WaitForFullGCComplete();
+        await asyncDisposable.DisposeAsync();
+        await Host.WaitNoSession(connectionSettings);
+
+        callbackCalled.ShouldBeTrue();
+    }
+
     private async Task WithPortRedirectToDefaultRdp(int port)
     {
         var log = Host.GetRequiredService<ILogger<TestHost>>();
