@@ -12,6 +12,8 @@ using namespace FreeRdpClient;
 
 namespace FreeRdpClient
 {
+	static pFreeRdpDisconnectedCallback _disconnectCallback = nullptr;
+
 	char* ConvToUtf8(BSTR source)
 	{
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convToUTF8;
@@ -24,14 +26,12 @@ namespace FreeRdpClient
 		rdpContext* context;
 		HANDLE transportStopEvent;
 		char* scopeName;
-		pFreeRdpDisconnectedCallback freeRdpDisconnectedCallback;
 
-		instance_data(rdpContext* context, ConnectOptions* rdpOptions, pFreeRdpDisconnectedCallback freeRdpDisconnectedCallback)
+		instance_data(rdpContext* context, ConnectOptions* rdpOptions)
 		{
 			transportStopEvent = NULL;
 			this->context = context;
 			this->scopeName = ConvToUtf8(rdpOptions->ScopeName);
-			this->freeRdpDisconnectedCallback = freeRdpDisconnectedCallback;
 		}
 		~instance_data()
 		{
@@ -156,12 +156,14 @@ namespace FreeRdpClient
 		freerdp_context_free(instance);
 		freerdp_free(instance);
 
-		if (instanceData->freeRdpDisconnectedCallback)
-		{
-			instanceData->freeRdpDisconnectedCallback();
-		}
+		auto releaseObjectName = instanceData->getEventName();
 
 		delete instanceData;
+
+		if (_disconnectCallback)
+		{
+			_disconnectCallback(releaseObjectName);
+		}
 
 		DT_TRACE(L"RdpRelease: Finish");
 		return ERROR_SUCCESS;
@@ -228,10 +230,9 @@ namespace FreeRdpClient
 
 	instance_data* transport_start(
 		rdpContext* context,
-		ConnectOptions* rdpOptions,
-		pFreeRdpDisconnectedCallback freeRdpDisconnectedCallback)
+		ConnectOptions* rdpOptions)
 	{
-		instance_data* instanceData = new instance_data(context, rdpOptions, freeRdpDisconnectedCallback);
+		instance_data* instanceData = new instance_data(context, rdpOptions);
 
 		auto eventName = instanceData->getEventName();
 		auto existingEvent = OpenEvent(NULL, false, eventName.GetBSTR());
@@ -264,7 +265,6 @@ namespace FreeRdpClient
 
 	HRESULT STDAPICALLTYPE RdpLogon(
 		ConnectOptions* rdpOptions,
-		pFreeRdpDisconnectedCallback freeRdpDisconnectedCallback,
 		BSTR& releaseEventName)
 	{
 		DT_TRACE(L"Start for user: [%s], domain: [%s], scopeName: [%s]", rdpOptions->User,
@@ -280,7 +280,7 @@ namespace FreeRdpClient
 		auto connectResult = freerdp_connect(instance);
 		if (connectResult)
 		{
-			auto lpData = transport_start(context, rdpOptions, freeRdpDisconnectedCallback);
+			auto lpData = transport_start(context, rdpOptions);
 			if (lpData)
 			{
 				auto eventName = lpData->getEventName();
@@ -317,6 +317,12 @@ namespace FreeRdpClient
 		}
 
 		CloseHandle(eventHandle);
+		return S_OK;
+	}
+
+	HRESULT STDAPICALLTYPE SetDisconnectCallback(pFreeRdpDisconnectedCallback disconnectCallback)
+	{
+		_disconnectCallback = disconnectCallback;
 		return S_OK;
 	}
 }

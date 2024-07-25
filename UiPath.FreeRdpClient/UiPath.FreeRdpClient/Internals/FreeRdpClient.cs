@@ -2,8 +2,11 @@
 using Nito.AsyncEx;
 using Nito.Disposables;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 namespace UiPath.Rdp;
+
+using CallbackMap = ConditionalWeakTable<IAsyncDisposable, Tuple<string, DisconnectCallback?>>;
 
 internal class FreeRdpClient : IFreeRdpClient
 {
@@ -16,11 +19,16 @@ internal class FreeRdpClient : IFreeRdpClient
     public FreeRdpClient(ILogger<FreeRdpClient> logger)
     {
         _log = logger;
+        _disconnectCallback = OnDisconnect;
+        NativeInterface.SetDisconnectCallback(_disconnectCallback);
     }
 
     private readonly ILogger<FreeRdpClient> _log;
     private readonly AsyncLock _initLock = new();
+    private readonly CallbackMap _disconnectCallbacks = [];
     private bool _initialized = false;
+
+    internal NativeInterface.DisconnectCallback _disconnectCallback;
 
     public async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
@@ -61,19 +69,17 @@ internal class FreeRdpClient : IFreeRdpClient
 
         Task<AsyncDisposable> DoConnect() => Task.Run(() =>
         {
-            var userCallback = connectionSettings.DisconnectCallback;
-            NativeInterface.FreeRdpDisconnectedCallback? disconnectCallback = () =>
-                userCallback?.Invoke();
-
-            NativeInterface.RdpLogon(
-                rdpOptions: connectOptions,
-                freeRdpDisconnectedCallback: disconnectCallback,
-                out var releaseObjectName);
-            return new AsyncDisposable(async () =>
+            NativeInterface.RdpLogon(connectOptions, out var releaseObjectName);
+            var connection = new AsyncDisposable(async () =>
             {
                 Disconnect(releaseObjectName);
-                disconnectCallback = null; // prevent callback from being GC'd earlier
             });
+
+            _disconnectCallbacks.Add(
+                connection,
+                Tuple.Create(releaseObjectName, connectionSettings.DisconnectCallback));
+
+            return connection;
         });
     }
 
@@ -81,5 +87,14 @@ internal class FreeRdpClient : IFreeRdpClient
     {
         if (releaseObjectName != default)
             NativeInterface.RdpRelease(releaseObjectName);
+    }
+
+    internal void OnDisconnect(string releaseObjectName)
+    {
+        _log.LogInformation("FreeRDP client disconnected"); // TODO just for tests, remove before pushing
+        _disconnectCallbacks
+            .SingleOrDefault(item => item.Value?.Item1 == releaseObjectName)
+            .Value? // tuple
+            .Item2?.Invoke(); // callback
     }
 }

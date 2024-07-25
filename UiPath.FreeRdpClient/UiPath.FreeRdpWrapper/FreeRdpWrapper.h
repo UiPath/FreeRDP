@@ -19,12 +19,12 @@ namespace FreeRdpClient
 		long Port;
 	} ConnectOptions;
 
-	using pFreeRdpDisconnectedCallback = void (*)();
+	using pFreeRdpDisconnectedCallback = void (*)(BSTR);
 
 	EXTERN_C __declspec(dllexport) HRESULT STDAPICALLTYPE
 	    RdpLogon(
 			ConnectOptions* rdpOptions,
-			pFreeRdpDisconnectedCallback freeRdpDisconnectedCallback,
 			BSTR& releaseEventName);
 	EXTERN_C __declspec(dllexport) HRESULT STDAPICALLTYPE RdpRelease(BSTR releaseEventName);
+	EXTERN_C __declspec(dllexport) HRESULT STDAPICALLTYPE SetDisconnectCallback(pFreeRdpDisconnectedCallback disconnectCallback);
 }

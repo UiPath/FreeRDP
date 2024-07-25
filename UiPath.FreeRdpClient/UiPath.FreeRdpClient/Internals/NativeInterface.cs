@@ -36,7 +36,7 @@ internal class NativeInterface
     public delegate void RegisterThreadScopeCallback([MarshalAs(UnmanagedType.LPStr)] string category);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void FreeRdpDisconnectedCallback();
+    public delegate void DisconnectCallback([MarshalAs(UnmanagedType.BStr)] string releaseObjectName);
 
     [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
     public extern static void InitializeLogging([MarshalAs(UnmanagedType.FunctionPtr)] LogCallback? logCallback,
@@ -44,9 +44,11 @@ internal class NativeInterface
                                                 [MarshalAs(UnmanagedType.Bool)] bool forwardFreeRdpLogs);
 
     [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
+    public extern static void SetDisconnectCallback([MarshalAs(UnmanagedType.FunctionPtr)] DisconnectCallback? disconnectCallback);
+
+    [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]
     public extern static void RdpLogon(
         [In] ConnectOptions rdpOptions,
-        [MarshalAs(UnmanagedType.FunctionPtr)] FreeRdpDisconnectedCallback? freeRdpDisconnectedCallback,
         [MarshalAs(UnmanagedType.BStr)] out string releaseObjectName);
 
     [DllImport(FreeRdpClientDll, PreserveSig = false, CharSet = CharSet.Unicode)]

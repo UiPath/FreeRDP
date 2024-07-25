@@ -152,18 +152,65 @@ public class RdpClientTests : TestsBase
     }
 
     [Fact]
-    public async Task DisconnectCallbackShouldNotBeGarbageCollected()
+    public async Task DisconnectCallbackNotCalledWhenGarbageCollected()
+    {
+        var onDisconnectCalled = false;
+        HijackOnDisconnect();
+
+        var callbackCalled = false;
+        var user = await Host.GivenUser();
+        var connectionSettings = user.ToRdpConnectionSettings(
+            disconnectCallback: () => { callbackCalled = true; });
+
+        // Connect
+        var connection = await Connect(connectionSettings);
+        var sessionId = await Host.FindSession(connectionSettings);
+
+        // Garbage collect
+        connection = null;
+        connectionSettings.DisconnectCallback = null;
+        GC.Collect();
+        GC.WaitForFullGCComplete();
+
+        // Disconnect
+        _wts.DisconnectSession(server: null, sessionId, wait: true);
+        await Host.WaitNoSession(connectionSettings);
+        // FreeRDP takes a while to call disconnect after we manually disconnect the session
+        await WaitFor.Predicate(() => onDisconnectCalled);
+
+        callbackCalled.ShouldBeFalse();
+
+        void HijackOnDisconnect()
+        {
+            var client = (FreeRdpClient)Host.GetRequiredService<IFreeRdpClient>();
+            client._disconnectCallback = releaseObjectName =>
+            {
+                client.OnDisconnect(releaseObjectName);
+                onDisconnectCalled = true;
+            };
+            NativeInterface.SetDisconnectCallback(client._disconnectCallback);
+        }
+    }
+
+    [Fact]
+    public async Task DisconnectCallbackCalledWhenConnectionIsDisposed()
     {
         var callbackCalled = false;
         var user = await Host.GivenUser();
         var connectionSettings = user.ToRdpConnectionSettings(
             disconnectCallback: () => { callbackCalled = true; });
 
-        var asyncDisposable = await Connect(connectionSettings);
+        // Connect
+        var connection = await Connect(connectionSettings);
+        var sessionId = await Host.FindSession(connectionSettings);
+
+        // Garbage collect
         connectionSettings.DisconnectCallback = null;
         GC.Collect();
         GC.WaitForFullGCComplete();
-        await asyncDisposable.DisposeAsync();
+
+        // Disconnect
+        await connection.DisposeAsync();
         await Host.WaitNoSession(connectionSettings);
 
         callbackCalled.ShouldBeTrue();
