@@ -2,11 +2,8 @@
 using Nito.AsyncEx;
 using Nito.Disposables;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 
 namespace UiPath.Rdp;
-
-using CallbackMap = ConditionalWeakTable<IAsyncDisposable, Tuple<string, DisconnectCallback?>>;
 
 internal class FreeRdpClient : IFreeRdpClient
 {
@@ -25,7 +22,7 @@ internal class FreeRdpClient : IFreeRdpClient
 
     private readonly ILogger<FreeRdpClient> _log;
     private readonly AsyncLock _initLock = new();
-    private readonly CallbackMap _disconnectCallbacks = [];
+    private readonly Dictionary<string, DisconnectCallback?> _disconnectCallbacks = [];
     private bool _initialized = false;
 
     internal NativeInterface.DisconnectCallback _disconnectCallback;
@@ -75,9 +72,7 @@ internal class FreeRdpClient : IFreeRdpClient
                 Disconnect(releaseObjectName);
             });
 
-            _disconnectCallbacks.Add(
-                connection,
-                Tuple.Create(releaseObjectName, connectionSettings.DisconnectCallback));
+            _disconnectCallbacks.Add(releaseObjectName, connectionSettings.DisconnectCallback);
 
             return connection;
         });
@@ -91,10 +86,8 @@ internal class FreeRdpClient : IFreeRdpClient
 
     internal void OnDisconnect(string releaseObjectName)
     {
-        _log.LogInformation("FreeRDP client disconnected"); // TODO just for tests, remove before pushing
-        _disconnectCallbacks
-            .SingleOrDefault(item => item.Value?.Item1 == releaseObjectName)
-            .Value? // tuple
-            .Item2?.Invoke(); // callback
+        var callback = _disconnectCallbacks[releaseObjectName];
+        callback?.Invoke();
+        _disconnectCallbacks.Remove(releaseObjectName);
     }
 }

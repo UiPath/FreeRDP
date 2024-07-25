@@ -152,7 +152,7 @@ public class RdpClientTests : TestsBase
     }
 
     [Fact]
-    public async Task DisconnectCallbackNotCalledWhenGarbageCollected()
+    public async Task DisconnectCallbackShouldBeCalledWhenSessionIsDisconnected()
     {
         var onDisconnectCalled = false;
         HijackOnDisconnect();
@@ -178,7 +178,7 @@ public class RdpClientTests : TestsBase
         // FreeRDP takes a while to call disconnect after we manually disconnect the session
         await WaitFor.Predicate(() => onDisconnectCalled);
 
-        callbackCalled.ShouldBeFalse();
+        callbackCalled.ShouldBeTrue();
 
         void HijackOnDisconnect()
         {
@@ -193,7 +193,7 @@ public class RdpClientTests : TestsBase
     }
 
     [Fact]
-    public async Task DisconnectCallbackCalledWhenConnectionIsDisposed()
+    public async Task DisconnectCallbackShouldBeCalledWhenConnectionIsDisposed()
     {
         var callbackCalled = false;
         var user = await Host.GivenUser();
