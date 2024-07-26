@@ -183,9 +183,10 @@ public class RdpClientTests : TestsBase
         void HijackOnDisconnect()
         {
             var client = (FreeRdpClient)Host.GetRequiredService<IFreeRdpClient>();
+            var initialOnDisconnect = client._disconnectCallback;
             client._disconnectCallback = releaseObjectName =>
             {
-                client.OnDisconnect(releaseObjectName);
+                initialOnDisconnect(releaseObjectName);
                 onDisconnectCalled = true;
             };
             NativeInterface.SetDisconnectCallback(client._disconnectCallback);

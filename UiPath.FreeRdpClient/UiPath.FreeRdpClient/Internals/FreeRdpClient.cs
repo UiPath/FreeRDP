@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
 using Nito.Disposables;
+using System.Collections.Concurrent;
 using System.Net.Sockets;
 
 namespace UiPath.Rdp;
@@ -22,7 +23,7 @@ internal class FreeRdpClient : IFreeRdpClient
 
     private readonly ILogger<FreeRdpClient> _log;
     private readonly AsyncLock _initLock = new();
-    private readonly Dictionary<string, DisconnectCallback?> _disconnectCallbacks = [];
+    private readonly ConcurrentDictionary<string, DisconnectCallback?> _disconnectCallbacks = [];
     private bool _initialized = false;
 
     internal NativeInterface.DisconnectCallback _disconnectCallback;
@@ -72,7 +73,10 @@ internal class FreeRdpClient : IFreeRdpClient
                 Disconnect(releaseObjectName);
             });
 
-            _disconnectCallbacks.Add(releaseObjectName, connectionSettings.DisconnectCallback);
+            _disconnectCallbacks.AddOrUpdate(
+                releaseObjectName,
+                _ => connectionSettings.DisconnectCallback,
+                (_, _) => connectionSettings.DisconnectCallback);
 
             return connection;
         });
@@ -84,10 +88,10 @@ internal class FreeRdpClient : IFreeRdpClient
             NativeInterface.RdpRelease(releaseObjectName);
     }
 
-    internal void OnDisconnect(string releaseObjectName)
+    private void OnDisconnect(string releaseObjectName)
     {
         var callback = _disconnectCallbacks[releaseObjectName];
         callback?.Invoke();
-        _disconnectCallbacks.Remove(releaseObjectName);
+        _disconnectCallbacks.Remove(releaseObjectName, out _);
     }
 }
