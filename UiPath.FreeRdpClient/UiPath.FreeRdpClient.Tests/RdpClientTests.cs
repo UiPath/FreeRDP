@@ -155,7 +155,7 @@ public class RdpClientTests : TestsBase
     public async Task DisconnectCallbackShouldBeCalledWhenSessionIsDisconnected()
     {
         var onDisconnectCalled = false;
-        HijackOnDisconnect();
+        await using var restoreDisconnectCallback = HijackOnDisconnect();
 
         var callbackCalled = false;
         var user = await Host.GivenUser();
@@ -180,16 +180,22 @@ public class RdpClientTests : TestsBase
 
         callbackCalled.ShouldBeTrue();
 
-        void HijackOnDisconnect()
+        AsyncDisposable HijackOnDisconnect()
         {
             var client = (FreeRdpClient)Host.GetRequiredService<IFreeRdpClient>();
             var initialOnDisconnect = client._disconnectCallback;
-            client._disconnectCallback = releaseObjectName =>
+            NativeInterface.DisconnectCallback? disconnectCallback = releaseObjectName =>
             {
                 initialOnDisconnect(releaseObjectName);
                 onDisconnectCalled = true;
             };
-            NativeInterface.SetDisconnectCallback(client._disconnectCallback);
+            NativeInterface.SetDisconnectCallback(disconnectCallback);
+            return new AsyncDisposable(() =>
+            {
+                disconnectCallback = null;
+                NativeInterface.SetDisconnectCallback(client._disconnectCallback);
+                return ValueTask.CompletedTask;
+            });
         }
     }
 

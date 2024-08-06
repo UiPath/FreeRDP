@@ -26,7 +26,7 @@ internal class FreeRdpClient : IFreeRdpClient
     private readonly ConcurrentDictionary<string, DisconnectCallback?> _disconnectCallbacks = [];
     private bool _initialized = false;
 
-    internal NativeInterface.DisconnectCallback _disconnectCallback;
+    internal readonly NativeInterface.DisconnectCallback _disconnectCallback;
 
     public async Task<IAsyncDisposable> Connect(RdpConnectionSettings connectionSettings)
     {
@@ -73,10 +73,7 @@ internal class FreeRdpClient : IFreeRdpClient
                 Disconnect(releaseObjectName);
             });
 
-            _disconnectCallbacks.AddOrUpdate(
-                releaseObjectName,
-                _ => connectionSettings.DisconnectCallback,
-                (_, _) => connectionSettings.DisconnectCallback);
+            _disconnectCallbacks[releaseObjectName] = connectionSettings.DisconnectCallback;
 
             return connection;
         });
