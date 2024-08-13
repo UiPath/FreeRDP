@@ -87,7 +87,7 @@ internal class FreeRdpClient : IFreeRdpClient
 
     private void OnDisconnect(string releaseObjectName)
     {
-        var callback = _disconnectCallbacks[releaseObjectName];
+        var callback = _disconnectCallbacks.GetValueOrDefault(releaseObjectName);
         callback?.Invoke();
         _disconnectCallbacks.Remove(releaseObjectName, out _);
     }

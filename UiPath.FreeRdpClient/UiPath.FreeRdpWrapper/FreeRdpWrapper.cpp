@@ -228,20 +228,21 @@ namespace FreeRdpClient
 		return 0;
 	}
 
-	instance_data* transport_start(
+	BOOL transport_start(
 		rdpContext* context,
-		ConnectOptions* rdpOptions)
+		ConnectOptions* rdpOptions,
+		_bstr_t &eventName)
 	{
 		instance_data* instanceData = new instance_data(context, rdpOptions);
 
-		auto eventName = instanceData->getEventName();
+		eventName = instanceData->getEventName();
 		auto existingEvent = OpenEvent(NULL, false, eventName.GetBSTR());
 		if (existingEvent)
 		{
 			CloseHandle(existingEvent);
 			DT_ERROR(L"Failed to create freerdp transport stop event, error: alreadyExists: %s", eventName.GetBSTR());
 			delete instanceData;
-			return NULL;
+			return FALSE;
 		}
 
 		instanceData->transportStopEvent = CreateEvent(NULL, TRUE, FALSE, eventName.GetBSTR());
@@ -249,7 +250,7 @@ namespace FreeRdpClient
 		{
 			DT_ERROR(L"Failed to create freerdp transport stop event, error: %u", GetLastError());
 			delete instanceData;
-			return NULL;
+			return FALSE;
 		}
 
 		auto transportThreadHandle = CreateThread(NULL, 0, transport_thread, instanceData, 0, NULL);
@@ -257,10 +258,10 @@ namespace FreeRdpClient
 		{
 			DT_ERROR(L"Failed to create freerdp transport client thread, error: %u", GetLastError());
 			delete instanceData;
-			return NULL;
+			return FALSE;
 		}
 		CloseHandle(transportThreadHandle);
-		return instanceData;
+		return TRUE;
 	}
 
 	HRESULT STDAPICALLTYPE RdpLogon(
@@ -280,10 +281,9 @@ namespace FreeRdpClient
 		auto connectResult = freerdp_connect(instance);
 		if (connectResult)
 		{
-			auto lpData = transport_start(context, rdpOptions);
-			if (lpData)
+			_bstr_t eventName;
+			if (transport_start(context, rdpOptions, eventName))
 			{
-				auto eventName = lpData->getEventName();
 				releaseEventName = eventName.Detach();
 				DT_TRACE(L"Connection succeeded");
 				return S_OK;
