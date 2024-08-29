@@ -154,9 +154,6 @@ public class RdpClientTests : TestsBase
     [Fact]
     public async Task DisconnectCallbackShouldBeCalledWhenSessionIsDisconnected()
     {
-        var onDisconnectCalled = false;
-        using var restoreDisconnectCallback = HijackOnDisconnect();
-
         var callbackCalled = false;
         var user = await Host.GivenUser();
         var connectionSettings = user.ToRdpConnectionSettings(
@@ -176,26 +173,7 @@ public class RdpClientTests : TestsBase
         _wts.DisconnectSession(server: null, sessionId, wait: true);
         await Host.WaitNoSession(connectionSettings);
         // FreeRDP takes a while to call disconnect after we manually disconnect the session
-        await WaitFor.Predicate(() => onDisconnectCalled);
-
-        callbackCalled.ShouldBeTrue();
-
-        Disposable HijackOnDisconnect()
-        {
-            var client = (FreeRdpClient)Host.GetRequiredService<IFreeRdpClient>();
-            var initialOnDisconnect = client._disconnectCallback;
-            NativeInterface.DisconnectCallback? disconnectCallback = releaseObjectName =>
-            {
-                initialOnDisconnect(releaseObjectName);
-                onDisconnectCalled = true;
-            };
-            NativeInterface.SetDisconnectCallback(disconnectCallback);
-            return new Disposable(() =>
-            {
-                disconnectCallback = null;
-                NativeInterface.SetDisconnectCallback(client._disconnectCallback);
-            });
-        }
+        await WaitFor.Predicate(() => callbackCalled);
     }
 
     [Fact]
