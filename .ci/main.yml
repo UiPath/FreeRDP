@@ -9,6 +9,11 @@ parameters:
     type: boolean
     default: false
 
+  - name: CreateGitTag
+    displayName: 'Create git tag after publish'
+    type: boolean
+    default: false
+
 pool:
   vmImage: 'windows-2022'
   demands:
@@ -16,6 +21,9 @@ pool:
   - visualstudio
 
 steps:
+- checkout: self
+  persistCredentials: true
+
 - task: NuGetToolInstaller@1
   displayName: 'Use NuGet'
 
@@ -112,3 +120,12 @@ steps:
     targetPath: '..\OpenSSL-VC-64' 
     artifactName: 'OpenSSL-VC-64' 
     parallel: true
+
+- ${{ if and(eq(parameters.PublishNuGets, true), eq(parameters.CreateGitTag, true)) }}:
+  - pwsh: |
+      $tag = (ls 'Output\nugets\UiPath.FreeRdpClient.*.nupkg').BaseName
+      git tag $tag
+      git push origin $tag
+      echo "Pushed tag $tag"
+    name: gitTag
+    condition: succeeded()
