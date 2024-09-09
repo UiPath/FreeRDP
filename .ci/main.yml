@@ -9,10 +9,13 @@ parameters:
     type: boolean
     default: false
 
-  - name: CreateGitTag
-    displayName: 'Create git tag after publish'
-    type: boolean
-    default: false
+variables:
+  ${{ if eq(variables['Build.SourceBranchName'], 'uipath') }}:
+    CreateGitTag: false # TODO Just for testing, reverse before merge
+    PackageVersionSuffix: '$(Build.BuildNumber)'
+  ${{ else }}:
+    CreateGitTag: true
+    PackageVersionSuffix: '$(Build.BuildNumber)-dev'
 
 pool:
   vmImage: 'windows-2022'
@@ -55,7 +58,7 @@ steps:
 - task: MSBuild@1
   displayName: build
   inputs:
-    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
+    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln'
     platform: 'x64'
     configuration: 'Release'
     msbuildArchitecture: 'x64'
@@ -72,7 +75,7 @@ steps:
 - task: MSBuild@1
   displayName: restore (UseNugetRef)
   inputs:
-    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln' 
+    solution: 'UiPath.FreeRdpClient\UiPath.FreeRdpClient.sln'
     platform: 'x64'
     configuration: 'Release'
     msbuildArchitecture: 'x64'
@@ -110,18 +113,18 @@ steps:
 - task: PublishPipelineArtifact@1
   name: publishFreeRDPOnly
   inputs:
-    targetPath: '.' 
-    artifactName: 'freeRdpOnly' 
+    targetPath: '.'
+    artifactName: 'freeRdpOnly'
     parallel: true
 
 - task: PublishPipelineArtifact@1
   name: publishOpenSSL
   inputs:
-    targetPath: '..\OpenSSL-VC-64' 
-    artifactName: 'OpenSSL-VC-64' 
+    targetPath: '..\OpenSSL-VC-64'
+    artifactName: 'OpenSSL-VC-64'
     parallel: true
 
-- ${{ if and(eq(parameters.PublishNuGets, true), eq(parameters.CreateGitTag, true)) }}:
+- ${{ if and(eq(parameters.PublishNuGets, true), eq(variables['CreateGitTag'], true)) }}:
   - pwsh: |
       $tag = (ls 'Output\nugets\UiPath.FreeRdpClient.*.nupkg').BaseName
       git tag $tag
