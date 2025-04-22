@@ -184,7 +184,7 @@ namespace FreeRdpClient
 
 		context->cache = cache_new(context->instance->settings);
 
-		HANDLE handles[64]{};
+		HANDLE handles[65]{};
 		handles[0] = instanceData->transportStopEvent;
 
 		while (1)
@@ -209,7 +209,11 @@ namespace FreeRdpClient
 
 			if (status > WAIT_OBJECT_0 && status < (WAIT_OBJECT_0 + nCount))
 			{
-				freerdp_check_event_handles(context);
+				if (!freerdp_check_event_handles(context))
+				{
+					DT_ERROR(L"freerdp_check_event_handles failed");
+					break;
+				}
 				if (freerdp_shall_disconnect(context->instance))
 				{
 					DT_TRACE(L"freerdp_shall_disconnect()");
