@@ -209,11 +209,7 @@ namespace FreeRdpClient
 
 			if (status > WAIT_OBJECT_0 && status < (WAIT_OBJECT_0 + nCount))
 			{
-				if (!freerdp_check_event_handles(context))
-				{
-					DT_ERROR(L"freerdp_check_event_handles failed");
-					break;
-				}
+				freerdp_check_event_handles(context);
 				if (freerdp_shall_disconnect(context->instance))
 				{
 					DT_TRACE(L"freerdp_shall_disconnect()");
