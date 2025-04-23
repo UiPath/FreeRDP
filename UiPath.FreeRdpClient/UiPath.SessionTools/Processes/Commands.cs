@@ -19,7 +19,7 @@ public static class Commands
     {
         await processRunner.EnsureUserHasPassword(userName, password, ct);
         await processRunner.ActivateUserAndDisableExpiration(userName, ct);
-        await processRunner.ProhibitPasswordChange(userName, ct);
+        //await processRunner.ProhibitPasswordChange(userName, ct);
         await processRunner.DisablePasswordExpiration(userName, ct);
 
         if (admin)

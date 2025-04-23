@@ -68,6 +68,8 @@ public class RdpClientTests : TestsBase
             ((int)displayInfo.HorizontalResolution).ShouldBe(connectionSettings.DesktopWidth);
             ((int)displayInfo.VerticalResolution).ShouldBe(connectionSettings.DesktopHeight);
             //((int)displayInfo.ColorDepth).ShouldBe(expectedWtsApiValue);
+            await Task.Delay(1000);
+            disconnectCalled.ShouldBeFalse();
         }
 
         await Host.WaitNoSession(connectionSettings);
