@@ -201,7 +201,7 @@ namespace FreeRdpClient
 			nCount += nCountTmp;
 			DWORD status = WaitForMultipleObjects(nCount, handles, FALSE, INFINITE);
 
-			if (status == WAIT_OBJECT_0)
+			if (status == WAIT_OBJECT_0 || WaitForSingleObject(instanceData->transportStopEvent, 0) == WAIT_OBJECT_0)
 			{
 				DT_TRACE(L"freerdp: transportStopEvent triggered");
 				break;
