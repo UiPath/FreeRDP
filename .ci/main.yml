@@ -32,12 +32,16 @@ steps:
 
 - task: NuGetAuthenticate@1
 
+- script: .\.ci\Scripts\install_msvc
+  name: install_msvc
+
 - script: |
     call .ci\Scripts\getVars
-   
+    echo on 
     cmake --version
     perl -v
     msbuild -version
+    cl
 
     set
   name: getVersions

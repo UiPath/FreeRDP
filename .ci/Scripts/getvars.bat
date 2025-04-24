@@ -1,6 +1,7 @@
-@echo off
+@echo on
 if defined freeRdpDir (exit /b)
 
+set vc_ver=14.40.17.10
 set openSSLTag=openssl-3.0.12
 
 set freeRdpDir=%~dp0\..\..
@@ -17,4 +18,4 @@ for /f "usebackq delims=" %%i in (`%vswhere% -prerelease -latest -property insta
 )
 
 call "%vsdir%\Common7\Tools\vsdevcmd.bat" -arch=amd64
-
+call "%vsdir%\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=14.40.17.10
