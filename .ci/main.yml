@@ -82,18 +82,6 @@ steps:
     msbuildArchitecture: 'x64'
     msbuildArguments: "/p:VersionSuffix=$(PackageVersionSuffix)"
 
-- task: NuGetCommand@2
-  ${{ if eq(parameters.PublishNuGets, true) }}:
-    displayName: '(Enabled) NuGet Push to UiPath-Internal'
-    condition: succeeded()
-  ${{ if eq(parameters.PublishNuGets, false) }}:
-    displayName: '(Disabled) NuGet Push to UiPath-Internal'
-    condition: false
-  inputs:
-    command: push
-    packagesToPush: 'Output\nugets\UiPath.FreeRdpClient.*.nupkg;Output\nugets\UiPath.SessionTools.*.nupkg'
-    publishVstsFeed: '5b98d55c-1b14-4a03-893f-7a59746f1246/788028a9-5a01-48ee-b925-3af51ae46294'
-
 - task: DotNetCoreCLI@2
   displayName: 'test'
   inputs:
@@ -127,6 +115,18 @@ steps:
     configuration: 'Release'
     arguments: '--no-build --configuration Release /p:UseNugetRef=true'
     projects: 'UiPath.FreeRdpClient\**\*.Tests.csproj'
+
+- task: NuGetCommand@2
+  ${{ if eq(parameters.PublishNuGets, true) }}:
+    displayName: '(Enabled) NuGet Push to UiPath-Internal'
+    condition: succeeded()
+  ${{ if eq(parameters.PublishNuGets, false) }}:
+    displayName: '(Disabled) NuGet Push to UiPath-Internal'
+    condition: false
+  inputs:
+    command: push
+    packagesToPush: 'Output\nugets\UiPath.FreeRdpClient.*.nupkg;Output\nugets\UiPath.SessionTools.*.nupkg'
+    publishVstsFeed: '5b98d55c-1b14-4a03-893f-7a59746f1246/788028a9-5a01-48ee-b925-3af51ae46294'
 
 - ${{ if and(eq(parameters.PublishNuGets, true), eq(variables['CreateGitTag'], true)) }}:
   - pwsh: |
