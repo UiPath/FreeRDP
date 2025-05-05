@@ -3,12 +3,31 @@
 This repo forks the FreeRDP repo, thus allowing us to make changes that fit our needs and augment the codebase with other components.
 From time to time there is a need to merge the changes from the original repo into this one.
 
-### ❗When updating the FreeRDP library from the official repo, please update the following in this file (README.md):
+### ❗When updating the FreeRDP library from the official repo, please update the following table in this file (README.md):
 
-|**Original repository tag/branch used:**| `2.5.0` |
+|**Original repository tag/branch used:**| `2.11.2` |
 | --- | --- |
-|**Original corresponding commit hash:**| `d50aef95520df4216c638495a6049125c00742cb` |
+|**Original corresponding commit hash:**| `a38c1be9eee39a9bc22b511fffe96e63fdf8ebe7` |
 
+#### Updating the fork is done on a dev machine and involves rebasing our changes on top of the new tag/branch from the original repo and **force pushing** the `uipath` branch.
+
+❗The state before the update must be saved in a support branch, named `robot/support/before_update_to_<NEW BASE GIT TAG>`, where `<NEW BASE GIT TAG>` is the tag from the original repo onto which we'll rebase our changes.
+
+The tags from the original repo must be fetched from the original repo and pushed to our fork:
+```pwsh
+git remote add upstream https://github.com/FreeRDP/FreeRDP.git
+git fetch --tags --all
+git push --tags
+```
+
+A work branch should be created from `uipath` and used in the validation phase. Its name would be `feat/update_to_<NEW BASE GIT TAG>`.
+After checking out the branch, the rebase should be performed using the following command:
+```pwsh
+git rebase --onto <NEW BASE Git Tag> <Our 1st customization Commit's Hash> <The work branch>
+```
+In this phase we have the opportunity the review the new state, run CI/CD and fix any issues that might arise.
+
+After validating the `feat/update_to_<NEW BASE GIT TAG>` branch, reset the `uipath` branch to it and force push it.
 
 ### Build instructions
 * Visual Studio 2022 installed in `C:\Program Files` required.
