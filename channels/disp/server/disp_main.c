@@ -405,8 +405,6 @@ static UINT disp_server_open(DispServerContext* context)
 	WINPR_ASSERT(priv);
 
 	priv->SessionId = WTS_CURRENT_SESSION;
-	UINT32 channelId;
-	BOOL status = TRUE;
 
 	if (WTSQuerySessionInformationA(context->vcm, WTS_CURRENT_SESSION, WTSSessionId,
 	                                (LPSTR*)&pSessionId, &BytesReturned) == FALSE)

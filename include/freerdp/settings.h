@@ -246,7 +246,6 @@ extern "C"
 	                                                     UINT32 GatewayEnabled,
 	                                                     UINT32 GatewayBypassLocal);
 
-#if !defined(DEFINE_NO_DEPRECATED)
 	/* DEPRECATED:
 	 * the functions freerdp_get_param_* and freerdp_set_param_* are deprecated.
 	 * use freerdp_settings_get_* and freerdp_settings_set_* as a replacement!
@@ -795,9 +794,6 @@ extern "C"
 	 */
 	WINPR_ATTR_MALLOC(freerdp_settings_free, 1)
 	FREERDP_API rdpSettings* freerdp_settings_deserialize(const char* json, size_t length);
-
-	FREERDP_API char* freerdp_rail_support_flags_to_string(UINT32 flags, char* buffer,
-	                                                       size_t length);
 
 #ifdef __cplusplus
 }

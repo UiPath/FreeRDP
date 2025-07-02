@@ -467,12 +467,6 @@ int rdp_redirection_apply_settings(rdpRdp* rdp)
 	redirection = rdp->redirection;
 	WINPR_ASSERT(redirection);
 
-	{
-		char buffer[2048] = { 0 };
-		WLog_DBG(TAG, "RedirectionFlags=%s",
-		         rdp_redirection_flags_to_string(redirection->flags, buffer, sizeof(buffer)));
-	}
-
 	settings->RedirectionFlags = redirection->flags;
 	settings->RedirectedSessionId = redirection->sessionID;
 
@@ -619,7 +613,6 @@ int rdp_redirection_apply_settings(rdpRdp* rdp)
 		rdpCertificate* cert = freerdp_certificate_clone(redirection->TargetCertificate);
 		if (!freerdp_settings_set_pointer(settings, FreeRDP_RedirectionTargetCertificate, cert))
 			return -1;
-	}
 
 		BOOL pres = FALSE;
 		size_t length = 0;

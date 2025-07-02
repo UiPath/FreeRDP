@@ -284,7 +284,7 @@ static BOOL rdg_read_http_unicode_string(wLog* log, wStream* s, const WCHAR** st
 
 	/* return the string data (if wanted) */
 	if (string)
-		*string = str.w;
+		*string = str;
 	if (lengthInBytes)
 		*lengthInBytes = strLenBytes;
 
@@ -2263,12 +2263,6 @@ void rdg_free(rdpRdg* rdg)
 		BIO_free_all(rdg->frontBio);
 
 	DeleteCriticalSection(&rdg->writeSection);
-
-	if (rdg->transferEncoding.isWebsocketTransport)
-	{
-		if (rdg->transferEncoding.context.websocket.responseStreamBuffer != NULL)
-			Stream_Free(rdg->transferEncoding.context.websocket.responseStreamBuffer, TRUE);
-	}
 
 	smartcardCertInfo_Free(rdg->smartcard);
 

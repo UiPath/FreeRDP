@@ -26,8 +26,6 @@
 
 #include <freerdp/config.h>
 
-#include <openssl/objects.h>
-
 #include <winpr/crt.h>
 #include <winpr/assert.h>
 
@@ -64,8 +62,8 @@ static SSIZE_T crypto_rsa_common(const BYTE* input, size_t length, UINT32 key_le
 		return -1;
 
 	bufferSize = 2ULL * key_length + exponent_size;
-	if ((size_t)length > bufferSize)
-		bufferSize = (size_t)length;
+	if (length > bufferSize)
+		bufferSize = length;
 
 	input_reverse = (BYTE*)calloc(bufferSize, 1);
 
@@ -260,55 +258,4 @@ fail:
 		          winpr_strerror(errno, buffer, sizeof(buffer)));
 	}
 	return rc == size;
-}
-
-WINPR_MD_TYPE crypto_cert_get_signature_alg(X509* xcert)
-{
-	WINPR_ASSERT(xcert);
-
-	EVP_PKEY* evp = X509_get0_pubkey(xcert);
-	WINPR_ASSERT(evp);
-
-	int hash_nid = 0;
-	const int res = EVP_PKEY_get_default_digest_nid(evp, &hash_nid);
-	if (res <= 0)
-		return WINPR_MD_NONE;
-
-	switch (hash_nid)
-	{
-		case NID_md2:
-			return WINPR_MD_MD2;
-		case NID_md4:
-			return WINPR_MD_MD4;
-		case NID_md5:
-			return WINPR_MD_MD5;
-		case NID_sha1:
-			return WINPR_MD_SHA1;
-		case NID_sha224:
-			return WINPR_MD_SHA224;
-		case NID_sha256:
-			return WINPR_MD_SHA256;
-		case NID_sha384:
-			return WINPR_MD_SHA384;
-		case NID_sha512:
-			return WINPR_MD_SHA512;
-		case NID_ripemd160:
-			return WINPR_MD_RIPEMD160;
-		case NID_sha3_224:
-			return WINPR_MD_SHA3_224;
-		case NID_sha3_256:
-			return WINPR_MD_SHA3_256;
-		case NID_sha3_384:
-			return WINPR_MD_SHA3_384;
-		case NID_sha3_512:
-			return WINPR_MD_SHA3_512;
-		case NID_shake128:
-			return WINPR_MD_SHAKE128;
-		case NID_shake256:
-			return WINPR_MD_SHAKE256;
-#endif
-		case NID_undef:
-		default:
-			return WINPR_MD_NONE;
-	}
 }

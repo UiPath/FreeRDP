@@ -136,8 +136,6 @@ static int ntlm_SetContextWorkstation(NTLM_CONTEXT* context, char* Workstation)
 
 	WINPR_ASSERT(context);
 
-	WINPR_ASSERT(context);
-
 	if (!Workstation)
 	{
 		computerName = get_name(ComputerNameNetBIOS);
@@ -566,11 +564,6 @@ static SECURITY_STATUS SEC_ENTRY ntlm_AcceptSecurityContext(
 
 			return SEC_E_OUT_OF_SEQUENCE;
 		}
-		break;
-		case NTLM_STATE_AUTHENTICATE:
-		{
-			if (!pInput)
-				return SEC_E_INVALID_TOKEN;
 
 		case NTLM_STATE_AUTHENTICATE:
 		{

@@ -85,7 +85,6 @@ static BOOL rdp_read_info_null_string(rdpSettings* settings, FreeRDP_Settings_Ke
 
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, (size_t)(cbLen)))
 		return FALSE;
-	}
 
 	if (cbLen > 0)
 	{
@@ -111,13 +110,6 @@ static BOOL rdp_read_info_null_string(rdpSettings* settings, FreeRDP_Settings_Ke
 			const char* domain = Stream_ConstPointer(s);
 			if (!freerdp_settings_set_string_len(settings, id, domain, cbLen))
 				return FALSE;
-		}
-
-		if (!Stream_SafeSeek(s, cbLen))
-		{
-			WLog_ERR(TAG, "protocol error: no data to read for %s [expected %" PRIuz "]", what,
-			         cbLen);
-			return FALSE;
 		}
 	}
 	Stream_Seek(s, cbLen);
@@ -298,27 +290,6 @@ static size_t rdp_get_client_address_max_size(const rdpRdp* rdp)
 {
 	UINT32 version = 0;
 	rdpSettings* settings = NULL;
-
-	WINPR_ASSERT(rdp);
-
-	settings = rdp->settings;
-	WINPR_ASSERT(settings);
-
-	version = freerdp_settings_get_uint32(settings, FreeRDP_RdpVersion);
-	if (version < RDP_VERSION_10_0)
-		return 64;
-	return 80;
-}
-
-/*
- * Get the cbClientAddress size limit
- * see [MS-RDPBCGR] 2.2.1.11.1.1.1 Extended Info Packet (TS_EXTENDED_INFO_PACKET)
- */
-
-static size_t rdp_get_client_address_max_size(const rdpRdp* rdp)
-{
-	UINT32 version;
-	rdpSettings* settings;
 
 	WINPR_ASSERT(rdp);
 

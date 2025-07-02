@@ -50,13 +50,6 @@ typedef struct
 	char lenBuffer[11];
 } http_encoding_chunked_context;
 
-typedef enum _TRANSFER_ENCODING
-{
-	TransferEncodingUnknown,
-	TransferEncodingIdentity,
-	TransferEncodingChunked
-} TRANSFER_ENCODING;
-
 /* HTTP context */
 typedef struct s_http_context HttpContext;
 

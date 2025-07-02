@@ -515,12 +515,12 @@ static UINT read_touch_frame(RdpeiServerContext* context, wStream* s, RDPINPUT_T
 	RDPINPUT_CONTACT_DATA* contact = NULL;
 	UINT error = 0;
 
-	if (!rdpei_read_2byte_unsigned(s, &tmp) || !rdpei_read_8byte_unsigned(s, &frame->frameOffset))
+	if (!rdpei_read_2byte_unsigned(s, &frame->contactCount) ||
+		!rdpei_read_8byte_unsigned(s, &frame->frameOffset))
 	{
 		WLog_ERR(TAG, "rdpei_read_ failed!");
 		return ERROR_INTERNAL_ERROR;
 	}
-	frame->contactCount = tmp;
 
 	frame->contacts = contact = calloc(frame->contactCount, sizeof(RDPINPUT_CONTACT_DATA));
 	if (!frame->contacts)

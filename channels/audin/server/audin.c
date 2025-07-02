@@ -478,15 +478,6 @@ static BOOL audin_server_open(audin_server_context* context)
 			return FALSE;
 		}
 
-		channelId = WTSChannelGetIdByHandle(audin->audin_channel);
-
-		IFCALLRET(context->ChannelIdAssigned, status, context, channelId);
-		if (!status)
-		{
-			WLog_ERR(TAG, "context->ChannelIdAssigned failed!");
-			return ERROR_INTERNAL_ERROR;
-		}
-
 		if (!(audin->stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL)))
 		{
 			WLog_Print(audin->log, WLOG_ERROR, "CreateEvent failed!");

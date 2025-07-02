@@ -15,6 +15,14 @@ cmd /c cmake . -B"./Build/x64" -G"Visual Studio 17 2022"^
 	-DWITH_CLIENT_INTERFACE=ON^
 	-DCHANNEL_URBDRC=OFF^
 	-DWITH_MEDIA_FOUNDATION=OFF^
+    -DZLIB_USE_STATIC_LIBS=ON^
+    -DZLIB_LIBRARY="%zlibDir%/Install/lib/zlib.lib"^
+    -DZLIB_INCLUDE_DIR="%zlibDir%/Install/include"^
+    -DWITH_FFMPEG=OFF^
+    -DWITH_VIDEO_FFMPEG=OFF^
+    -DWITH_DSP_FFMPEG=OFF^
+    -DWITH_SWSCALE=OFF^
+    -DWITH_SHADOW=OFF^
 
 rem build freerdp libs
 set Configuration=%1

@@ -277,8 +277,8 @@ static HRESULT STDMETHODCALLTYPE Shadow_IRDPSessionEvents_Invoke(_IRDPSessionEve
 			int level;
 			IDispatch* pDispatch;
 			IRDPSRAPIAttendee* pAttendee;
-			vr.vt = VT_DISPATCH;
-			vr.pdispVal = NULL;
+			vr.n1.n2.vt = VT_DISPATCH;
+			vr.n1.n2.n3.pdispVal = NULL;
 			hr = DispGetParam(pDispParams, 0, VT_DISPATCH, &vr, &uArgErr);
 
 			if (FAILED(hr))
@@ -288,7 +288,7 @@ static HRESULT STDMETHODCALLTYPE Shadow_IRDPSessionEvents_Invoke(_IRDPSessionEve
 				return hr;
 			}
 
-			pDispatch = vr.pdispVal;
+			pDispatch = vr.n1.n2.n3.pdispVal;
 			hr = pDispatch->lpVtbl->QueryInterface(pDispatch, &IID_IRDPSRAPIAttendee,
 			                                       (void**)&pAttendee);
 
@@ -340,8 +340,8 @@ static HRESULT STDMETHODCALLTYPE Shadow_IRDPSessionEvents_Invoke(_IRDPSessionEve
 			int level;
 			IDispatch* pDispatch;
 			IRDPSRAPIAttendee* pAttendee;
-			vr.vt = VT_INT;
-			vr.pdispVal = NULL;
+			vr.n1.n2.vt = VT_INT;
+			vr.n1.n2.n3.pdispVal = NULL;
 			hr = DispGetParam(pDispParams, 1, VT_INT, &vr, &uArgErr);
 
 			if (FAILED(hr))
@@ -351,9 +351,9 @@ static HRESULT STDMETHODCALLTYPE Shadow_IRDPSessionEvents_Invoke(_IRDPSessionEve
 				return hr;
 			}
 
-			level = vr.intVal;
-			vr.vt = VT_DISPATCH;
-			vr.pdispVal = NULL;
+			level = vr.n1.n2.n3.intVal;
+			vr.n1.n2.vt = VT_DISPATCH;
+			vr.n1.n2.n3.pdispVal = NULL;
 			hr = DispGetParam(pDispParams, 0, VT_DISPATCH, &vr, &uArgErr);
 
 			if (FAILED(hr))
@@ -363,7 +363,7 @@ static HRESULT STDMETHODCALLTYPE Shadow_IRDPSessionEvents_Invoke(_IRDPSessionEve
 				return hr;
 			}
 
-			pDispatch = vr.pdispVal;
+			pDispatch = vr.n1.n2.n3.pdispVal;
 			hr = pDispatch->lpVtbl->QueryInterface(pDispatch, &IID_IRDPSRAPIAttendee,
 			                                       (void**)&pAttendee);
 
@@ -647,8 +647,8 @@ int win_shadow_wds_init(winShadowSubsystem* subsystem)
 	}
 
 	bstrPropertyName = SysAllocString(L"PortId");
-	varPropertyValue.vt = VT_I4;
-	varPropertyValue.intVal = 40000;
+	varPropertyValue.n1.n2.vt = VT_I4;
+	varPropertyValue.n1.n2.n3.intVal = 40000;
 	hr = subsystem->pSessionProperties->lpVtbl->put_Property(subsystem->pSessionProperties,
 	                                                         bstrPropertyName, varPropertyValue);
 	SysFreeString(bstrPropertyName);
@@ -660,8 +660,8 @@ int win_shadow_wds_init(winShadowSubsystem* subsystem)
 	}
 
 	bstrPropertyName = SysAllocString(L"DrvConAttach");
-	varPropertyValue.vt = VT_BOOL;
-	varPropertyValue.boolVal = VARIANT_TRUE;
+	varPropertyValue.n1.n2.vt = VT_BOOL;
+	varPropertyValue.n1.n2.n3.boolVal = VARIANT_TRUE;
 	hr = subsystem->pSessionProperties->lpVtbl->put_Property(subsystem->pSessionProperties,
 	                                                         bstrPropertyName, varPropertyValue);
 	SysFreeString(bstrPropertyName);
@@ -674,9 +674,9 @@ int win_shadow_wds_init(winShadowSubsystem* subsystem)
 	}
 
 	bstrPropertyName = SysAllocString(L"PortProtocol");
-	varPropertyValue.vt = VT_I4;
+	varPropertyValue.n1.n2.vt = VT_I4;
 	// varPropertyValue.intVal = 0; // AF_UNSPEC
-	varPropertyValue.intVal = 2; // AF_INET
+	varPropertyValue.n1.n2.n3.intVal = 2; // AF_INET
 	// varPropertyValue.intVal = 23; // AF_INET6
 	hr = subsystem->pSessionProperties->lpVtbl->put_Property(subsystem->pSessionProperties,
 	                                                         bstrPropertyName, varPropertyValue);

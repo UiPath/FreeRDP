@@ -835,10 +835,6 @@ static BOOL tsg_packet_capabilities_to_string(char** buffer, size_t* length,
 	WINPR_ASSERT(length);
 	WINPR_ASSERT(caps);
 
-	assert(buffer);
-	assert(length);
-	assert(caps);
-
 	if (!tsg_print(buffer, length, "capabilities { "))
 		return FALSE;
 
@@ -1662,12 +1658,6 @@ static BOOL TsProxyCreateTunnelReadResponse(rdpTsg* tsg, const RPC_PDU* pdu,
 	context = transport_get_context(tsg->rpc->transport);
 	WINPR_ASSERT(context);
 
-	assert(tsg);
-	assert(tsg->rpc);
-
-	context = tsg->rpc->context;
-	assert(context);
-
 	if (!pdu)
 		return FALSE;
 
@@ -1979,12 +1969,6 @@ static BOOL TsProxyMakeTunnelCallReadResponse(rdpTsg* tsg, const RPC_PDU* pdu)
 
 	context = transport_get_context(tsg->rpc->transport);
 	WINPR_ASSERT(context);
-
-	assert(tsg);
-	assert(tsg->rpc);
-
-	context = tsg->rpc->context;
-	assert(context);
 
 	/* This is an asynchronous response */
 
@@ -2400,7 +2384,7 @@ BOOL tsg_recv_pdu(rdpTsg* tsg, const RPC_PDU* pdu)
 			CONTEXT_HANDLE* TunnelContext =
 			    (tsg->reauthSequence) ? &tsg->NewTunnelContext : &tsg->TunnelContext;
 
-			if (!TsProxyAuthorizeTunnelReadResponse(pdu))
+			if (!TsProxyAuthorizeTunnelReadResponse(tsg, pdu))
 			{
 				WLog_Print(tsg->log, WLOG_ERROR, "TsProxyAuthorizeTunnelReadResponse failure");
 				return FALSE;

@@ -5,9 +5,9 @@ From time to time there is a need to merge the changes from the original repo in
 
 ### ❗When updating the FreeRDP library from the official repo, please update the following in this file (README.md):
 
-|**Original repository tag/branch used:**| `2.5.0` |
-| --- | --- |
-|**Original corresponding commit hash:**| `d50aef95520df4216c638495a6049125c00742cb` |
+|**Original repository tag/branch used:**| `3.16.0`|
+| --- |--------------------------------------------|
+|**Original corresponding commit hash:**| `fcdf4c6c7e7ffda9203889114a2ee7ba8d5d1976` |
 
 
 [UiPath/Driver](https://github.com/UiPath/Driver) has this fork as a static library dependency.

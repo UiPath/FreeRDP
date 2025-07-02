@@ -33,7 +33,6 @@ extern "C"
 
 #define RAIL_SVC_CHANNEL_NAME "rail"
 
-#if !defined(DEFINE_NO_DEPRECATED)
 /* DEPRECATED: RAIL PDU flags use the spec conformant naming with TS_ prefix */
 #if defined(WITH_FREERDP_DEPRECATED)
 #define RAIL_EXEC_FLAG_EXPAND_WORKINGDIRECTORY 0x0001
@@ -122,6 +121,14 @@ enum SPI_MASK
 
 /* Client Notify Event PDU */
 #ifndef _WIN32
+#define WM_LBUTTONDOWN 0x00000201
+#define WM_LBUTTONUP 0x00000202
+#define WM_RBUTTONDOWN 0x00000204
+#define WM_RBUTTONUP 0x00000205
+#define WM_CONTEXTMENU 0x0000007b
+#define WM_LBUTTONDBLCLK 0x00000203
+#define WM_RBUTTONDBLCLK 0x00000206
+
 #define NIN_SELECT 0x00000400
 #define NIN_KEYSELECT 0x00000401
 #define NIN_BALLOONSHOW 0x00000402
@@ -132,13 +139,11 @@ enum SPI_MASK
 #include <shellapi.h>
 #endif
 
-#if !defined(DEFINE_NO_DEPRECATED)
 /* DEPRECATED: Client Information PDU
  * use the spec conformant naming scheme TS_ below
  */
 #define RAIL_CLIENTSTATUS_ALLOWLOCALMOVESIZE 0x00000001
 #define RAIL_CLIENTSTATUS_AUTORECONNECT 0x00000002
-#endif
 
 /* Client Information PDU */
 typedef enum
@@ -182,14 +187,12 @@ typedef enum
 #define TF_SFT_NOEXTRAICONSONMINIMIZED 0x00000400
 #define TF_SFT_DESKBAND 0x00000800
 
-#if !defined(DEFINE_NO_DEPRECATED)
 /* DEPRECATED: Extended Handshake Flags
  * use the spec conformant naming scheme TS_ below
  */
 #define RAIL_ORDER_HANDSHAKEEX_FLAGS_HIDEF 0x00000001
 #define RAIL_ORDER_HANDSHAKE_EX_FLAGS_EXTENDED_SPI_SUPPORTED 0x00000002
 #define RAIL_ORDER_HANDSHAKE_EX_FLAGS_SNAP_ARRANGE_SUPPORTED 0x00000004
-#endif
 
 /* Extended Handshake Flags */
 typedef enum
@@ -516,7 +519,6 @@ typedef struct
 	WCHAR processImageName[520 / sizeof(WCHAR)];
 } RAIL_GET_APPID_RESP_EX;
 
-#if !defined(DEFINE_NO_DEPRECATED)
 /* DEPRECATED: RAIL Constants
  * use the spec conformant naming scheme TS_ below
  */
@@ -544,7 +546,6 @@ typedef struct
 #define RDP_RAIL_ORDER_POWER_DISPLAY_REQUEST 0x0016
 #define RDP_RAIL_ORDER_SNAP_ARRANGE 0x0017
 #define RDP_RAIL_ORDER_GET_APPID_RESP_EX 0x0018
-#endif
 
 /* RAIL Constants */
 

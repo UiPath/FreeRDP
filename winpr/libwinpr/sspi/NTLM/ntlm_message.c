@@ -326,12 +326,6 @@ static BOOL ntlm_write_message_fields(wStream* s, const NTLM_MESSAGE_FIELDS* fie
 	if (!NTLM_CheckAndLogRequiredCapacity(TAG, (s), 8, "NTLM_MESSAGE_FIELDS::header"))
 		return FALSE;
 
-	if (Stream_GetRemainingCapacity(s) < 8)
-	{
-		WLog_ERR(TAG, "Short NTLM_MESSAGE_FIELDS::header %" PRIuz ", expected %" PRIuz,
-		         Stream_GetRemainingCapacity(s), 8);
-		return FALSE;
-	}
 	Stream_Write_UINT16(s, fields->Len);          /* Len (2 bytes) */
 	Stream_Write_UINT16(s, MaxLen);               /* MaxLen (2 bytes) */
 	Stream_Write_UINT32(s, fields->BufferOffset); /* BufferOffset (4 bytes) */
@@ -585,7 +579,7 @@ SECURITY_STATUS ntlm_write_NegotiateMessage(NTLM_CONTEXT* context, SecBuffer* bu
 
 	*message = empty;
 
-	s = Stream_StaticInit2(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
+	s = Stream_StaticInit(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
 
 	if (!s)
 		return SEC_E_INTERNAL_ERROR;
@@ -700,7 +694,6 @@ SECURITY_STATUS ntlm_read_ChallengeMessage(NTLM_CONTEXT* context, PSecBuffer buf
 
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, 16))
 		goto fail;
-	}
 
 	Stream_Read(s, message->ServerChallenge, 8); /* ServerChallenge (8 bytes) */
 	CopyMemory(context->ServerChallenge, message->ServerChallenge, 8);
@@ -837,7 +830,7 @@ SECURITY_STATUS ntlm_write_ChallengeMessage(NTLM_CONTEXT* context, SecBuffer* bu
 
 	*message = empty;
 
-	s = Stream_StaticInit2(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
+	s = Stream_StaticInit(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
 
 	if (!s)
 		return SEC_E_INTERNAL_ERROR;
@@ -1240,7 +1233,7 @@ SECURITY_STATUS ntlm_write_AuthenticateMessage(NTLM_CONTEXT* context, SecBuffer*
 
 	*message = empty;
 
-	s = Stream_StaticInit2(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
+	s = Stream_StaticInit(&sbuffer, buffer->pvBuffer, buffer->cbBuffer);
 
 	if (!s)
 		return SEC_E_INTERNAL_ERROR;

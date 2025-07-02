@@ -51,17 +51,17 @@ static BOOL win_shadow_input_keyboard_event(rdpShadowSubsystem* subsystem, rdpSh
 	UINT rc;
 	INPUT event;
 	event.type = INPUT_KEYBOARD;
-	event.ki.wVk = 0;
-	event.ki.wScan = code;
-	event.ki.dwFlags = KEYEVENTF_SCANCODE;
-	event.ki.dwExtraInfo = 0;
-	event.ki.time = 0;
+	event.u.ki.wVk = 0;
+	event.u.ki.wScan = code;
+	event.u.ki.dwFlags = KEYEVENTF_SCANCODE;
+	event.u.ki.dwExtraInfo = 0;
+	event.u.ki.time = 0;
 
 	if (flags & KBD_FLAGS_RELEASE)
-		event.ki.dwFlags |= KEYEVENTF_KEYUP;
+		event.u.ki.dwFlags |= KEYEVENTF_KEYUP;
 
 	if (flags & KBD_FLAGS_EXTENDED)
-		event.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+		event.u.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
 
 	rc = SendInput(1, &event, sizeof(INPUT));
 	if (rc == 0)
@@ -76,14 +76,14 @@ static BOOL win_shadow_input_unicode_keyboard_event(rdpShadowSubsystem* subsyste
 	UINT rc;
 	INPUT event;
 	event.type = INPUT_KEYBOARD;
-	event.ki.wVk = 0;
-	event.ki.wScan = code;
-	event.ki.dwFlags = KEYEVENTF_UNICODE;
-	event.ki.dwExtraInfo = 0;
-	event.ki.time = 0;
+	event.u.ki.wVk = 0;
+	event.u.ki.wScan = code;
+	event.u.ki.dwFlags = KEYEVENTF_UNICODE;
+	event.u.ki.dwExtraInfo = 0;
+	event.u.ki.time = 0;
 
 	if (flags & KBD_FLAGS_RELEASE)
-		event.ki.dwFlags |= KEYEVENTF_KEYUP;
+		event.u.ki.dwFlags |= KEYEVENTF_KEYUP;
 
 	rc = SendInput(1, &event, sizeof(INPUT));
 	if (rc == 0)
@@ -104,13 +104,13 @@ static BOOL win_shadow_input_mouse_event(rdpShadowSubsystem* subsystem, rdpShado
 	if (flags & (PTR_FLAGS_WHEEL | PTR_FLAGS_HWHEEL))
 	{
 		if (flags & PTR_FLAGS_WHEEL)
-			event.mi.dwFlags = MOUSEEVENTF_WHEEL;
+			event.u.mi.dwFlags = MOUSEEVENTF_WHEEL;
 		else
-			event.mi.dwFlags = MOUSEEVENTF_HWHEEL;
-		event.mi.mouseData = flags & WheelRotationMask;
+			event.u.mi.dwFlags = MOUSEEVENTF_HWHEEL;
+		event.u.mi.mouseData = flags & WheelRotationMask;
 
 		if (flags & PTR_FLAGS_WHEEL_NEGATIVE)
-			event.mi.mouseData *= -1;
+			event.u.mi.mouseData *= -1;
 
 		rc = SendInput(1, &event, sizeof(INPUT));
 
@@ -127,44 +127,44 @@ static BOOL win_shadow_input_mouse_event(rdpShadowSubsystem* subsystem, rdpShado
 	{
 		width = (float)GetSystemMetrics(SM_CXSCREEN);
 		height = (float)GetSystemMetrics(SM_CYSCREEN);
-		event.mi.dx = (LONG)((float)x * (65535.0f / width));
-		event.mi.dy = (LONG)((float)y * (65535.0f / height));
-		event.mi.dwFlags = MOUSEEVENTF_ABSOLUTE;
+		event.u.mi.dx = (LONG)((float)x * (65535.0f / width));
+		event.u.mi.dy = (LONG)((float)y * (65535.0f / height));
+		event.u.mi.dwFlags = MOUSEEVENTF_ABSOLUTE;
 
 		if (flags & PTR_FLAGS_MOVE)
 		{
-			event.mi.dwFlags |= MOUSEEVENTF_MOVE;
+			event.u.mi.dwFlags |= MOUSEEVENTF_MOVE;
 			rc = SendInput(1, &event, sizeof(INPUT));
 			if (rc == 0)
 				return FALSE;
 		}
 
-		event.mi.dwFlags = MOUSEEVENTF_ABSOLUTE;
+		event.u.mi.dwFlags = MOUSEEVENTF_ABSOLUTE;
 
 		if (flags & PTR_FLAGS_BUTTON1)
 		{
 			if (flags & PTR_FLAGS_DOWN)
-				event.mi.dwFlags |= MOUSEEVENTF_LEFTDOWN;
+				event.u.mi.dwFlags |= MOUSEEVENTF_LEFTDOWN;
 			else
-				event.mi.dwFlags |= MOUSEEVENTF_LEFTUP;
+				event.u.mi.dwFlags |= MOUSEEVENTF_LEFTUP;
 
 			rc = SendInput(1, &event, sizeof(INPUT));
 		}
 		else if (flags & PTR_FLAGS_BUTTON2)
 		{
 			if (flags & PTR_FLAGS_DOWN)
-				event.mi.dwFlags |= MOUSEEVENTF_RIGHTDOWN;
+				event.u.mi.dwFlags |= MOUSEEVENTF_RIGHTDOWN;
 			else
-				event.mi.dwFlags |= MOUSEEVENTF_RIGHTUP;
+				event.u.mi.dwFlags |= MOUSEEVENTF_RIGHTUP;
 
 			rc = SendInput(1, &event, sizeof(INPUT));
 		}
 		else if (flags & PTR_FLAGS_BUTTON3)
 		{
 			if (flags & PTR_FLAGS_DOWN)
-				event.mi.dwFlags |= MOUSEEVENTF_MIDDLEDOWN;
+				event.u.mi.dwFlags |= MOUSEEVENTF_MIDDLEDOWN;
 			else
-				event.mi.dwFlags |= MOUSEEVENTF_MIDDLEUP;
+				event.u.mi.dwFlags |= MOUSEEVENTF_MIDDLEUP;
 
 			rc = SendInput(1, &event, sizeof(INPUT));
 		}
@@ -192,25 +192,25 @@ static BOOL win_shadow_input_extended_mouse_event(rdpShadowSubsystem* subsystem,
 		{
 			width = (float)GetSystemMetrics(SM_CXSCREEN);
 			height = (float)GetSystemMetrics(SM_CYSCREEN);
-			event.mi.dx = (LONG)((float)x * (65535.0f / width));
-			event.mi.dy = (LONG)((float)y * (65535.0f / height));
-			event.mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE;
+			event.u.mi.dx = (LONG)((float)x * (65535.0f / width));
+			event.u.mi.dy = (LONG)((float)y * (65535.0f / height));
+			event.u.mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE;
 			rc = SendInput(1, &event, sizeof(INPUT));
 			if (rc == 0)
 				return FALSE;
 		}
 
-		event.mi.dx = event.mi.dy = event.mi.dwFlags = 0;
+		event.u.mi.dx = event.u.mi.dy = event.u.mi.dwFlags = 0;
 
 		if (flags & PTR_XFLAGS_DOWN)
-			event.mi.dwFlags |= MOUSEEVENTF_XDOWN;
+			event.u.mi.dwFlags |= MOUSEEVENTF_XDOWN;
 		else
-			event.mi.dwFlags |= MOUSEEVENTF_XUP;
+			event.u.mi.dwFlags |= MOUSEEVENTF_XUP;
 
 		if (flags & PTR_XFLAGS_BUTTON1)
-			event.mi.mouseData = XBUTTON1;
+			event.u.mi.mouseData = XBUTTON1;
 		else if (flags & PTR_XFLAGS_BUTTON2)
-			event.mi.mouseData = XBUTTON2;
+			event.u.mi.mouseData = XBUTTON2;
 
 		rc = SendInput(1, &event, sizeof(INPUT));
 	}

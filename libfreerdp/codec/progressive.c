@@ -362,36 +362,6 @@ progressive_allocate_tile_cache(PROGRESSIVE_SURFACE_CONTEXT* WINPR_RESTRICT surf
 	return TRUE;
 }
 
-static BOOL progressive_allocate_tile_cache(PROGRESSIVE_SURFACE_CONTEXT* surface)
-{
-	size_t oldIndex;
-
-	WINPR_ASSERT(surface);
-	WINPR_ASSERT(surface->gridSize > 0);
-
-	oldIndex = surface->gridSize;
-	if (surface->tiles)
-		surface->gridSize *= 2;
-
-	{
-		void* tmp = realloc(surface->tiles, surface->gridSize * sizeof(RFX_PROGRESSIVE_TILE));
-		if (!tmp)
-			return FALSE;
-		surface->tiles = tmp;
-		memset(&surface->tiles[oldIndex], 0,
-		       (surface->gridSize - oldIndex) * sizeof(RFX_PROGRESSIVE_TILE));
-	}
-	{
-		void* tmp = realloc(surface->updatedTileIndices, surface->gridSize * sizeof(UINT32));
-		if (!tmp)
-			return FALSE;
-		surface->updatedTileIndices = tmp;
-		memset(&surface->updatedTileIndices[oldIndex], 0,
-		       (surface->gridSize - oldIndex) * sizeof(UINT32));
-	}
-	return TRUE;
-}
-
 static PROGRESSIVE_SURFACE_CONTEXT* progressive_surface_context_new(UINT16 surfaceId, UINT32 width,
                                                                     UINT32 height)
 {
@@ -2438,7 +2408,7 @@ int progressive_compress(PROGRESSIVE_CONTEXT* WINPR_RESTRICT progressive,
 	RFX_RECT* rects = NULL;
 	RFX_MESSAGE* message = NULL;
 
-	if (!progressive || !pSrcData || !ppDstData || !pDstSize || !invalidRegion)
+	if (!progressive || !pSrcData || !ppDstData || !pDstSize)
 	{
 		return -1;
 	}
@@ -2616,10 +2586,6 @@ void progressive_context_free(PROGRESSIVE_CONTEXT* progressive)
 {
 	if (!progressive)
 		return;
-
-	Stream_Free(progressive->buffer, TRUE);
-	Stream_Free(progressive->rects, TRUE);
-	rfx_context_free(progressive->rfx_context);
 
 	Stream_Free(progressive->buffer, TRUE);
 	Stream_Free(progressive->rects, TRUE);

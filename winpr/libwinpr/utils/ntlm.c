@@ -104,11 +104,7 @@ BOOL NTOWFv2A(LPSTR Password, UINT32 PasswordLength, LPSTR User, UINT32 UserLeng
 	DomainW = ConvertUtf8NToWCharAlloc(Domain, DomainLength, &domainCharLength);
 	PasswordW = ConvertUtf8NToWCharAlloc(Password, PasswordLength, &pwdCharLength);
 
-	if (UserLengthW < 0)
-		goto out_fail;
-	if (DomainLengthW < 0)
-		goto out_fail;
-	if (PasswordLengthW < 0)
+	if (!UserW || !DomainW || !PasswordW)
 		goto out_fail;
 
 	if (!NTOWFv2W(PasswordW, (UINT32)pwdCharLength * sizeof(WCHAR), UserW,

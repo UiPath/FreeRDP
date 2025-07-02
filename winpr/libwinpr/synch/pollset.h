@@ -71,6 +71,4 @@ BOOL pollset_isWriteSignaled(WINPR_POLL_SET* set, size_t idx);
 
 #endif
 
-#endif
-
 #endif /* WINPR_LIBWINPR_SYNCH_POLLSET_H_ */
