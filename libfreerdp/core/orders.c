@@ -40,7 +40,7 @@
 #include "../cache/glyph.h"
 #include "../cache/bitmap.h"
 #include "../cache/brush.h"
-#include "../cache/cache.h"
+#include <freerdp/cache/cache.h>
 
 #define TAG FREERDP_TAG("core.orders")
 

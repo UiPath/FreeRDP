@@ -31,7 +31,7 @@
 #include "../core/graphics.h"
 
 #include "offscreen.h"
-#include "cache.h"
+#include <freerdp/cache/cache.h>
 
 #define TAG FREERDP_TAG("cache.offscreen")
 

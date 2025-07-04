@@ -29,7 +29,7 @@
 #include <winpr/stream.h>
 
 #include "brush.h"
-#include "cache.h"
+#include <freerdp/cache/cache.h>
 
 #define TAG FREERDP_TAG("cache.brush")
 

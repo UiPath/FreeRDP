@@ -28,7 +28,7 @@
 #include <freerdp/log.h>
 
 #include "pointer.h"
-#include "cache.h"
+#include <freerdp/cache/cache.h>
 
 #define TAG FREERDP_TAG("cache.pointer")
 
