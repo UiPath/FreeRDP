@@ -126,31 +126,26 @@ public class RdpClientTests : TestsBase
         }
     }
 
-    // TODO This one was failing, to investigate later
-    //[Fact]
-    //public async Task ShouldConnectWithDifferentPort()
-    //{
-    //    var port = 44444 + DateTime.Now.Millisecond % 10;
-    //    if (port == Environment.ProcessId)
-    //        port++;
-    //    await WithPortRedirectToDefaultRdp(port);
-    //    var user = await Host.GivenUser();
+    [Fact]
+    public async Task ShouldConnectWithDifferentPort()
+    {
+        var port = 44444 + DateTime.Now.Millisecond % 10;
+        if (port == Environment.ProcessId)
+            port++;
 
-    //    var connectionSettings = user.ToRdpConnectionSettings();
+        await using var _ = await ChangeRdpPort(port);
 
-    //    connectionSettings.Port = port;
+        var user = await Host.GivenUser();
 
-    //    await ShouldNotHavePortWithState(port, StateEstablished);
+        var connectionSettings = user.ToRdpConnectionSettings();
+        connectionSettings.Port = port;
 
-    //    await using var sut = await Connect(connectionSettings);
-    //    var sessionId = await Host.FindSession(connectionSettings);
+        await using var sut = await Connect(connectionSettings);
+        var sessionId = await Host.FindSession(connectionSettings);
 
-    //    await ShouldHavePortWithState(port, StateEstablished, Environment.ProcessId);
-
-    //    await sut.DisposeAsync();
-    //    await ShouldNotHavePortWithState(port, StateEstablished);
-    //    await Host.WaitNoSession(connectionSettings);
-    //}
+        await sut.DisposeAsync();
+        await Host.WaitNoSession(connectionSettings);
+    }
 
     [Fact]
     public async Task DisconnectCallbackShouldBeCalledWhenSessionIsDisconnected()
@@ -201,33 +196,17 @@ public class RdpClientTests : TestsBase
         callbackCalled.ShouldBeTrue();
     }
 
-    private async Task WithPortRedirectToDefaultRdp(int port)
+    private async Task<IAsyncDisposable> ChangeRdpPort(int port)
     {
-        var log = Host.GetRequiredService<ILogger<TestHost>>();
+        await ChangeRdpPortInternal(port);
+        return new AsyncDisposable(async () => await ChangeRdpPortInternal(3389));
 
-        using var ctsTimeout = new CancellationTokenSource(GlobalSettings.DefaultTimeout);
-
-        await new ProcessRunner(log).CreateRDPRedirect(port, ctsTimeout.Token);
-
-        await ShouldHavePortWithState(port, StateListening);
-    }
-
-    private async Task ShouldHavePortWithState(int port, string state, int? processId = null)
-    {
-        var log = Host.GetRequiredService<ILogger<TestHost>>();
-
-        using var ctsTimeout = new CancellationTokenSource(GlobalSettings.DefaultTimeout);
-
-        (await new ProcessRunner(log).PortWithStateExists(port, state, processId, ctsTimeout.Token)).ShouldBeTrue();
-    }
-
-    private async Task ShouldNotHavePortWithState(int port, string state)
-    {
-        var log = Host.GetRequiredService<ILogger<TestHost>>();
-
-        using var ctsTimeout = new CancellationTokenSource(GlobalSettings.DefaultTimeout);
-
-        (await new ProcessRunner(log).PortWithStateExists(port, state, ctsTimeout.Token)).ShouldBeFalse();
+        async Task ChangeRdpPortInternal(int port)
+        {
+            var log = Host.GetRequiredService<ILogger<TestHost>>();
+            using var ctsTimeout = new CancellationTokenSource(GlobalSettings.DefaultTimeout);
+            await new ProcessRunner(log).ChangeRdpPort(port, ctsTimeout.Token);
+        }
     }
 
     [Fact]
