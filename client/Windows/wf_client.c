@@ -65,22 +65,9 @@
 
 #define TAG CLIENT_TAG("windows")
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 #define WM_FREERDP_SHOWWINDOW (WM_USER + 100)
 
 static BOOL wf_has_console(void)
-=======
-PVIRTUALCHANNELENTRY freerdp_channels_load_static_addin_entry(LPCSTR pszName, LPSTR pszSubsystem,
-    LPSTR pszType, DWORD dwFlags)
-{
-    return NULL;
-}
-
-=======
->>>>>>> 06cf1991d (FreeRDP fixes after OpenSSL bump  (#28))
-static BOOL wf_create_console(void)
->>>>>>> 3b537ad78 (Add uipath changes from previous version (2.0.0-rc3))
 {
 #ifdef WITH_WIN_CONSOLE
 	int file = _fileno(stdin);

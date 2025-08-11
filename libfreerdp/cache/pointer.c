@@ -110,16 +110,10 @@ static BOOL upate_pointer_copy_andxor(rdpPointer* pointer, const BYTE* andMaskDa
 	pointer_clear(pointer);
 	if (lengthAndMask && andMaskData)
 	{
-<<<<<<< HEAD
 		if (lengthAndMask > UINT32_MAX)
 			return FALSE;
 		pointer->lengthAndMask = (UINT32)lengthAndMask;
 		pointer->andMaskData = (BYTE*)malloc(lengthAndMask);
-=======
-		pointer->lengthAndMask = lengthAndMask;
-		pointer->andMaskData = (BYTE*)malloc(lengthAndMask);
-
->>>>>>> b787a8204 (complete fix with logs)
 		if (!pointer->andMaskData)
 			return FALSE;
 
@@ -128,16 +122,10 @@ static BOOL upate_pointer_copy_andxor(rdpPointer* pointer, const BYTE* andMaskDa
 
 	if (lengthXorMask && xorMaskData)
 	{
-<<<<<<< HEAD
 		if (lengthXorMask > UINT32_MAX)
 			return FALSE;
 		pointer->lengthXorMask = (UINT32)lengthXorMask;
 		pointer->xorMaskData = (BYTE*)malloc(lengthXorMask);
-=======
-		pointer->lengthXorMask = lengthXorMask;
-		pointer->xorMaskData = (BYTE*)malloc(lengthXorMask);
-
->>>>>>> b787a8204 (complete fix with logs)
 		if (!pointer->xorMaskData)
 			return FALSE;
 
