@@ -36,7 +36,7 @@
 #include "../core/graphics.h"
 
 #include "bitmap.h"
-#include "cache.h"
+#include <freerdp/cache/cache.h>
 
 #define TAG FREERDP_TAG("cache.bitmap")
 

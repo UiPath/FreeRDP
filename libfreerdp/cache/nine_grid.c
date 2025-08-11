@@ -28,7 +28,7 @@
 #include <winpr/stream.h>
 
 #include "nine_grid.h"
-#include "cache.h"
+#include <freerdp/cache/cache.h>
 
 typedef struct
 {
