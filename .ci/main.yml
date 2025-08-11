@@ -50,6 +50,10 @@ steps:
   displayName: getOpenSsl
 - script: .\.ci\Scripts\buildOpenSsl
   displayName: buildOpenSsl
+- script: .\.ci\Scripts\getZlib
+  displayName: getZlib
+- script: .\.ci\Scripts\buildZlib
+  displayName: buildZlib
 - script: .\.ci\Scripts\buildFreeRDP Release
   displayName: buildFreeRDP
 
