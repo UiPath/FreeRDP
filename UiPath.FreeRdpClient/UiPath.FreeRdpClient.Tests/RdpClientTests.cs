@@ -220,4 +220,25 @@ public class RdpClientTests : TestsBase
         var exception = await Connect(connectionSettings).ShouldThrowAsync<COMException>();
         exception.Message.Contains("Logon Failed", StringComparison.InvariantCultureIgnoreCase);
     }
+
+    //[Fact] // can't run everywhere, so leaving it commented for now
+    public async Task SmartCard()
+    {
+        var username = "user1";
+        var domain = "test.lab";
+        var password = "12345678";
+
+        var settings = new RdpConnectionSettings(username, domain, password)
+        {
+            IsSmartCardLogon = true,
+            //ReaderName = "Microsoft Virtual Smart Card 0",
+            //CspName = "Microsoft Base Smart Card Crypto Provider",
+            //ContainerName = "te-SmartcardV4-025548ff-3a4a-4c89-31544",
+        };
+
+        await using var _ = await Connect(settings);
+        _output.WriteLine("Connected, waiting 10s for session to be created...");
+        await Task.Delay(10_000);
+        _output.WriteLine("Done");
+    }
 }

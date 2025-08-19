@@ -23,6 +23,11 @@ public class RdpConnectionSettings
     [MaxLength(15, ErrorMessage = "Sometimes :) Windows returns only first 15 chars for a session ClientName")]
     public string? ClientName { get; set; }
 
+    public bool IsSmartCardLogon { get; set; }
+    public string? ReaderName { get; set; }
+    public string? CspName { get; set; }
+    public string? ContainerName { get; set; }
+
     public DisconnectCallback? DisconnectCallback { get; set; }
 
     public RdpConnectionSettings(string username, string domain, string password)

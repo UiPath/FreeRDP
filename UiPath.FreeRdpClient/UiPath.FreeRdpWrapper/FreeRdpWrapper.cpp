@@ -5,6 +5,10 @@
 #pragma warning(disable : 4324 4201 4245 4996)
 #include <freerdp/freerdp.h>
 #include <freerdp/cache/cache.h>
+#include <freerdp/addin.h>
+#include <freerdp/client/channels.h>
+#include <freerdp/channels/rdpsnd.h>
+#include <freerdp/channels/rdpdr.h>
 #pragma warning(default : 4324 4201 4245 4996)
 #pragma once
 using namespace Logging;
@@ -18,6 +22,21 @@ namespace FreeRdpClient
 	{
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convToUTF8;
 		return _strdup(convToUTF8.to_bytes(source).c_str());
+	}
+
+	wchar_t* ConvToUtf16(const char* source)
+	{
+		if (!source) // Handle null input
+		{
+			return nullptr;
+		}
+
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+		std::wstring wideString = converter.from_bytes(source);
+
+		wchar_t* wstr = new wchar_t[wideString.size() + 1];
+		std::wmemcpy(wstr, wideString.c_str(), wideString.size() + 1);
+		return wstr;
 	}
 
 	class instance_data
@@ -98,7 +117,110 @@ namespace FreeRdpClient
 		return instance;
 	}
 
-	void PrepareRdpContext(rdpContext* context, const ConnectOptions* rdpOptions)
+	static BOOL LoadStaticChannelAddin(rdpChannels* channels,
+		rdpSettings* settings, const char* name,
+		void* data)
+	{
+		PVIRTUALCHANNELENTRY entry = NULL;
+		PVIRTUALCHANNELENTRY pvce = freerdp_load_channel_addin_entry(
+			name, NULL, NULL, FREERDP_ADDIN_CHANNEL_STATIC | FREERDP_ADDIN_CHANNEL_ENTRYEX);
+		PVIRTUALCHANNELENTRYEX pvceex = WINPR_FUNC_PTR_CAST(pvce, PVIRTUALCHANNELENTRYEX);
+
+		if (!pvceex)
+			entry =
+			freerdp_load_channel_addin_entry(name, NULL, NULL, FREERDP_ADDIN_CHANNEL_STATIC);
+
+		if (pvceex)
+		{
+			if (freerdp_channels_client_load_ex(channels, settings, pvceex, data) == 0)
+			{
+				DT_TRACE(L"loading channelEx %s", name);
+				return TRUE;
+			}
+		}
+		else if (entry)
+		{
+			if (freerdp_channels_client_load(channels, settings, entry, data) == 0)
+			{
+				DT_TRACE(L"loading channel %s", name);
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
+	BOOL AddStaticChannel(rdpSettings* settings, size_t count, const char* const* params)
+	{
+		ADDIN_ARGV* _args = NULL;
+
+		if (!settings || !params || !params[0] || (count > INT_MAX))
+			return FALSE;
+
+		if (freerdp_static_channel_collection_find(settings, params[0]))
+			return TRUE;
+
+		_args = freerdp_addin_argv_new(count, params);
+
+		if (!_args)
+			return FALSE;
+
+		if (!freerdp_static_channel_collection_add(settings, _args))
+		{
+			freerdp_addin_argv_free(_args);
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	static BOOL LoadChannels(rdpChannels* channels, rdpSettings* settings)
+	{
+		if (!LoadStaticChannelAddin(channels, settings, RDPDR_SVC_CHANNEL_NAME,
+			settings))
+			return FALSE;
+
+		if (!freerdp_static_channel_collection_find(settings, RDPSND_CHANNEL_NAME))
+		{
+			const char* const params[] = { RDPSND_CHANNEL_NAME, "sys:fake" };
+
+			if (!AddStaticChannel(settings, ARRAYSIZE(params), params))
+				return FALSE;
+		}
+
+		if (freerdp_settings_get_bool(settings, FreeRDP_RedirectSmartCards))
+		{
+			if (!freerdp_device_collection_find_type(settings, RDPDR_DTYP_SMARTCARD))
+			{
+				RDPDR_DEVICE* smartcard = freerdp_device_new(RDPDR_DTYP_SMARTCARD, 0, NULL);
+
+				if (!smartcard)
+					return FALSE;
+
+				if (!freerdp_device_collection_add(settings, smartcard))
+				{
+					freerdp_device_free(smartcard);
+					return FALSE;
+				}
+			}
+		}
+
+		for (UINT32 i = 0; i < freerdp_settings_get_uint32(settings, FreeRDP_StaticChannelCount); i++)
+		{
+			ADDIN_ARGV* _args = static_cast<ADDIN_ARGV*>(freerdp_settings_get_pointer_array_writable(settings,
+				FreeRDP_StaticChannelArray, i));
+
+			if (!LoadStaticChannelAddin(channels, settings, _args->argv[0], _args))
+				return FALSE;
+		}
+	}
+
+	BOOL LoadChannelsCore(freerdp* instance)
+	{
+		return LoadChannels(instance->context->channels, instance->context->settings);
+	}
+
+	BOOL PrepareRdpContext(rdpContext* context, const ConnectOptions* rdpOptions)
 	{
 		context->settings->ServerHostname = ConvToUtf8(rdpOptions->HostName);
 
@@ -140,6 +262,51 @@ namespace FreeRdpClient
 			context->settings->ColorDepth = rdpOptions->Depth;
 
 		context->settings->AllowFontSmoothing = rdpOptions->FontSmoothing;
+
+		if (rdpOptions->smartcardSettings.IsSmartCardLogon)
+		{
+			context->settings->SmartcardLogon = TRUE;
+			context->settings->PasswordIsSmartcardPin = TRUE;
+			context->settings->RedirectSmartCards = TRUE;
+			context->settings->DeviceRedirection = TRUE;
+			context->settings->KeySpec = 1;
+
+			context->settings->ReaderName = ConvToUtf8(rdpOptions->smartcardSettings.ReaderName);
+			context->settings->CspName = ConvToUtf8(rdpOptions->smartcardSettings.CspName);
+			context->settings->ContainerName = ConvToUtf8(rdpOptions->smartcardSettings.ContainerName);
+
+			context->instance->LoadChannels = LoadChannelsCore;
+
+			// Only called if multiple certificates are available for the same user
+			context->instance->ChooseSmartcard = [](freerdp* instance,
+			                                        SmartcardCertInfo** cert_list, DWORD count,
+			                                        DWORD* choice, BOOL gateway) -> BOOL 
+			{
+				auto res = false;
+				auto containerName = ConvToUtf16(instance->context->settings->ContainerName);
+					
+				for (DWORD idx = 0; idx < count; idx++)
+				{
+					if (wcscmp(cert_list[idx]->containerName, containerName) != 0)
+						continue;
+
+					*choice = idx;
+					res = true;
+					break;
+				}
+
+				delete[] containerName;
+				return res;
+			};
+
+			if (freerdp_register_addin_provider(freerdp_channels_load_static_addin_entry, 0) != CHANNEL_RC_OK)
+			{
+				DT_ERROR(L"Failed to register addin provider");
+				return FALSE;
+			}
+		}
+
+		return TRUE;
 	}
 
 	DWORD ReleaseAll(instance_data* instanceData)
@@ -276,10 +443,9 @@ namespace FreeRdpClient
 			return E_OUTOFMEMORY;
 
 		rdpContext* context = instance->context;
-		PrepareRdpContext(context, rdpOptions);
 
-		auto connectResult = freerdp_connect(instance);
-		if (connectResult)
+		if (PrepareRdpContext(context, rdpOptions)
+			&& freerdp_connect(instance))
 		{
 			_bstr_t eventName;
 			if (transport_start(context, rdpOptions, eventName))

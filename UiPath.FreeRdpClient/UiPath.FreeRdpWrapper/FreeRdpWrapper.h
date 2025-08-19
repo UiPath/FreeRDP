@@ -6,6 +6,14 @@ namespace FreeRdpClient
 {
 	typedef struct
 	{
+		BOOL IsSmartCardLogon;
+		BSTR ReaderName;
+		BSTR ContainerName;
+		BSTR CspName;
+	} SmartcardSettings;
+
+	typedef struct
+	{
 		long Width;
 		long Height;
 		long Depth;
@@ -17,6 +25,8 @@ namespace FreeRdpClient
 		BSTR ClientName;
 		BSTR HostName;
 		long Port;
+		
+		SmartcardSettings smartcardSettings;
 	} ConnectOptions;
 
 	using pFreeRdpDisconnectedCallback = void (*)(BSTR);
