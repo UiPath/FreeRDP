@@ -46,7 +46,15 @@ internal class FreeRdpClient : IFreeRdpClient
             ScopeName = connectionSettings.ScopeName,
             ClientName = connectionSettings.ClientName,
             HostName = connectionSettings.HostName,
-            Port = connectionSettings.Port ?? default
+            Port = connectionSettings.Port ?? default,
+
+            SmartcardSettings = new()
+            {
+                IsSmartCardLogon = connectionSettings.IsSmartCardLogon,
+                ReaderName = connectionSettings.ReaderName,
+                CspName = connectionSettings.CspName,
+                ContainerName = connectionSettings.ContainerName
+            },
         };
 
         using (await _initLock.LockAsync())

@@ -27,6 +27,20 @@ internal class NativeInterface
         [MarshalAs(UnmanagedType.BStr)]
         public string HostName;
         public int Port;
+
+        public SmartcardSettings SmartcardSettings;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct SmartcardSettings
+    {
+        public bool IsSmartCardLogon;
+        [MarshalAs(UnmanagedType.BStr)]
+        public string? ReaderName;
+        [MarshalAs(UnmanagedType.BStr)]
+        public string? ContainerName;
+        [MarshalAs(UnmanagedType.BStr)]
+        public string? CspName;
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
