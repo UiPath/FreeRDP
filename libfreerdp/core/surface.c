@@ -27,7 +27,7 @@
 #include <freerdp/utils/pcap.h>
 #include <freerdp/log.h>
 
-#include <freerdp/cache/cache.h>
+#include "../cache/cache.h"
 #include "surface.h"
 
 #define TAG FREERDP_TAG("core.surface")

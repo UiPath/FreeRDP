@@ -31,7 +31,7 @@
 #include <freerdp/log.h>
 
 #include "glyph.h"
-#include <freerdp/cache/cache.h>
+#include "cache.h"
 
 #define TAG FREERDP_TAG("cache.glyph")
 

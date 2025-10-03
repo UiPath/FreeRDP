@@ -39,7 +39,7 @@
 #include "../cache/palette.h"
 #include "../cache/glyph.h"
 #include "../cache/brush.h"
-#include <freerdp/cache/cache.h>
+#include "../cache/cache.h"
 
 #define TAG FREERDP_TAG("core.message")
 

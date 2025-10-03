@@ -24,13 +24,13 @@
 #include <freerdp/freerdp.h>
 #include <freerdp/pointer.h>
 
-#include "../../../libfreerdp/cache/glyph.h"
-#include "../../../libfreerdp/cache/brush.h"
-#include "../../../libfreerdp/cache/pointer.h"
-#include "../../../libfreerdp/cache/bitmap.h"
-#include "../../../libfreerdp/cache/nine_grid.h"
-#include "../../../libfreerdp/cache/offscreen.h"
-#include "../../../libfreerdp/cache/palette.h"
+#include "glyph.h"
+#include "brush.h"
+#include "pointer.h"
+#include "bitmap.h"
+#include "nine_grid.h"
+#include "offscreen.h"
+#include "palette.h"
 
 struct rdp_cache
 {

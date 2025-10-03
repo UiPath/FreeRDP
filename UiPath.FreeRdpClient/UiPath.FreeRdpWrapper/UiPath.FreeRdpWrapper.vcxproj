@@ -65,7 +65,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\libfreerdp;..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;APP_VERSION="$(AppVersion)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -91,7 +91,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\libfreerdp;..\..\include;..\..\winpr\include;..\..\Build\$(PlatformTarget)\winpr\include;..\..\Build\$(PlatformTarget)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN$(PlatformArchitecture);FREERDP_EXPORTS;_WINDOWS;_USRDLL;APP_VERSION="$(AppVersion)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <WholeProgramOptimization>false</WholeProgramOptimization>

@@ -35,4 +35,5 @@ freerdp_module_add(
   glyph.c
   glyph.h
   cache.c
+  cache.h
 )

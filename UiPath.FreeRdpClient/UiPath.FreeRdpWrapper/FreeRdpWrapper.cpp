@@ -4,7 +4,7 @@
 
 #pragma warning(disable : 4324 4201 4245 4996)
 #include <freerdp/freerdp.h>
-#include <freerdp/cache/cache.h>
+#include <cache/cache.h>
 #pragma warning(default : 4324 4201 4245 4996)
 #pragma once
 using namespace Logging;
