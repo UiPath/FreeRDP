@@ -31,8 +31,6 @@
 #include <freerdp/log.h>
 #include "xcrush.h"
 
-#define TAG FREERDP_TAG("codec")
-
 #pragma pack(push, 1)
 
 typedef struct
@@ -95,7 +93,7 @@ struct s_XCRUSH_CONTEXT
 	ALIGN64 XCRUSH_MATCH_INFO OptimizedMatches[1000];
 };
 
-// #define DEBUG_XCRUSH 1
+//#define DEBUG_XCRUSH 1
 #if defined(DEBUG_XCRUSH)
 static const char* xcrush_get_level_2_compression_flags_string(UINT32 flags)
 {
@@ -795,8 +793,6 @@ static INLINE size_t xcrush_copy_bytes(BYTE* dst, const BYTE* src, size_t num)
 		memcpy(dst, src, num);
 	else if (src != dst)
 		return xcrush_copy_bytes_no_overlap(dst, src, num);
-	else
-		WLog_WARN(TAG, "xcrush_copy_bytes overlap (src==dst) num = %d, diff = %d", num, src - dst);
 
 	return num;
 }
